@@ -5,6 +5,11 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\InstitucionController;
 use App\Http\Controllers\Api\PoaController;
 use App\Http\Controllers\Api\ProgramaController;
+use App\Http\Controllers\Api\ModuloController;
+use App\Http\Controllers\Api\UsuarioController;
+use App\Http\Controllers\Api\RolController;
+use App\Http\Controllers\Api\PantallaController;
+use App\Http\Controllers\Api\PoliticaController;
 
 Route::prefix('instituciones')->group(function () {
     Route::get('/obtenerTodasInstituciones', [InstitucionController::class, 'getInstitucionesList']);
@@ -22,4 +27,34 @@ Route::prefix('programas')->group(function () {
     Route::get('/obtenerTodosProgramas', [ProgramaController::class, 'getProgramasList']);
     Route::get('/obtenerPrograma/{id}', [ProgramaController::class, 'getPrograma']);
     Route::post('/registrarPrograma', [ProgramaController::class, 'createPrograma']);
+});
+
+Route::prefix('modulos')->group(function () {
+    Route::get('/obtenerTodosModulos', [ModuloController::class, 'getModulosList']);
+    Route::get('/obtenerModulo/{id}', [ModuloController::class, 'getModulo']);
+    Route::post('/registrarModulo', [ModuloController::class, 'createModulo']);
+});
+
+Route::prefix('usuarios')->group(function () {
+    Route::get('/obtenerTodosUsuarios', [UsuarioController::class, 'getUsuariosList']);
+    Route::get('/obtenerUsuario/{id}', [UsuarioController::class, 'getUsuario']);
+    Route::post('/registrarUsuario', [UsuarioController::class, 'createUsuario']);
+});
+
+Route::prefix('roles')->group(function () {
+    Route::get('/obtenerTodosRoles', [RolController::class, 'getRolesList']);
+    Route::get('/obtenerRol/{id}', [RolController::class, 'getRol']);
+    Route::post('/registrarRol', [RolController::class, 'createRol']);
+});
+
+Route::prefix('pantallas')->group(function () {
+    Route::get('/obtenerTodasPantallas', [PantallaController::class, 'getAllPantallas']);
+    Route::get('/obtenerPantalla/{id}', [PantallaController::class, 'getPantalla']);
+    Route::post('/registrarPantalla', [PantallaController::class, 'createPantalla']);
+});
+
+Route::prefix('politicas')->group(function () {
+    Route::get('/obtenerTodasPoliticas', [PoliticaController::class, 'getPoliticasList']);
+    Route::get('/obtenerPolitica/{id}', [PoliticaController::class, 'getPolitica']);
+    Route::post('/registrarPolitica', [PoliticaController::class, 'createPolitica']);
 });

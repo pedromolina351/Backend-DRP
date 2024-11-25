@@ -10,7 +10,7 @@ use App\Http\Requests\StoreProgramaRequest;
 class ProgramaController extends Controller
 {
     public function getProgramasList(){
-        $programas = Programa::all();
+        $programas = Programa::where('estado_programa', 1)->get();
         if ($programas->isEmpty()) {
             $data = [
                 'status' => 204,
@@ -43,6 +43,11 @@ class ProgramaController extends Controller
 
     public function createPrograma(StoreProgramaRequest $request){
         $programa = Programa::create($request->validated());
-        return response()->json($programa, 201, [], JSON_UNESCAPED_UNICODE);
+        $data = [
+            'status' => 201,
+            'message' => 'Programa creado con éxito',
+            'programa' => $programa,
+        ];
+        return response()->json($data, 201, [], JSON_UNESCAPED_UNICODE);
     }
 }

@@ -22,6 +22,7 @@ class StorePoaRequest extends FormRequest
             'codigo_institucion' => 'required|integer', //|exists:t_instituciones,codigo_institucion',
             'codigo_programa' => 'required|integer', //|exists:t_programas,codigo_programa',
             'codigo_usuario_crea' => 'required|integer', //|exists:users,id',
+            'fecha_poa' => 'required|date',
             'estado_poa' => 'required|boolean',
         ];
     }

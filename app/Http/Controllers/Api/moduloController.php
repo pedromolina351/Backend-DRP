@@ -2,52 +2,53 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\Poa;
+use App\Models\Modulo;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Http\Requests\StorePoaRequest;
+use App\Http\Requests\StoreModuloRequest;
 
-class PoaController extends Controller
+class moduloController extends Controller
 {
-    public function getPoasList(){
-        $poas = Poa::where('estado_poa', 1)->get();
-        if ($poas->isEmpty()) {
+    public function getModulosList(){
+        $modulos = Modulo::where('estado', 1)->get();
+        if ($modulos->isEmpty()) {
             $data = [
                 'status' => 204,
-                'message' => 'No hay poas registrados',
+                'message' => 'No hay modulos registrados',
             ];
             return response()->json($data, 200, [], JSON_UNESCAPED_UNICODE);
         }
         $data = [
             'status' => 200,
-            'poas' => $poas,
+            'modulos' => $modulos,
         ];
         return response()->json($data, 200, [], JSON_UNESCAPED_UNICODE);
     }
 
-    public function getPoa($codigo_poa){
-        $poa = Poa::where('codigo_poa', $codigo_poa)->where('estado_poa', 1)->first();
-        if ($poa == null) {
+    public function getModulo($codigo_modulo){
+        $modulo = Modulo::where('codigo_modulo', $codigo_modulo)->where('estado', 1)->first();
+        if ($modulo == null) {
             $data = [
                 'status' => 404,
-                'message' => 'Poa no encontrado',
+                'message' => 'Modulo no encontrado',
             ];
             return response()->json($data, 404, [], JSON_UNESCAPED_UNICODE);
         }
         $data = [
             'status' => 200,
-            'poa' => $poa,
+            'modulo' => $modulo,
         ];
         return response()->json($data, 200, [], JSON_UNESCAPED_UNICODE);
     }
 
-    public function createPoa(StorePoaRequest $request){
-        $poa = Poa::create($request->validated());
+    public function createModulo(StoreModuloRequest $request){
+        $modulo = Modulo::create($request->validated());
         $data = [
             'status' => 201,
-            'message' => 'Poa creado con éxito',
-            'poa' => $poa,
+            'message' => 'Modulo creado con éxito',
+            'modulo' => $modulo,
         ];
         return response()->json($data, 201, [], JSON_UNESCAPED_UNICODE);
     }
+   
 }

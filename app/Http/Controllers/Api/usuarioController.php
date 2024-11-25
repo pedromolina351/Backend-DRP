@@ -2,52 +2,55 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\Poa;
+use App\Models\Usuario;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Http\Requests\StorePoaRequest;
+use App\Http\Requests\StoreUsuarioRequest;
 
-class PoaController extends Controller
+
+class usuarioController extends Controller
 {
-    public function getPoasList(){
-        $poas = Poa::where('estado_poa', 1)->get();
-        if ($poas->isEmpty()) {
+    public function getUsuariosList(){
+        $usuarios = Usuario::where('estado', 1)->get();
+        if ($usuarios->isEmpty()) {
             $data = [
                 'status' => 204,
-                'message' => 'No hay poas registrados',
+                'message' => 'No hay usuarios registrados',
             ];
             return response()->json($data, 200, [], JSON_UNESCAPED_UNICODE);
         }
         $data = [
             'status' => 200,
-            'poas' => $poas,
+            'usuarios' => $usuarios,
         ];
         return response()->json($data, 200, [], JSON_UNESCAPED_UNICODE);
     }
 
-    public function getPoa($codigo_poa){
-        $poa = Poa::where('codigo_poa', $codigo_poa)->where('estado_poa', 1)->first();
-        if ($poa == null) {
+    public function getUsuario($codigo_usuario){
+        $usuario = Usuario::where('codigo_usuario', $codigo_usuario)->where('estado', 1)->first();
+        if ($usuario == null) {
             $data = [
                 'status' => 404,
-                'message' => 'Poa no encontrado',
+                'message' => 'Usuario no encontrado',
             ];
             return response()->json($data, 404, [], JSON_UNESCAPED_UNICODE);
         }
         $data = [
             'status' => 200,
-            'poa' => $poa,
+            'usuario' => $usuario,
         ];
         return response()->json($data, 200, [], JSON_UNESCAPED_UNICODE);
     }
 
-    public function createPoa(StorePoaRequest $request){
-        $poa = Poa::create($request->validated());
+    public function createUsuario(StoreUsuarioRequest $request){
+        $usuario = Usuario::create($request->validated());
         $data = [
             'status' => 201,
-            'message' => 'Poa creado con éxito',
-            'poa' => $poa,
+            'message' => 'Usuario creado con éxito',
+            'usuario' => $usuario,
         ];
         return response()->json($data, 201, [], JSON_UNESCAPED_UNICODE);
     }
+
+
 }

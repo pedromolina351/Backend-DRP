@@ -11,12 +11,13 @@ class StoreProgramaRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
 
     public function rules(): array
     {
+        $fechaActual = date('d-m-Y');
         return [
             'nombre_programa' => 'required|string|max:50',
             'descripcion_programa' => 'required|string|max:255',

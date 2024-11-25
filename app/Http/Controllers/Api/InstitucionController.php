@@ -45,6 +45,11 @@ class InstitucionController extends Controller
 
     public function createInstitucion(StoreInstitucionRequest $request){
         $institucion = Institucion::create($request->validated());
-        return response()->json($institucion, 201, [], JSON_UNESCAPED_UNICODE);
+        $data = [
+            "status" => 201,
+            "message" => "Institución creada con éxito",
+            "institucion" => $institucion,
+        ];
+        return response()->json($data, 201, [], JSON_UNESCAPED_UNICODE);
     }
 }
