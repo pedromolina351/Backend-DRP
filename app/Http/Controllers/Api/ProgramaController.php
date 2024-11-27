@@ -6,6 +6,7 @@ use App\Models\Programa;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreProgramaRequest;
+use Illuminate\Support\Facades\DB;
 
 class ProgramaController extends Controller
 {
@@ -49,5 +50,37 @@ class ProgramaController extends Controller
             'programa' => $programa,
         ];
         return response()->json($data, 201, [], JSON_UNESCAPED_UNICODE);
+    }
+
+    public function deactivatePrograma($codigo_programa){
+        try {
+            // Validar si el POA existe y está activo
+            $poa = DB::table('t_programas')->where('codigo_programa', $codigo_programa)->where('estado_programa', 1)->first();
+
+            if (!$poa) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "El Programa con código $codigo_programa no existe o ya está desactivado."
+                ], 404);
+            }
+
+            // Ejecutar el procedimiento almacenado
+            DB::statement('EXEC sp_Delete_t_programas :codigo_programa', [
+                'codigo_programa' => $codigo_programa
+            ]);
+
+            // Respuesta de éxito
+            return response()->json([
+                'success' => true,
+                'message' => "El Programa con código $codigo_programa fue desactivado exitosamente."
+            ], 200);
+        } catch (\Exception $e) {
+            // Manejo de errores
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al intentar desactivar el Programa.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }

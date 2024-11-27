@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\Poa;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Http\Requests\StorePoaRequest;
 
 class PoaController extends Controller
@@ -49,5 +49,37 @@ class PoaController extends Controller
             'poa' => $poa,
         ];
         return response()->json($data, 201, [], JSON_UNESCAPED_UNICODE);
+    }
+
+    public function deactivatePoa($codigo_poa){
+        try {
+            // Validar si el POA existe y está activo
+            $poa = DB::table('poa_t_poas')->where('codigo_poa', $codigo_poa)->where('estado_poa', 1)->first();
+
+            if (!$poa) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "El POA con código $codigo_poa no existe o ya está desactivado."
+                ], 404);
+            }
+
+            // Ejecutar el procedimiento almacenado
+            DB::statement('EXEC sp_Delete_poa_t_poas :codigo_poa', [
+                'codigo_poa' => $codigo_poa
+            ]);
+
+            // Respuesta de éxito
+            return response()->json([
+                'success' => true,
+                'message' => "El POA con código $codigo_poa fue desactivado exitosamente."
+            ], 200);
+        } catch (\Exception $e) {
+            // Manejo de errores
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al intentar desactivar el POA.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }

@@ -55,5 +55,4 @@ class PoliticaController extends Controller
         return response()->json($result, 201, [], JSON_UNESCAPED_UNICODE);
     }
 
-
 }

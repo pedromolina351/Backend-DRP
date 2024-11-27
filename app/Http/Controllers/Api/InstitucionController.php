@@ -6,6 +6,7 @@ use App\Models\Institucion;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 use App\Http\Requests\StoreInstitucionRequest;
 
 class InstitucionController extends Controller
@@ -51,5 +52,35 @@ class InstitucionController extends Controller
             "institucion" => $institucion,
         ];
         return response()->json($data, 201, [], JSON_UNESCAPED_UNICODE);
+    }
+
+    public function deactivateInstitucion($codigo_institucion){
+        try {
+            $institucion = DB::table('t_instituciones')->where('codigo_institucion', $codigo_institucion)->where('estado_institucion', 1)->first();
+
+            if (!$institucion) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "La institución con código $codigo_institucion no existe o ya está desactivada."
+                ], 404);
+            }
+
+            DB::statement('EXEC sp_Delete_t_instituciones :id_institucion', [
+                'id_institucion' => $codigo_institucion
+            ]);
+
+            // Respuesta de éxito
+            return response()->json([
+                'success' => true,
+                'message' => "La institución con código $codigo_institucion fue desactivada exitosamente."
+            ], 200);
+        } catch (\Exception $e) {
+            // Manejo de errores
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al intentar desactivar la institución.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }
