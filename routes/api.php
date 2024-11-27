@@ -16,21 +16,21 @@ Route::prefix('instituciones')->group(function () {
     Route::get('/obtenerTodasInstituciones', [InstitucionController::class, 'getInstitucionesList']);
     Route::get('/obtenerInstitucion/{id}', [InstitucionController::class, 'getInstitucion']);
     Route::post('/registrarInstitucion', [InstitucionController::class, 'createInstitucion']);
-    Route::delete('/desactivarInstitucion/{id}', [InstitucionController::class, 'deactivateInstitucion']);
+    Route::put('/desactivarInstitucion/{id}', [InstitucionController::class, 'deactivateInstitucion']);
 });
 
 Route::prefix('poas')->group(function () {
     Route::get('/obtenerTodosPoas', [PoaController::class, 'getPoasList']);
     Route::get('/obtenerPoa/{id}', [PoaController::class, 'getPoa']);
     Route::post('/registrarPoa', [PoaController::class, 'createPoa']);
-    Route::delete('/desactivarPoa/{id}', [PoaController::class, 'deactivatePoa']);
+    Route::put('/desactivarPoa/{id}', [PoaController::class, 'deactivatePoa']);
 });
 
 Route::prefix('programas')->group(function () {
     Route::get('/obtenerTodosProgramas', [ProgramaController::class, 'getProgramasList']);
     Route::get('/obtenerPrograma/{id}', [ProgramaController::class, 'getPrograma']);
     Route::post('/registrarPrograma', [ProgramaController::class, 'createPrograma']);
-    Route::delete('/desactivarPrograma/{id}', [ProgramaController::class, 'deactivatePrograma']);
+    Route::put('/desactivarPrograma/{id}', [ProgramaController::class, 'deactivatePrograma']);
 });
 
 Route::prefix('modulos')->group(function () {
