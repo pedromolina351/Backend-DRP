@@ -1,18 +1,15 @@
 [phases.setup]
 commands = [
-  # Instalar dependencias básicas
   "apt-get update && apt-get install -y gnupg2 unixodbc unixodbc-dev libgssapi-krb5-2 curl lsb-release apt-transport-https libssl-dev ca-certificates",
-
-  # Agregar clave y repositorio de Microsoft
   "curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add -",
   "curl https://packages.microsoft.com/config/ubuntu/22.04/prod.list -o /etc/apt/sources.list.d/mssql-release.list",
-
-  # Actualizar repositorios e instalar drivers de SQL Server
   "apt-get update && ACCEPT_EULA=Y apt-get install -y msodbcsql18 mssql-tools18",
-
-  # Actualizar canal PECL
-  "pecl channel-update pecl.php.net"
+  "pecl channel-update pecl.php.net",
+  
+  # Copiar archivos al contenedor
+  "cp -R . /app"
 ]
+
 
 [phases.install]
 commands = [
@@ -21,6 +18,8 @@ commands = [
   "docker-php-ext-enable pdo_sqlsrv sqlsrv",
 
   # Instalar dependencias de Laravel
+  "chown -R www-data:www-data /app",
+  "chmod -R 755 /app",
   "composer install --no-dev --optimize-autoloader",
   "npm install --production"
 ]
