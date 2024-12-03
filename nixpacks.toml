@@ -15,21 +15,21 @@ commands = [
 commands = [
   "php --ini",
   # Descargar el paquete pdo_sqlsrv
-  
-  #"curl -O https://pecl.php.net/get/pdo_sqlsrv-5.12.0.tgz",
-  #"tar -xzf pdo_sqlsrv-5.12.0.tgz",
-  #"cd pdo_sqlsrv-5.12.0 && phpize && ./configure && make && make install",
+  "curl -O https://pecl.php.net/get/pdo_sqlsrv-5.12.0.tgz",
+  "tar -xzf pdo_sqlsrv-5.12.0.tgz",
+  "cd pdo_sqlsrv-5.12.0 && phpize && ./configure && make && make install",
   
   # Crear archivo para habilitar la extensión
-  #"echo 'extension=pdo_sqlsrv.so' > /etc/php/8.2/cli/conf.d/20-pdo_sqlsrv.ini",
+  "echo 'extension=pdo_sqlsrv.so' > /nix/store/b2firg72rd7mjry2vlw7shhzqxhdzic9-php-with-extensions-8.2.22/lib/php.ini",
 
   # Descargar el paquete sqlsrv
-  #"curl -O https://pecl.php.net/get/sqlsrv-5.12.0.tgz",
-  #"tar -xzf sqlsrv-5.12.0.tgz",
-  #"cd sqlsrv-5.12.0 && phpize && ./configure && make && make install",
+  "curl -O https://pecl.php.net/get/sqlsrv-5.12.0.tgz",
+  "tar -xzf sqlsrv-5.12.0.tgz",
+  "cd sqlsrv-5.12.0 && phpize && ./configure && make && make install",
   
   # Crear archivo para habilitar la extensión
-  #"echo 'extension=sqlsrv.so' > /etc/php/8.2/cli/conf.d/20-sqlsrv.ini",
+  "echo 'extension=sqlsrv.so' >> /nix/store/b2firg72rd7mjry2vlw7shhzqxhdzic9-php-with-extensions-8.2.22/lib/php.ini",
+
 
   # Instalar dependencias de Laravel
   "mkdir -p /var/log/nginx && mkdir -p /var/cache/nginx",
