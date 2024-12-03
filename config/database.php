@@ -42,7 +42,7 @@ return [
             'charset' => env('DB_CHARSET', 'utf-8'),
             'prefix' => '',
             'prefix_indexes' => true,
-             'encrypt' => env('false'),
+             'encrypt' => env('true'),
              'trust_server_certificate' => env('false'),
         ]
 
