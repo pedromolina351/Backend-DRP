@@ -36,12 +36,6 @@ commands = [
   # Instalar dependencias de Laravel
   "mkdir -p /var/log/nginx && mkdir -p /var/cache/nginx",
   "composer install --ignore-platform-reqs",
-  "npm ci"
-]
-
-[phases.build]
-commands = [
-  "php artisan config:cache",
-  "php artisan route:cache",
-  "npm run build"
+  "npm ci",
+  "php -m | grep filter"
 ]
