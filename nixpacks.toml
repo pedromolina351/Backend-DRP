@@ -30,7 +30,8 @@ commands = [
   
   # Crear archivo para habilitar la extensión
   "echo 'extension=sqlsrv.so' >> /nix/store/b2firg72rd7mjry2vlw7shhzqxhdzic9-php-with-extensions-8.2.22/lib/php.ini",
-
+  
+  "echo 'extension=filter.so' > /nix/store/b2firg72rd7mjry2vlw7shhzqxhdzic9-php-with-extensions-8.2.22/lib/php.ini",
   # Instalar dependencias de Laravel
   "mkdir -p /var/log/nginx && mkdir -p /var/cache/nginx",
   "composer install --ignore-platform-reqs",
