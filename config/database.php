@@ -43,7 +43,7 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
              'encrypt' => env('false'),
-             'trust_server_certificate' => env('true'),
+             'trust_server_certificate' => env('false'),
         ]
 
     ],
