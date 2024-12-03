@@ -1,7 +1,7 @@
 [phases.setup]
 commands = [
   # Instalar dependencias necesarias
-  "apt-get update && apt-get install -y gnupg2 unixodbc unixodbc-dev libgssapi-krb5-2 curl lsb-release apt-transport-https libssl-dev build-essential autoconf php-dev",
+  "apt-get update && apt-get install -y gnupg2 unixodbc unixodbc-dev libgssapi-krb5-2 curl lsb-release apt-transport-https libssl-dev ca-certificates build-essential autoconf php-dev",
   
   # Agregar clave y repositorio de Microsoft
   "curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add -",
@@ -12,8 +12,8 @@ commands = [
   "apt-get update && apt-get install -y php-common php-cli",
 
   "curl -o /etc/ssl/certs/ca-certificates.crt https://curl.se/ca/cacert.pem",
-  "export SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt"
-
+  "export SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt",
+  "cat /etc/ssl/certs/ca-certificates.crt"
 ]
 
 [phases.install]
