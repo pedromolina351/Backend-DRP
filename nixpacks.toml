@@ -1,8 +1,13 @@
 [phases.setup]
 commands = [
-  "apt-get update && apt-get install -y gnupg2 unixodbc unixodbc-dev libgssapi-krb5-2 curl lsb-release apt-transport-https libssl-dev ca-certificates build-essential autoconf",
+  # Instalar dependencias necesarias
+  "apt-get update && apt-get install -y gnupg2 unixodbc unixodbc-dev libgssapi-krb5-2 curl lsb-release apt-transport-https libssl-dev ca-certificates build-essential autoconf php-dev",
+  
+  # Agregar clave y repositorio de Microsoft
   "curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add -",
   "curl https://packages.microsoft.com/config/ubuntu/22.04/prod.list -o /etc/apt/sources.list.d/mssql-release.list",
+  
+  # Actualizar repositorios e instalar drivers de SQL Server
   "apt-get update && ACCEPT_EULA=Y apt-get install -y msodbcsql18 mssql-tools18"
 ]
 
@@ -21,5 +26,21 @@ commands = [
   "cd sqlsrv-5.12.0 && phpize && ./configure && make && make install",
   # Habilitar la extensión
   "docker-php-ext-enable sqlsrv",
+
+  # Instalar dependencias de Laravel
+  "mkdir -p /var/log/nginx && mkdir -p /var/cache/nginx",
+  "composer install --ignore-platform-reqs",
+  "npm ci"
 ]
 
+[phases.build]
+commands = [
+  # Cache de configuración de Laravel
+  "npm run build"
+]
+
+[phases.start]
+commands = [
+  # Iniciar el servidor Laravel
+  "node /assets/scripts/prestart.mjs /assets/nginx.template.conf/nginx.conf && (php-fpm -y /assets/php-fpm.conf & nginx -c /nginx.conf)"
+]
