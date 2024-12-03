@@ -13,7 +13,7 @@ try {
     $password = getenv('DB_PASSWORD');
 
     // Crear la conexión PDO
-    $dsn = "sqlsrv:Server=$host,$port;Database=$database";
+    $dsn = "sqlsrv:Server=$host,$port;Database=$database;TrustServerCertificate=true;";
     $pdo = new PDO($dsn, $username, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 

@@ -12,8 +12,7 @@ commands = [
   "apt-get update && apt-get install -y php-common php-cli",
 
   "curl -o /etc/ssl/certs/ca-certificates.crt https://curl.se/ca/cacert.pem",
-  "export SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt",
-  "cat /etc/ssl/certs/ca-certificates.crt"
+  "export SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt"
 ]
 
 [phases.install]
@@ -44,6 +43,6 @@ commands = [
   "mkdir -p /var/log/nginx && mkdir -p /var/cache/nginx",
   "composer install --ignore-platform-reqs",
   "npm ci",
-  "php -m | grep filter",
-  "php -m | grep sqlsrv"
+  "php -m | grep sqlsrv",
+  "odbcinst -q -d"
 ]

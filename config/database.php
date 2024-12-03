@@ -42,8 +42,6 @@ return [
             'charset' => env('DB_CHARSET', 'utf-8'),
             'prefix' => '',
             'prefix_indexes' => true,
-            'encrypt' => env('DB_ENCRYPT', true),
-            'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE', true),
         ]
     ],
 
