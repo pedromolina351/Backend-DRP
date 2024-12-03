@@ -32,15 +32,3 @@ commands = [
   "composer install --ignore-platform-reqs",
   "npm ci"
 ]
-
-[phases.build]
-commands = [
-  # Cache de configuración de Laravel
-  "npm run build"
-]
-
-[phases.start]
-commands = [
-  # Iniciar el servidor Laravel
-  "node /assets/scripts/prestart.mjs /assets/nginx.template.conf/nginx.conf && (php-fpm -y /assets/php-fpm.conf & nginx -c /nginx.conf)"
-]
