@@ -1,0 +1,19 @@
+[phases.setup]
+commands = [
+  "apt-get update",
+  "apt-get install -y gnupg unixodbc unixodbc-dev libgssapi-krb5-2 curl",
+  "curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add -",
+  "curl https://packages.microsoft.com/config/debian/$(lsb_release -rs)/prod.list > /etc/apt/sources.list.d/mssql-release.list",
+  "apt-get update && ACCEPT_EULA=Y apt-get install -y msodbcsql18 mssql-tools18",
+  "pecl install pdo_sqlsrv sqlsrv",
+  "docker-php-ext-enable pdo_sqlsrv sqlsrv"
+]
+
+[phases.install]
+commands = ["composer install --no-dev --optimize-autoloader"]
+
+[phases.build]
+commands = ["php artisan config:cache"]
+
+[phases.start]
+commands = ["php artisan serve --host=0.0.0.0 --port=$PORT"]
