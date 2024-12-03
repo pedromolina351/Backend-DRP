@@ -21,12 +21,16 @@ commands = [
   "docker-php-ext-enable pdo_sqlsrv sqlsrv",
 
   # Instalar dependencias de Laravel
-  "composer install --no-dev --optimize-autoloader"
+  "composer install --no-dev --optimize-autoloader",
+  "npm install --production"
 ]
 
 [phases.build]
 commands = [
-  "composer install && npm install --production && php artisan optimize && php artisan config:cache && php artisan route:cache"
+  "php artisan config:cache",
+  "php artisan optimize",
+  "php artisan config:cache",
+  "php artisan route:cache"
 ]
 
 [phases.start]
