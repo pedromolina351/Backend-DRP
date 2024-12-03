@@ -1,0 +1,11 @@
+[phases.setup]
+commands = [
+  "cat /etc/os-release"
+  "apt-get update && apt-get install -y gnupg2 unixodbc unixodbc-dev libgssapi-krb5-2 curl lsb-release apt-transport-https libssl-dev ca-certificates",
+  "curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add -",
+  "curl https://packages.microsoft.com/config/ubuntu/22.04/prod.list -o /etc/apt/sources.list.d/mssql-release.list",
+  "apt-get update && ACCEPT_EULA=Y apt-get install -y msodbcsql18 mssql-tools18",
+  "pecl channel-update pecl.php.net",
+  "pecl install pdo_sqlsrv sqlsrv",
+  "docker-php-ext-enable pdo_sqlsrv sqlsrv"
+]
