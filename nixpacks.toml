@@ -41,5 +41,7 @@ commands = [
   "composer install --ignore-platform-reqs",
   "npm ci",
   "php -m | grep filter",
-  "php -m | grep sqlsrv"
+  "php -m | grep sqlsrv",
+  "odbcinst -j",
+  "find /nix/store -name ca-certificates.crt"
 ]
