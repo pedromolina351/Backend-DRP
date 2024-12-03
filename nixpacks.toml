@@ -1,3 +1,17 @@
+[phases.setup]
+commands = [
+  # Instalar dependencias necesarias
+  "apt-get update && apt-get install -y gnupg2 unixodbc unixodbc-dev libgssapi-krb5-2 curl lsb-release apt-transport-https libssl-dev ca-certificates build-essential autoconf php-dev",
+  
+  # Agregar clave y repositorio de Microsoft
+  "curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add -",
+  "curl https://packages.microsoft.com/config/ubuntu/22.04/prod.list -o /etc/apt/sources.list.d/mssql-release.list",
+  
+  # Actualizar repositorios e instalar drivers de SQL Server
+  #"apt-get update && ACCEPT_EULA=Y apt-get install -y msodbcsql18 mssql-tools18",
+  #"apt-get update && apt-get install -y php-common php-cli"
+]
+
 [phases.install]
 commands = [
   "php --ini",
