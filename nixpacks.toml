@@ -43,7 +43,7 @@ commands = [
 
 
   # Configurar SSL_CERT_FILE para apuntar al archivo dentro de /app/php-config
-  "export SSL_CERT_FILE=/app/php-config/ca-certificates.crt"
+  "export SSL_CERT_FILE=/app/php-config/ca-certificates.crt",
   
 
   # Instalar dependencias de Laravel
