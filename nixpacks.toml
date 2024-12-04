@@ -1,7 +1,7 @@
 [phases.setup]
 commands = [
   # Instalar dependencias necesarias
-  "apt-get update && apt-get install -y gnupg2 unixodbc unixodbc-dev libgssapi-krb5-2 curl lsb-release apt-transport-https libssl-dev ca-certificates build-essential autoconf php-dev",
+  "apt-get update && apt-get install -y gnupg2 openssl unixodbc unixodbc-dev libgssapi-krb5-2 curl lsb-release apt-transport-https libssl-dev ca-certificates build-essential autoconf php-dev",
   
   # Agregar clave y repositorio de Microsoft
   "curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add -",
@@ -18,14 +18,12 @@ commands = [
   # Crear un directorio para configuraciones adicionales
   "mkdir -p /app/php-config",
 
-  # Instalar las últimas versiones de sqlsrv y pdo_sqlsrv desde PECL
-  "pecl install sqlsrv",
-  "pecl install pdo_sqlsrv",
-
   # Agregar las extensiones necesarias
   "echo 'extension=filter.so' > /app/php-config/20-filter.ini",
   "echo 'extension=sqlsrv.so' > /app/php-config/20-sqlsrv.ini",
   "echo 'extension=pdo_sqlsrv.so' > /app/php-config/21-pdo_sqlsrv.ini",
+  "echo 'extension=openssl.so' > /app/php-config/21-pdo_sqlsrv.ini",
+
 
   # Descargar el certificado al directorio de configuraciones
   "curl -o /app/php-config/ca-certificates.crt https://curl.se/ca/cacert.pem",
@@ -36,6 +34,11 @@ commands = [
   # Configurar PHP para escanear este directorio
   "echo 'export PHP_INI_SCAN_DIR=/app/php-config' >> /etc/environment",
   "echo 'openssl.cafile=/app/php-config/ca-certificates.crt' >> /nix/store/b2firg72rd7mjry2vlw7shhzqxhdzic9-php-with-extensions-8.2.22/lib/php.ini",
+  "phpenmod openssl"
+
+  # Instalar las últimas versiones de sqlsrv y pdo_sqlsrv desde PECL
+  "pecl install sqlsrv",
+  "pecl install pdo_sqlsrv",
 
   # Instalar dependencias de Laravel
   "mkdir -p /var/log/nginx && mkdir -p /var/cache/nginx",
