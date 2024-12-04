@@ -30,7 +30,7 @@ commands = [
   "echo 'openssl.cafile=/app/php-config/ca-certificates.crt' > /app/php-config/30-ssl-cert.ini",
 
   # Configurar PHP para escanear este directorio
-  "export PHP_INI_SCAN_DIR=/app/php-config",
+  "echo 'export PHP_INI_SCAN_DIR=/app/php-config' >> /etc/environment",
 
   # Instalar dependencias de Laravel
   "mkdir -p /var/log/nginx && mkdir -p /var/cache/nginx",
