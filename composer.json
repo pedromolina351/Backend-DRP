@@ -9,8 +9,8 @@
         "laravel/framework": "^11.9",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.9",
-        "ext-pdo_sqlsrv": "*",
-        "ext-sqlsrv": "*"
+        "ext-pdo_sqlsrv": "^5.12",
+        "ext-sqlsrv": "^5.12"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
