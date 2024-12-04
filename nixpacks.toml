@@ -40,7 +40,7 @@ commands = [
   "npm ci",
   "php --ini",
   "php -i | grep openssl",
-  "php -m | grep sqlsrv",
+  "php -i | grep sqlsrv",
   "ls -l /app/php-config",
   "php -d PHP_INI_SCAN_DIR=/app/php-config -i | grep openssl"
 ]
