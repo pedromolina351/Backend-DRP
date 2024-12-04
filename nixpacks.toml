@@ -18,6 +18,10 @@ commands = [
   # Crear un directorio para configuraciones adicionales
   "mkdir -p /app/php-config",
 
+  # Instalar las últimas versiones de sqlsrv y pdo_sqlsrv desde PECL
+  "pecl install sqlsrv",
+  "pecl install pdo_sqlsrv",
+
   # Agregar las extensiones necesarias
   "echo 'extension=filter.so' > /app/php-config/20-filter.ini",
   "echo 'extension=sqlsrv.so' > /app/php-config/20-sqlsrv.ini",
@@ -39,8 +43,9 @@ commands = [
   "php artisan optimize",
   "npm ci",
   "php --ini",
+  "php --ri sqlsrv",
+  "php --ri pdo_sqlsrv",
+    "php -i | grep sqlsrv",
   "php -i | grep openssl",
-  "php -i | grep sqlsrv",
-  "ls -l /app/php-config",
   "php -d PHP_INI_SCAN_DIR=/app/php-config -i | grep openssl"
 ]
