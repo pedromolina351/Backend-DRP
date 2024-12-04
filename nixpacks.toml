@@ -15,9 +15,33 @@ commands = [
 
 [phases.install]
 commands = [
+  # Crear un directorio para configuraciones adicionales 
+  "mkdir -p /app/php-config", 
+  
+  # Configurar PHP para escanear este directorio 
+  "echo 'export PHP_INI_SCAN_DIR=/app/php-config' >> /etc/environment",
+
   "pecl uninstall pdo_sqlsrv sqlsrv || true",
   # Limpiar cualquier referencia anterior de Nix
   "rm -rf /nix/store/*pdo_sqlsrv* /nix/store/*sqlsrv*",
+
+  # Descargar y compilar sqlsrv versión 5.12 
+  "curl -L -o sqlsrv-5.12.0.tgz https://pecl.php.net/get/sqlsrv-5.12.0.tgz", 
+  "tar -xzf sqlsrv-5.12.0.tgz -C /tmp", 
+  "cd /tmp/sqlsrv-5.12.0 && phpize && ./configure && make && make install", 
+  
+  # Descargar y compilar pdo_sqlsrv versión 5.12 
+  "curl -L -o pdo_sqlsrv-5.12.0.tgz https://pecl.php.net/get/pdo_sqlsrv-5.12.0.tgz", 
+  "tar -xzf pdo_sqlsrv-5.12.0.tgz -C /tmp", 
+  "cd /tmp/pdo_sqlsrv-5.12.0 && phpize && ./configure && make && make install",
+
+  #Habilitar extensiones
+  "echo 'extension=sqlsrv.so' > /app/php-config/20-sqlsrv.ini",
+  "echo 'extension=pdo_sqlsrv.so' > /app/php-config/21-pdo_sqlsrv.ini",
+
+  # Configurar el LD_LIBRARY_PATH para usar las librerías correctas 
+  "echo 'export LD_LIBRARY_PATH=/usr/lib:/app/php-config' >> /etc/environment",
+
   # Instalar dependencias de Laravel
   "mkdir -p /var/log/nginx && mkdir -p /var/cache/nginx",
   "composer install --ignore-platform-reqs",
@@ -25,6 +49,6 @@ commands = [
   "php --ini",
   "php -i | grep openssl",
   "php -i | grep sqlsrv",
-  #"ls -l /app/php-config",
+  "ls -l /app/php-config",
   #"php -d PHP_INI_SCAN_DIR=/app/php-config -i | grep openssl"
 ]
