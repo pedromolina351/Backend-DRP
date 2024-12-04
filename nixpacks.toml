@@ -26,7 +26,6 @@ commands = [
   "echo 'extension=openssl.so' > /app/php-config/20-openssl.ini",
 
   "pecl channel-update pecl.php.net",
-  "pecl.php.net",
   "pecl install https://pecl.php.net/get/sqlsrv-5.12.0.tgz",
   "pecl install https://pecl.php.net/get/pdo_sqlsrv-5.12.0.tgz",
   "echo 'extension=sqlsrv.so' > /app/php-config/20-sqlsrv.ini",
