@@ -50,6 +50,5 @@ commands = [
   "mkdir -p /var/log/nginx && mkdir -p /var/cache/nginx",
   "composer install --ignore-platform-reqs",
   "npm ci",
-  "php -m | grep sqlsrv",
-  "ls /nix/store/0p6iwr6j9arbwzbwm3r34nlzy8ck82gg-openssl-3.0.14/etc/ssl/certs"
+  "php -m | grep sqlsrv"
 ]
