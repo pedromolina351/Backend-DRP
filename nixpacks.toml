@@ -33,7 +33,9 @@ commands = [
   "export PHP_INI_SCAN_DIR=/app/php-config",
 
   # Instalar dependencias de Laravel
+  "mkdir -p /var/log/nginx && mkdir -p /var/cache/nginx",
   "composer install --ignore-platform-reqs",
+  "npm ci",
   "php -i | grep openssl",
   "php -m | grep sqlsrv"
 ]
