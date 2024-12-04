@@ -13,7 +13,7 @@ try {
     $password = getenv('DB_PASSWORD');
 
     // Crear la conexión PDO
-    $dsn = "sqlsrv:Server=$host,$port;Database=$database;Encrypt=true;TrustServerCertificate=true;";
+    $dsn = "sqlsrv:Server=$host,$port;Database=$database;";
     $pdo = new PDO($dsn, $username, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
@@ -21,6 +21,3 @@ try {
 } catch (PDOException $e) {
     echo "Error al conectar a la base de datos: " . $e->getMessage();
 }
-
-$poas = DB::table('poa_t_poas')->where('estado_poa', 1)->get();
-dd($poas);
