@@ -31,6 +31,7 @@ commands = [
 
   # Configurar PHP para escanear este directorio
   "echo 'export PHP_INI_SCAN_DIR=/app/php-config' >> /etc/environment",
+  "echo "openssl.cafile=/app/php-config/ca-certificates.crt" >> /nix/store/b2firg72rd7mjry2vlw7shhzqxhdzic9-php-with-extensions-8.2.22/lib/php.ini",
 
   # Instalar dependencias de Laravel
   "mkdir -p /var/log/nginx && mkdir -p /var/cache/nginx",
