@@ -36,7 +36,7 @@ commands = [
   # Instalar dependencias de Laravel
   "mkdir -p /var/log/nginx && mkdir -p /var/cache/nginx",
   "composer install --ignore-platform-reqs",
-  "php artisan optimize"
+  "php artisan optimize",
   "npm ci",
   "php --ini",
   "php -i | grep openssl",
