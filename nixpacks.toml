@@ -10,17 +10,24 @@ commands = [
   # Actualizar repositorios e instalar drivers de SQL Server
   "apt-get update && ACCEPT_EULA=Y apt-get install -y msodbcsql18 mssql-tools18",
   "apt-get update && apt-get install -y php-common php-cli",
-  "pecl channel-update pecl.php.net",
+
+  # Descargar drivers desde el repositorio oficial de Microsoft
+  "git clone https://github.com/microsoft/msphpsql.git /tmp/msphpsql"
 ]
 
 [phases.install]
 commands = [
+  # Compilar e instalar las extensiones `sqlsrv` y `pdo_sqlsrv`
+  "cd /tmp/msphpsql && phpize && ./configure --with-php-config=/nix/store/b2firg72rd7mjry2vlw7shhzqxhdzic9-php-with-extensions-8.2.22/bin/php-config && make && make install",
+
   # Crear un directorio para configuraciones adicionales
   "mkdir -p /app/php-config",
 
   # Agregar las extensiones necesarias
   "echo 'extension=filter.so' > /app/php-config/20-filter.ini",
-  "echo 'extension=openssl.so' > /app/php-config/22-pdo_sqlsrv.ini",
+  "echo 'extension=sqlsrv.so' > /app/php-config/20-sqlsrv.ini",
+  "echo 'extension=pdo_sqlsrv.so' > /app/php-config/21-pdo_sqlsrv.ini",
+  "echo 'extension=openssl.so' > /app/php-config/21-openssl.ini",
 
   # Descargar el certificado al directorio de configuraciones
   "curl -o /app/php-config/ca-certificates.crt https://curl.se/ca/cacert.pem",
@@ -31,14 +38,6 @@ commands = [
   # Configurar PHP para escanear este directorio
   "echo 'export PHP_INI_SCAN_DIR=/app/php-config' >> /etc/environment",
   "echo 'openssl.cafile=/app/php-config/ca-certificates.crt' >> /nix/store/b2firg72rd7mjry2vlw7shhzqxhdzic9-php-with-extensions-8.2.22/lib/php.ini",
-  "phpenmod openssl",
-
-  # Instalar las últimas versiones de sqlsrv y pdo_sqlsrv desde PECL
-  "pecl install sqlsrv",
-  "pecl install pdo_sqlsrv",
-
-  "echo 'extension=sqlsrv.so' > /app/php-config/20-sqlsrv.ini",
-  "echo 'extension=pdo_sqlsrv.so' > /app/php-config/21-pdo_sqlsrv.ini",
 
   # Instalar dependencias de Laravel
   "mkdir -p /var/log/nginx && mkdir -p /var/cache/nginx",
