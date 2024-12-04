@@ -1,5 +1,5 @@
 <?php
-
+use Illuminate\Support\Facades\DB;
 // Mostrar errores en pantalla
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
@@ -21,3 +21,6 @@ try {
 } catch (PDOException $e) {
     echo "Error al conectar a la base de datos: " . $e->getMessage();
 }
+
+$poas = DB::table('poa_t_poas')->where('estado_poa', 1)->get();
+dd($poas);
