@@ -9,8 +9,7 @@ commands = [
   
   # Actualizar repositorios e instalar drivers de SQL Server
   "apt-get update && ACCEPT_EULA=Y apt-get install -y msodbcsql18 mssql-tools18",
-  "apt-get update && apt-get install -y php-common php-cli",
-
+  "apt-get update && apt-get install -y php-common php-cli"
 ]
 
 [phases.install]
@@ -20,14 +19,22 @@ commands = [
   
   # Configurar PHP para escanear este directorio
   "echo 'export PHP_INI_SCAN_DIR=/app/php-config' >> /etc/environment",
-
+  
   # Agregar las extensiones necesarias
   "echo 'extension=filter.so' > /app/php-config/20-filter.ini",
   "echo 'extension=openssl.so' > /app/php-config/20-openssl.ini",
 
-  "pecl channel-update pecl.php.net",
-  "pecl install https://pecl.php.net/get/sqlsrv-5.12.0.tgz",
-  "pecl install https://pecl.php.net/get/pdo_sqlsrv-5.12.0.tgz",
+  # Descargar y compilar sqlsrv versión 5.12
+  "curl -L -o sqlsrv-5.12.0.tgz https://pecl.php.net/get/sqlsrv-5.12.0.tgz",
+  "tar -xzf sqlsrv-5.12.0.tgz -C /tmp",
+  "cd /tmp/sqlsrv-5.12.0 && phpize && ./configure && make && make install",
+
+  # Descargar y compilar pdo_sqlsrv versión 5.12
+  "curl -L -o pdo_sqlsrv-5.12.0.tgz https://pecl.php.net/get/pdo_sqlsrv-5.12.0.tgz",
+  "tar -xzf pdo_sqlsrv-5.12.0.tgz -C /tmp",
+  "cd /tmp/pdo_sqlsrv-5.12.0 && phpize && ./configure && make && make install",
+
+  # Habilitar extensiones compiladas
   "echo 'extension=sqlsrv.so' > /app/php-config/20-sqlsrv.ini",
   "echo 'extension=pdo_sqlsrv.so' > /app/php-config/21-pdo_sqlsrv.ini",
 
@@ -37,14 +44,14 @@ commands = [
   # Configurar OpenSSL para usar el certificado descargado
   "echo 'openssl.cafile=/app/php-config/ca-certificates.crt' > /app/php-config/30-ssl-cert.ini",
 
-  #"echo 'openssl.cafile=/app/php-config/ca-certificates.crt' >> /nix/store/b2firg72rd7mjry2vlw7shhzqxhdzic9-php-with-extensions-8.2.22/lib/php.ini",
-
   # Instalar dependencias de Laravel
   "mkdir -p /var/log/nginx && mkdir -p /var/cache/nginx",
   "composer install --ignore-platform-reqs",
   "php artisan optimize",
   "service php8.2-fpm restart",
   "npm ci",
+
+  # Verificar instalación de extensiones
   "php --ini",
   "php --ri sqlsrv",
   "php --ri pdo_sqlsrv",
