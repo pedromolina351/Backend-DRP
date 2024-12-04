@@ -11,8 +11,6 @@ commands = [
   "apt-get update && ACCEPT_EULA=Y apt-get install -y msodbcsql18 mssql-tools18",
   "apt-get update && apt-get install -y php-common php-cli",
 
-  "curl -o /etc/ssl/certs/ca-certificates.crt https://curl.se/ca/cacert.pem",
-  "export SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt"
 ]
 
 [phases.install]
@@ -36,13 +34,22 @@ commands = [
   "echo 'extension=sqlsrv.so' > /app/php-config/20-sqlsrv.ini",
   "echo 'extension=pdo_sqlsrv.so' > /app/php-config/20-sqlsrv.ini",
 
+  # Descargar el certificado al directorio de configuraciones
+  "curl -o /app/php-config/ca-certificates.crt https://curl.se/ca/cacert.pem",
+
+
   # Configurar PHP para escanear este directorio
   "export PHP_INI_SCAN_DIR=/app/php-config",
+
+
+  # Configurar SSL_CERT_FILE para apuntar al archivo dentro de /app/php-config
+  "export SSL_CERT_FILE=/app/php-config/ca-certificates.crt"
+  
 
   # Instalar dependencias de Laravel
   "mkdir -p /var/log/nginx && mkdir -p /var/cache/nginx",
   "composer install --ignore-platform-reqs",
   "npm ci",
   "php -m | grep sqlsrv",
-  "odbcinst -q -d"
+  "ls /nix/store/0p6iwr6j9arbwzbwm3r34nlzy8ck82gg-openssl-3.0.14/etc/ssl/certs"
 ]
