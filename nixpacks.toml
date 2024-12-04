@@ -8,7 +8,7 @@ commands = [
   "curl https://packages.microsoft.com/config/ubuntu/22.04/prod.list -o /etc/apt/sources.list.d/mssql-release.list",
   
   # Actualizar repositorios e instalar drivers de SQL Server
-  "apt-get update && ACCEPT_EULA=Y apt-get install -y msodbcsql18 mssql-tools18",
+  "apt-get update && ACCEPT_EULA=Y apt-get install -y msodbcsql17 mssql-tools17",
   "apt-get update && apt-get install -y php-common php-cli",
 
 ]
