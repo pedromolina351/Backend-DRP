@@ -16,6 +16,8 @@ commands = [
 [phases.install]
 commands = [
   "pecl uninstall pdo_sqlsrv sqlsrv || true",
+  # Limpiar cualquier referencia anterior de Nix
+  "rm -rf /nix/store/*pdo_sqlsrv* /nix/store/*sqlsrv*",
   # Instalar dependencias de Laravel
   "mkdir -p /var/log/nginx && mkdir -p /var/cache/nginx",
   "composer install --ignore-platform-reqs",
