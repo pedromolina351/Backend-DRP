@@ -18,7 +18,10 @@ RUN apt-get update && apt-get install -y \
     ca-certificates \
     build-essential \
     autoconf \
-    tzdata
+    tzdata \
+    zip \
+    unzip \
+    git
 
 # Agregar clave y repositorio de Microsoft
 RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
