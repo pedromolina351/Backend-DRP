@@ -1,5 +1,6 @@
 # Usa la imagen oficial de PHP 
 FROM ubuntu:22.04
+ENV DEBIAN_FRONTEND=noninteractive
 # Instalar dependencias necesarias 
 RUN apt-get update && apt-get install -y \
     gnupg2 \
