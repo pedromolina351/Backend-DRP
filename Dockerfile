@@ -22,8 +22,7 @@ RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
 # Actualizar repositorios e instalar drivers de SQL Server 
 RUN apt-get update && ACCEPT_EULA=Y apt-get install -y msodbcsql18 mssql-tools18 
 # Instalar las extensiones de PHP necesarias 
-RUN pecl install sqlsrv-5.12.0 pdo_sqlsrv-5.12.0 && \
-    docker-php-ext-enable sqlsrv pdo_sqlsrv
+RUN RUN pecl install sqlsrv-5.12.0 pdo_sqlsrv-5.12.0
 # Crear un directorio para configuraciones adicionales 
 RUN mkdir -p /usr/local/etc/php/conf.d 
 # Habilitar extensiones en php.ini manualmente 
