@@ -1,5 +1,5 @@
 # Usa la imagen oficial de PHP 
-FROM php:8.2-fpm 
+FROM ubuntu:22.04
 # Instalar dependencias necesarias 
 RUN apt-get update && apt-get install -y \
     gnupg2 \
