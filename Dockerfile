@@ -72,4 +72,4 @@ COPY nginx.conf /etc/nginx/nginx.conf
 # Exponer los puertos necesarios 
 EXPOSE 8080
 # Comando de inicio 
-CMD ["bash", "-c", "php-fpm & nginx -g 'daemon off;'"]
+CMD ["bash", "-c", "php-fpm -y /usr/local/etc/php-fpm.conf && nginx -g 'daemon off;'"]
