@@ -66,3 +66,8 @@ RUN npm ci
 RUN php --ini
 RUN php -i | grep openssl
 RUN php -i | grep sqlsrv
+
+# Exponer el puerto
+EXPOSE 8080
+# Comando de inicio 
+CMD ["php-fpm"]
