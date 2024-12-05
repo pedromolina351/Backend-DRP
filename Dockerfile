@@ -59,7 +59,7 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 
 # Instalar dependencias de npm
-RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - && \
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \ 
     apt-get install -y nodejs
 RUN npm ci
 
