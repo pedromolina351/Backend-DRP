@@ -21,7 +21,8 @@ RUN apt-get update && apt-get install -y \
     tzdata \
     zip \
     unzip \
-    git
+    git \
+    nginx
 
 # Agregar clave y repositorio de Microsoft
 RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
@@ -54,6 +55,12 @@ WORKDIR /var/www
 # Copiar el proyecto al contenedor
 COPY . .
 
+# Copiar el archivo de configuración de Nginx
+COPY nginx.conf /etc/nginx/nginx.conf
+
+# Crear directorio de sockets de PHP-FPM y asegurarse de que exista
+RUN mkdir -p /var/run/php
+
 # Instalar dependencias de Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader
@@ -66,10 +73,9 @@ RUN npm ci
 RUN php --ini
 RUN php -i | grep openssl
 RUN php -i | grep sqlsrv
+# Construir el proyecto
 RUN npm run build
-# Copiar el archivo de configuración de Nginx 
-COPY nginx.conf /etc/nginx/nginx.conf 
-RUN ls -l /var/run/php/php8.2-fpm.sock
+
 RUN tail -f /var/log/nginx/error.log
 # Exponer los puertos necesarios 
 EXPOSE 8080
