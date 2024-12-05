@@ -68,6 +68,6 @@ RUN php -i | grep openssl
 RUN php -i | grep sqlsrv
 
 # Exponer el puerto
-EXPOSE 8080
+EXPOSE 9000
 # Comando de inicio 
 CMD ["php-fpm"]
