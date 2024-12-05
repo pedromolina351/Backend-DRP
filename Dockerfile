@@ -66,8 +66,10 @@ RUN npm ci
 RUN php --ini
 RUN php -i | grep openssl
 RUN php -i | grep sqlsrv
-
-# Exponer el puerto
-EXPOSE 9000
+RUN npm run build
+# Copiar el archivo de configuración de Nginx 
+COPY nginx.conf /etc/nginx/nginx.conf 
+# Exponer los puertos necesarios 
+EXPOSE 8080
 # Comando de inicio 
-CMD ["php-fpm"]
+CMD ["bash", "-c", "php-fpm & nginx -g 'daemon off;'"]
