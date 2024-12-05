@@ -26,12 +26,23 @@ RUN pecl install sqlsrv-5.12.0 pdo_sqlsrv-5.12.0 && \
     docker-php-ext-enable sqlsrv pdo_sqlsrv
 # Crear un directorio para configuraciones adicionales 
 RUN mkdir -p /usr/local/etc/php/conf.d 
-# Habilitar extensiones en php.ini 
-RUN echo 'extension=sqlsrv.so' > /usr/local/etc/php/conf.d/docker-php-ext-sqlsrv.ini && \
+# Habilitar extensiones en php.ini manualmente 
+RUN echo 'extension=sqlsrv.so' > /usr/local/etc/php/conf.d/docker-php-ext-sqlsrv.ini && \ 
     echo 'extension=pdo_sqlsrv.so' > /usr/local/etc/php/conf.d/docker-php-ext-pdo_sqlsrv.ini 
 # Configurar OpenSSL para usar el certificado descargado 
-RUN curl -o /usr/local/etc/php/conf.d/ca-certificates.crt https://curl.se/ca/cacert.pem && \
-    echo 'openssl.cafile=/usr/local/etc/php/conf.d/ca-certificates.crt' > /usr/local/etc/php/conf.d/openssl.ini
+RUN curl -o /usr/local/etc/php/conf.d/ca-certificates.crt https://curl.se/ca/cacert.pem && \ 
+    echo 'openssl.cafile=/usr/local/etc/php/conf.d/ca-certificates.crt' > /usr/local/etc/php/conf.d/openssl.ini 
+# Configurar el directorio de trabajo 
+WORKDIR /var/www 
+# Copiar el proyecto al contenedor 
+COPY . . 
+# Instalar dependencias de Composer 
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer 
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader 
+# Instalar dependencias de npm 
+RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - && \ 
+    apt-get install -y nodejs RUN npm ci
+
 RUN php --ini
 RUN php -i | grep openssl
 RUN php -i | grep sqlsrv
