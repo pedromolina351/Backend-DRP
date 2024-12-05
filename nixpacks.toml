@@ -41,7 +41,8 @@ commands = [
 
   # Configurar el LD_LIBRARY_PATH para usar las librerías correctas 
   "echo 'export LD_LIBRARY_PATH=/usr/lib:/app/php-config' >> /etc/environment",
-
+  "export LD_LIBRARY_PATH=/usr/lib:/app/php-config",
+  
   # Instalar dependencias de Laravel
   "mkdir -p /var/log/nginx && mkdir -p /var/cache/nginx",
   "composer install --ignore-platform-reqs",
