@@ -3,6 +3,7 @@ FROM php:8.2-fpm
 
 # Configurar DEBIAN_FRONTEND como noninteractive para evitar la necesidad de entrada del usuario
 ENV DEBIAN_FRONTEND=noninteractive
+ENV PORT 8080
 
 # Instalar dependencias necesarias
 RUN apt-get update && apt-get install -y \
@@ -22,7 +23,8 @@ RUN apt-get update && apt-get install -y \
     zip \
     unzip \
     git \
-    nginx
+    nginx \
+    libodbc1
 
 # Agregar clave y repositorio de Microsoft
 RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
@@ -31,21 +33,12 @@ RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
 # Actualizar repositorios e instalar drivers de SQL Server
 RUN apt-get update && ACCEPT_EULA=Y apt-get install -y msodbcsql18 mssql-tools18
 
-# Instalar PEAR manualmente
-RUN curl -O https://pear.php.net/go-pear.phar && \
-    php go-pear.phar
+# Instalar extensiones de PHP necesarias usando herramientas oficiales
+RUN docker-php-ext-install -j$(nproc) mysqli pdo pdo_mysql && \
+    pecl install sqlsrv pdo_sqlsrv && \
+    docker-php-ext-enable sqlsrv pdo_sqlsrv
 
-# Instalar las extensiones de PHP necesarias
-RUN pecl install sqlsrv-5.12.0 pdo_sqlsrv-5.12.0
-
-# Crear un directorio para configuraciones adicionales
-RUN mkdir -p /usr/local/etc/php/conf.d
-
-# Habilitar extensiones en php.ini manualmente
-RUN echo 'extension=sqlsrv.so' > /usr/local/etc/php/conf.d/docker-php-ext-sqlsrv.ini && \
-    echo 'extension=pdo_sqlsrv.so' > /usr/local/etc/php/conf.d/docker-php-ext-pdo_sqlsrv.ini
-
-# Configurar OpenSSL para usar el certificado descargado
+# Configurar certificados SSL
 RUN curl -o /usr/local/etc/php/conf.d/ca-certificates.crt https://curl.se/ca/cacert.pem && \
     echo 'openssl.cafile=/usr/local/etc/php/conf.d/ca-certificates.crt' > /usr/local/etc/php/conf.d/openssl.ini
 
@@ -58,26 +51,26 @@ COPY . .
 # Copiar el archivo de configuración de Nginx
 COPY nginx.conf /etc/nginx/nginx.conf
 
-# Crear directorio de sockets de PHP-FPM y asegurarse de que exista
-RUN mkdir -p /var/run/php
+# Configurar permisos para los logs de Nginx
+RUN chmod -R 777 /var/log/nginx
 
-# Instalar dependencias de Composer
+# Instalar Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-RUN composer install --no-interaction --prefer-dist --optimize-autoloader
+RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
 
-# Instalar dependencias de npm
-RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \ 
-    apt-get install -y nodejs
+# Instalar Node.js y dependencias de npm
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && apt-get install -y nodejs
 RUN npm ci
 
 RUN php --ini
 RUN php -i | grep openssl
 RUN php -i | grep sqlsrv
-# Construir el proyecto
+
+# Construir el proyecto con npm
 RUN npm run build
 
-RUN tail -f /var/log/nginx/error.log
-# Exponer los puertos necesarios 
-EXPOSE 8080
-# Comando de inicio 
-CMD ["bash", "-c", "php-fpm -y /usr/local/etc/php-fpm.conf && nginx -g 'daemon off;'"]
+# Exponer el puerto configurado
+EXPOSE $PORT
+
+# Comando de inicio
+CMD php-fpm -F & nginx -g "daemon off;"
