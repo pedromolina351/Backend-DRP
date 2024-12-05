@@ -15,6 +15,9 @@ commands = [
 
 [phases.install]
 commands = [
+  # Desactivar las referencias automáticas de Nix 
+  "echo 'disable nix settings' > /etc/environment",
+
   # Crear un directorio para configuraciones adicionales 
   "mkdir -p /app/php-config", 
   
