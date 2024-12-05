@@ -20,6 +20,7 @@ commands = [
   
   # Configurar PHP para escanear este directorio 
   "echo 'export PHP_INI_SCAN_DIR=/app/php-config' >> /etc/environment",
+  "export PHP_INI_SCAN_DIR=/app/php-config",
 
   "pecl uninstall pdo_sqlsrv sqlsrv || true",
   # Limpiar cualquier referencia anterior de Nix
@@ -40,7 +41,7 @@ commands = [
   "echo 'extension=pdo_sqlsrv.so' > /app/php-config/21-pdo_sqlsrv.ini",
 
   # Configurar el LD_LIBRARY_PATH para usar las librerías correctas 
-  "echo 'export LD_LIBRARY_PATH=/usr/lib:/app/php-config' >> /etc/environment",
+  "echo 'export LD_LIBRARY_PATH=/usr/lib:/app/php-config' >> /etc/environment", 
   "export LD_LIBRARY_PATH=/usr/lib:/app/php-config",
   
   # Instalar dependencias de Laravel
