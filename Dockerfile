@@ -18,8 +18,6 @@ RUN apt-get update && apt-get install -y \
     ca-certificates \
     build-essential \
     autoconf \
-    php-dev \
-    php-pear \
     tzdata
 
 # Agregar clave y repositorio de Microsoft
@@ -28,6 +26,10 @@ RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
 
 # Actualizar repositorios e instalar drivers de SQL Server
 RUN apt-get update && ACCEPT_EULA=Y apt-get install -y msodbcsql18 mssql-tools18
+
+# Instalar PEAR manualmente
+RUN curl -O https://pear.php.net/go-pear.phar && \
+    php go-pear.phar
 
 # Instalar las extensiones de PHP necesarias
 RUN pecl install sqlsrv-5.12.0 pdo_sqlsrv-5.12.0
