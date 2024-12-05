@@ -69,6 +69,8 @@ RUN php -i | grep sqlsrv
 RUN npm run build
 # Copiar el archivo de configuración de Nginx 
 COPY nginx.conf /etc/nginx/nginx.conf 
+RUN ls -l /var/run/php/php8.2-fpm.sock
+RUN tail -f /var/log/nginx/error.log
 # Exponer los puertos necesarios 
 EXPOSE 8080
 # Comando de inicio 
