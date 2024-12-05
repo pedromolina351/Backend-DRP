@@ -26,6 +26,9 @@ RUN apt-get update && apt-get install -y \
     nginx \
     libodbc1
 
+# Crear el usuario nginx
+RUN adduser --system --no-create-home --disabled-login --group nginx
+
 # Agregar clave y repositorio de Microsoft
 RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
     curl https://packages.microsoft.com/config/ubuntu/22.04/prod.list -o /etc/apt/sources.list.d/mssql-release.list
@@ -74,3 +77,4 @@ EXPOSE $PORT
 
 # Comando de inicio
 CMD php-fpm -F & nginx -g "daemon off;"
+
