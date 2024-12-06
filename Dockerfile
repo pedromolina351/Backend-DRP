@@ -31,8 +31,7 @@ RUN mkdir -p /var/run/php && \
     chown www-data:www-data /var/run/php
 
 # Configurar permisos para Laravel
-RUN mkdir -p /var/www/storage /var/www/bootstrap/cache && \
-    chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache && \
+RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache && \
     chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 
 # Configurar PHP para cargar un archivo php.ini
@@ -78,6 +77,12 @@ RUN npm ci
 
 # Construir el proyecto con npm
 RUN npm run build
+
+# Limpiar caché de Laravel
+RUN php artisan config:clear && \
+    php artisan cache:clear && \
+    php artisan view:clear && \
+    php artisan route:clear
 
 # Verificar configuración de PHP-FPM
 RUN php-fpm --test || echo "Error en configuración de PHP-FPM"
