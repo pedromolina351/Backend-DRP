@@ -56,6 +56,9 @@ RUN docker-php-ext-install -j$(nproc) mysqli pdo pdo_mysql && \
 RUN curl -o /usr/local/etc/php/conf.d/ca-certificates.crt https://curl.se/ca/cacert.pem && \
     echo 'openssl.cafile=/usr/local/etc/php/conf.d/ca-certificates.crt' > /usr/local/etc/php/conf.d/openssl.ini
 
+# Verificar configuración de PHP-FPM
+RUN php-fpm --test || echo "Error en configuración de PHP-FPM"
+
 # Configurar el directorio de trabajo
 WORKDIR /var/www
 
@@ -76,12 +79,12 @@ RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoload
 RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && apt-get install -y nodejs
 RUN npm ci
 
+# Construir el proyecto con npm
+RUN npm run build
+
 # Verificar configuración de PHP y socket
 RUN php --ini
 RUN ls -la /var/run/php/php8.2-fpm.sock || echo "Socket no creado"
-
-# Construir el proyecto con npm
-RUN npm run build
 
 # Exponer el puerto configurado
 EXPOSE $PORT
