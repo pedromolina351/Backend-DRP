@@ -76,12 +76,6 @@ RUN npm ci
 # Construir el proyecto con npm
 RUN npm run build
 
-# Limpiar caché de Laravel
-RUN php artisan config:clear && \
-    php artisan cache:clear && \
-    php artisan view:clear && \
-    php artisan route:clear
-
 # Verificar configuración de PHP-FPM
 RUN php-fpm --test || echo "Error en configuración de PHP-FPM"
 
