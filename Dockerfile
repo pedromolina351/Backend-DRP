@@ -26,6 +26,22 @@ RUN apt-get update && apt-get install -y \
     nginx \
     libodbc1
 
+# Agregar clave y repositorio de Microsoft
+RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
+    curl https://packages.microsoft.com/config/ubuntu/22.04/prod.list -o /etc/apt/sources.list.d/mssql-release.list
+
+# Actualizar repositorios e instalar drivers de SQL Server
+RUN apt-get update && ACCEPT_EULA=Y apt-get install -y msodbcsql18 mssql-tools18
+
+# Instalar extensiones de PHP necesarias usando herramientas oficiales
+RUN docker-php-ext-install -j$(nproc) mysqli pdo pdo_mysql && \
+    pecl install sqlsrv pdo_sqlsrv && \
+    docker-php-ext-enable sqlsrv pdo_sqlsrv
+
+# Configurar certificados SSL
+RUN curl -o /usr/local/etc/php/conf.d/ca-certificates.crt https://curl.se/ca/cacert.pem && \
+    echo 'openssl.cafile=/usr/local/etc/php/conf.d/ca-certificates.crt' > /usr/local/etc/php/conf.d/openssl.ini
+
 # Crear directorio necesario para el socket de PHP-FPM
 RUN mkdir -p /var/run/php && \
     chown www-data:www-data /var/run/php
