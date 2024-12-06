@@ -26,6 +26,20 @@ RUN apt-get update && apt-get install -y \
     nginx \
     libodbc1
 
+# Crear directorio necesario para el socket de PHP-FPM
+RUN mkdir -p /var/run/php && \
+    chown www-data:www-data /var/run/php
+
+# Configurar PHP-FPM para usar el socket
+RUN sed -i 's|^listen =.*|listen = /var/run/php/php8.2-fpm.sock|' /usr/local/etc/php-fpm.d/www.conf && \
+    sed -i 's|^user =.*|user = www-data|' /usr/local/etc/php-fpm.d/www.conf && \
+    sed -i 's|^group =.*|group = www-data|' /usr/local/etc/php-fpm.d/www.conf
+
+# Configurar PHP para cargar un archivo php.ini
+RUN cp /usr/local/etc/php/php.ini-production /usr/local/etc/php/php.ini && \
+    echo "memory_limit = 512M" >> /usr/local/etc/php/php.ini && \
+    echo "max_execution_time = 120" >> /usr/local/etc/php/php.ini
+
 # Agregar clave y repositorio de Microsoft
 RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
     curl https://packages.microsoft.com/config/ubuntu/22.04/prod.list -o /etc/apt/sources.list.d/mssql-release.list
@@ -41,20 +55,6 @@ RUN docker-php-ext-install -j$(nproc) mysqli pdo pdo_mysql && \
 # Configurar certificados SSL
 RUN curl -o /usr/local/etc/php/conf.d/ca-certificates.crt https://curl.se/ca/cacert.pem && \
     echo 'openssl.cafile=/usr/local/etc/php/conf.d/ca-certificates.crt' > /usr/local/etc/php/conf.d/openssl.ini
-
-# Crear directorio necesario para el socket de PHP-FPM
-RUN mkdir -p /var/run/php && \
-    chown www-data:www-data /var/run/php
-
-# Configurar PHP-FPM para usar el socket
-RUN sed -i 's|^listen =.*|listen = /var/run/php/php8.2-fpm.sock|' /usr/local/etc/php-fpm.d/www.conf && \
-    sed -i 's|^user =.*|user = www-data|' /usr/local/etc/php-fpm.d/www.conf && \
-    sed -i 's|^group =.*|group = www-data|' /usr/local/etc/php-fpm.d/www.conf
-
-# Copiar y configurar un archivo php.ini
-RUN cp /usr/local/etc/php/php.ini-production /usr/local/etc/php/php.ini && \
-    echo "memory_limit = 512M" >> /usr/local/etc/php/php.ini && \
-    echo "max_execution_time = 120" >> /usr/local/etc/php/php.ini
 
 # Configurar el directorio de trabajo
 WORKDIR /var/www
@@ -76,12 +76,12 @@ RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoload
 RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && apt-get install -y nodejs
 RUN npm ci
 
-# Construir el proyecto con npm
-RUN npm run build
-
 # Verificar configuración de PHP y socket
 RUN php --ini
 RUN ls -la /var/run/php/php8.2-fpm.sock || echo "Socket no creado"
+
+# Construir el proyecto con npm
+RUN npm run build
 
 # Exponer el puerto configurado
 EXPOSE $PORT
