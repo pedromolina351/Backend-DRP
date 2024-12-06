@@ -79,5 +79,7 @@ RUN npm run build
 # Exponer el puerto configurado
 EXPOSE $PORT
 
+RUN cat /usr/local/etc/php-fpm.d/www.conf
+
 # Comando de inicio
 CMD php-fpm -F & nginx -g "daemon off;"
