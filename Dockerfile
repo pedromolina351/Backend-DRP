@@ -79,7 +79,5 @@ RUN npm run build
 # Exponer el puerto configurado
 EXPOSE $PORT
 
-RUN cat /etc/php/8.2/fpm/pool.d/www.conf
-
 # Comando de inicio
 CMD php-fpm -F & nginx -g "daemon off;"
