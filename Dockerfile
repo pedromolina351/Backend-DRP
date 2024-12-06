@@ -30,6 +30,11 @@ RUN apt-get update && apt-get install -y \
 RUN mkdir -p /var/run/php && \
     chown www-data:www-data /var/run/php
 
+# Configurar permisos para Laravel
+RUN mkdir -p /var/www/storage /var/www/bootstrap/cache && \
+    chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache && \
+    chmod -R 775 /var/www/storage /var/www/bootstrap/cache
+
 # Configurar PHP para cargar un archivo php.ini
 RUN cp /usr/local/etc/php/php.ini-production /usr/local/etc/php/php.ini && \
     echo "memory_limit = 512M" >> /usr/local/etc/php/php.ini && \
