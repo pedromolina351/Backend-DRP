@@ -75,6 +75,9 @@ RUN npm run build
 # Exponer el puerto configurado
 EXPOSE $PORT
 
+RUN ls -la /var/run/php/php8.2-fpm.sock
+
+
 # Comando de inicio
 CMD php-fpm -F & nginx -g "daemon off;"
 
