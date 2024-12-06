@@ -26,6 +26,10 @@ RUN apt-get update && apt-get install -y \
     nginx \
     libodbc1
 
+# Crear directorio necesario para el socket de PHP-FPM
+RUN mkdir -p /var/run/php && \
+    chown www-data:www-data /var/run/php
+
 # Crear el usuario nginx
 RUN adduser --system --no-create-home --disabled-login --group nginx
 
@@ -75,9 +79,7 @@ RUN npm run build
 # Exponer el puerto configurado
 EXPOSE $PORT
 
-RUN ls -la /var/run/php/php8.2-fpm.sock
-
+RUN cat /etc/php/8.2/fpm/pool.d/www.conf
 
 # Comando de inicio
 CMD php-fpm -F & nginx -g "daemon off;"
-
