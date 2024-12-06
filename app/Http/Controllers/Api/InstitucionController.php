@@ -83,4 +83,5 @@ class InstitucionController extends Controller
             ], 500);
         }
     }
+
 }

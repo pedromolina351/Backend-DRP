@@ -11,6 +11,14 @@ use App\Http\Controllers\Api\RolController;
 use App\Http\Controllers\Api\PantallaController;
 use App\Http\Controllers\Api\PoliticaController;
 use App\Http\Controllers\Api\ObjetivoController;
+use App\Http\Controllers\Api\MetaController;
+use App\Http\Controllers\Api\IndicadorController;
+use App\Http\Controllers\Api\ObjetivoVisionPaisController;
+use App\Http\Controllers\Api\GabineteController;
+use App\Http\Controllers\Api\EjeEstrategicoController;
+use App\Http\Controllers\Api\ObjetivoPegController;
+use App\Http\Controllers\Api\ResultadoPegController;
+use App\Http\Controllers\Api\IndicadorResultadoPegController;
 
 Route::prefix('instituciones')->group(function () {
     Route::get('/obtenerTodasInstituciones', [InstitucionController::class, 'getInstitucionesList']);
@@ -31,6 +39,7 @@ Route::prefix('programas')->group(function () {
     Route::get('/obtenerPrograma/{id}', [ProgramaController::class, 'getPrograma']);
     Route::post('/registrarPrograma', [ProgramaController::class, 'createPrograma']);
     Route::put('/desactivarPrograma/{id}', [ProgramaController::class, 'deactivatePrograma']);
+    Route::get('/obtenerProgramasPorInstitucion/{id}', [ProgramaController::class, 'getProgramasByInstitucion']);
 });
 
 Route::prefix('modulos')->group(function () {
@@ -69,3 +78,40 @@ Route::prefix('objetivos')->group(function () {
     Route::post('/registrarObjetivo', [ObjetivoController::class, 'createObjetivo']);
     Route::put('/desactivarObjetivo/{id}', [ObjetivoController::class, 'deactivateObjetivo']);
 });
+
+Route::prefix('metas')->group(function () {
+    Route::get('/metasbyobjetivo/{codigo_objetivo}', [MetaController::class, 'getMetasByObjetivo']);
+    Route::get('/obtenerTodasMetas', [MetaController::class, 'getAllMetas']);
+});
+
+Route::prefix('indicadores')->group(function () {
+    Route::get('/obtenerTodosIndicadores', [IndicadorController::class, 'getAllIndicadores']);
+    Route::get('/indicadoresbymeta/{codigo_meta}', [IndicadorController::class, 'getIndicadoresByMeta']);
+});
+
+Route::prefix('vision-pais')->group(function () {
+    Route::get('/obtenerObjetivosVisionPais', [ObjetivoVisionPaisController::class, 'getAllObjetivosVisionPais']);
+    Route::get('/obtenerMetasVisionPaisPorObjetivo/{id}', [ObjetivoVisionPaisController::class, 'getMetasVisionPaisByObjetivo']);
+});
+
+Route::prefix('gabinetes')->group(function () {
+    Route::get('/obtenerTodosGabinetes', [GabineteController::class, 'getAllGabinetes']);
+});
+
+Route::prefix('ejes-estrategicos')->group(function () {
+    Route::get('/obtenerEjeEstrategicoPorGabinete/{codigo_gabinete}', [EjeEstrategicoController::class, 'getEjeEstrategicoByGabinete']);
+});
+
+Route::prefix('objetivos-peg')->group(function () {
+    Route::get('/obtenerObjetivoPegPorEjeEstrategico/{codigo_eje_estrategico}', [ObjetivoPegController::class, 'getObjetivoPegByEjeEstrategico']);
+});
+
+Route::prefix('resultados-peg')->group(function () {
+    Route::get('/obtenerResultadosPegPorObjetivoPeg/{codigo_objetivo_peg}', [ResultadoPegController::class, 'getResultadosPegByObjetivoPeg']);
+});
+
+Route::prefix('indicadores-resultados-peg')->group(function () {
+    Route::get('/obtenerIndicadoresResultadosPegPorResultadoPeg/{codigo_resultado_peg}', [IndicadorResultadoPegController::class, 'getIndicadoresResultadosPegByResultadoPeg']);
+});
+
+

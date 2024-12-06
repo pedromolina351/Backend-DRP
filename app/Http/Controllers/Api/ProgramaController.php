@@ -83,4 +83,20 @@ class ProgramaController extends Controller
             ], 500);
         }
     }
+
+    public function getProgramasByInstitucion($codigo_institucion)
+    {
+        try {
+            $resultados = DB::select('EXEC sp_GetById_t_programasXInstitucion ?', [$codigo_institucion]);
+            return response()->json([
+                'success' => true,
+                'data' => $resultados,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener los programas: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
 }
