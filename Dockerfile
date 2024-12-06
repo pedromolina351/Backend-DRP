@@ -30,11 +30,6 @@ RUN apt-get update && apt-get install -y \
 RUN mkdir -p /var/run/php && \
     chown www-data:www-data /var/run/php
 
-# Configurar PHP-FPM para usar el socket
-RUN sed -i 's|^listen =.*|listen = /var/run/php/php8.2-fpm.sock|' /usr/local/etc/php-fpm.d/www.conf && \
-    sed -i 's|^user =.*|user = www-data|' /usr/local/etc/php-fpm.d/www.conf && \
-    sed -i 's|^group =.*|group = www-data|' /usr/local/etc/php-fpm.d/www.conf
-
 # Configurar PHP para cargar un archivo php.ini
 RUN cp /usr/local/etc/php/php.ini-production /usr/local/etc/php/php.ini && \
     echo "memory_limit = 512M" >> /usr/local/etc/php/php.ini && \
