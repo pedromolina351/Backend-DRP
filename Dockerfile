@@ -56,9 +56,6 @@ RUN docker-php-ext-install -j$(nproc) mysqli pdo pdo_mysql && \
 RUN curl -o /usr/local/etc/php/conf.d/ca-certificates.crt https://curl.se/ca/cacert.pem && \
     echo 'openssl.cafile=/usr/local/etc/php/conf.d/ca-certificates.crt' > /usr/local/etc/php/conf.d/openssl.ini
 
-# Verificar configuración de PHP-FPM
-RUN php-fpm --test || echo "Error en configuración de PHP-FPM"
-
 # Configurar el directorio de trabajo
 WORKDIR /var/www
 
@@ -82,12 +79,20 @@ RUN npm ci
 # Construir el proyecto con npm
 RUN npm run build
 
-# Verificar configuración de PHP y socket
-RUN php --ini
-RUN ls -la /var/run/php/php8.2-fpm.sock || echo "Socket no creado"
+# Verificar configuración de PHP-FPM
+RUN php-fpm --test || echo "Error en configuración de PHP-FPM"
+
+# Agregar script de verificación del socket y logs al inicio
+RUN echo '#!/bin/bash\n' \
+         'php-fpm -F &\n' \
+         'sleep 5\n' \
+         'if [ ! -S /var/run/php/php8.2-fpm.sock ]; then\n' \
+         '  echo "Socket no creado. Verifica configuración de PHP-FPM" >> /var/log/php-fpm-check.log\n' \
+         'fi\n' \
+         'nginx -g "daemon off;"\n' > /start.sh && chmod +x /start.sh
 
 # Exponer el puerto configurado
 EXPOSE $PORT
 
 # Comando de inicio
-CMD php-fpm -F & nginx -g "daemon off;"
+CMD ["/start.sh"]
