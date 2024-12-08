@@ -82,4 +82,18 @@ class PoaController extends Controller
             ], 500);
         }
     }
+    public function getPoasByInstitucion($codigo_institucion){
+        try {
+            $poas = DB::select('EXEC sp_GetById_poa_t_poasXinstitucion ?', [$codigo_institucion]);
+            return response()->json([
+                'success' => true,
+                'data' => $poas,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener los POAs por institución: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
 }
