@@ -6,6 +6,7 @@ use App\Models\Poa;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\StorePoaRequest;
+use Illuminate\Http\Request;
 
 class PoaController extends Controller
 {
@@ -82,17 +83,41 @@ class PoaController extends Controller
             ], 500);
         }
     }
-    public function getPoasByInstitucion($codigo_institucion){
+    
+    public function getPoasByInstitution(Request $request)
+    {
+        $validatedData = $request->validate([
+            'codigo_institucion' => 'required|integer',
+            'codigo_usuario' => 'required|integer',
+        ]);
+
+        $codigoInstitucion = $validatedData['codigo_institucion'];
+        $codigoUsuario = $validatedData['codigo_usuario'];
+
         try {
-            $poas = DB::select('EXEC sp_GetById_poa_t_poasXinstitucion ?', [$codigo_institucion]);
+            // Ejecutar el procedimiento almacenado
+            $poas = DB::select(
+                'EXEC sp_GetById_poa_t_poasXinstitucion @codigo_institucion = ?, @codigo_usuario = ?',
+                [$codigoInstitucion, $codigoUsuario]
+            );
+
+            if (empty($poas)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No se encontraron POAs para la institución especificada.',
+                ], 404);
+            }
+
             return response()->json([
                 'success' => true,
                 'data' => $poas,
-            ], 200);
+            ]);
         } catch (\Exception $e) {
+            // Manejar errores
             return response()->json([
                 'success' => false,
-                'message' => 'Error al obtener los POAs por institución: ' . $e->getMessage(),
+                'message' => 'Error al ejecutar el procedimiento almacenado.',
+                'error' => $e->getMessage(),
             ], 500);
         }
     }

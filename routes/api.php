@@ -32,7 +32,8 @@ Route::prefix('poas')->group(function () {
     Route::get('/obtenerPoa/{id}', [PoaController::class, 'getPoa']);
     Route::post('/registrarPoa', [PoaController::class, 'createPoa']);
     Route::put('/desactivarPoa/{id}', [PoaController::class, 'deactivatePoa']);
-    Route::get('/obtenerPoasPorInstitucion/{id}', [PoaController::class, 'getPoasByInstitucion']);
+    //Route::get('/obtenerPoasPorInstitucion/{codigo_institucion}/{codigo_usuario}', [PoaController::class, 'getPoasByInstitution']);
+    Route::get('/obtenerPoasPorInstitucion', [PoaController::class, 'getPoasByInstitution']);
 });
 
 Route::prefix('programas')->group(function () {
