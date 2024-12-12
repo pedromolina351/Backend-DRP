@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\Poa;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\InsertPoaMainRequest;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\StorePoaRequest;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class PoaController extends Controller
 {
@@ -50,6 +52,54 @@ class PoaController extends Controller
             'poa' => $poa,
         ];
         return response()->json($data, 201, [], JSON_UNESCAPED_UNICODE);
+    }
+
+    public function insertPoaMain(InsertPoaMainRequest $request){
+        Log::info('insertPoaMain function called');
+        try {
+            $poaMain = DB::statement('EXEC sp_Insert_poa_t_poas_main
+                @codigo_institucion = :codigo_institucion,
+                @codigo_programa = :codigo_programa,
+                @codigo_usuario_creador = :codigo_usuario_creador,
+                @codigo_politica = :codigo_politica,
+                @codigo_objetivo_an_ods = :codigo_objetivo_an_ods,
+                @codigo_meta_an_ods = :codigo_meta_an_ods,
+                @codigo_indicador_an_ods = :codigo_indicador_an_ods,
+                @codigo_objetivo_vp = :codigo_objetivo_vp,
+                @codigo_meta_vp = :codigo_meta_vp,
+                @codigo_gabinete = :codigo_gabinete,
+                @codigo_eje_estrategico = :codigo_eje_estrategico,
+                @codigo_objetivo_peg = :codigo_objetivo_peg,
+                @codigo_resultado_peg = :codigo_resultado_peg,
+                @codigo_indicador_resultado_peg = :codigo_indicador_resultado_peg',
+                [
+                    'codigo_institucion' => $request->codigo_institucion,
+                    'codigo_programa' => $request->codigo_programa,
+                    'codigo_usuario_creador' => $request->codigo_usuario_creador,
+                    'codigo_politica' => $request->codigo_politica,
+                    'codigo_objetivo_an_ods' => $request->codigo_objetivo_an_ods,
+                    'codigo_meta_an_ods' => $request->codigo_meta_an_ods,
+                    'codigo_indicador_an_ods' => $request->codigo_indicador_an_ods,
+                    'codigo_objetivo_vp' => $request->codigo_objetivo_vp,
+                    'codigo_meta_vp' => $request->codigo_meta_vp,
+                    'codigo_gabinete' => $request->codigo_gabinete,
+                    'codigo_eje_estrategico' => $request->codigo_eje_estrategico,
+                    'codigo_objetivo_peg' => $request->codigo_objetivo_peg,
+                    'codigo_resultado_peg' => $request->codigo_resultado_peg,
+                    'codigo_indicador_resultado_peg' => $request->codigo_indicador_resultado_peg,
+                ]
+            );
+    
+            $data = [
+                'status' => 201,
+                'message' => 'Poa creado con éxito',
+                'poa' => $poaMain
+            ];
+            return response()->json($data, 201, [], JSON_UNESCAPED_UNICODE);
+    
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 
     public function deactivatePoa($codigo_poa){
@@ -121,4 +171,5 @@ class PoaController extends Controller
             ], 500);
         }
     }
+
 }

@@ -19,6 +19,7 @@ use App\Http\Controllers\Api\EjeEstrategicoController;
 use App\Http\Controllers\Api\ObjetivoPegController;
 use App\Http\Controllers\Api\ResultadoPegController;
 use App\Http\Controllers\Api\IndicadorResultadoPegController;
+use App\Http\Controllers\Api\ComentarioController;
 
 Route::prefix('instituciones')->group(function () {
     Route::get('/obtenerTodasInstituciones', [InstitucionController::class, 'getInstitucionesList']);
@@ -32,8 +33,8 @@ Route::prefix('poas')->group(function () {
     Route::get('/obtenerPoa/{id}', [PoaController::class, 'getPoa']);
     Route::post('/registrarPoa', [PoaController::class, 'createPoa']);
     Route::put('/desactivarPoa/{id}', [PoaController::class, 'deactivatePoa']);
-    //Route::get('/obtenerPoasPorInstitucion/{codigo_institucion}/{codigo_usuario}', [PoaController::class, 'getPoasByInstitution']);
     Route::get('/obtenerPoasPorInstitucion', [PoaController::class, 'getPoasByInstitution']);
+    Route::post('/insertPoaMain', [PoaController::class, 'insertPoaMain']);
 });
 
 Route::prefix('programas')->group(function () {
@@ -114,6 +115,11 @@ Route::prefix('resultados-peg')->group(function () {
 
 Route::prefix('indicadores-resultados-peg')->group(function () {
     Route::get('/obtenerIndicadoresResultadosPegPorResultadoPeg/{codigo_resultado_peg}', [IndicadorResultadoPegController::class, 'getIndicadoresResultadosPegByResultadoPeg']);
+});
+
+Route::prefix('comentarios')->group(function () {
+    Route::get('/comentariosbypoa/{poaId}', [ComentarioController::class, 'getCommentsByPoaId']);
+    Route::post('/insertarcomentario', [ComentarioController::class, 'insertNewComment']);
 });
 
 
