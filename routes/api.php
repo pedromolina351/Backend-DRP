@@ -20,6 +20,8 @@ use App\Http\Controllers\Api\ObjetivoPegController;
 use App\Http\Controllers\Api\ResultadoPegController;
 use App\Http\Controllers\Api\IndicadorResultadoPegController;
 use App\Http\Controllers\Api\ComentarioController;
+use App\Http\Controllers\Api\ResultadoFinalController;
+use App\Http\Controllers\Api\ResultadoController;
 
 Route::prefix('instituciones')->group(function () {
     Route::get('/obtenerTodasInstituciones', [InstitucionController::class, 'getInstitucionesList']);
@@ -120,6 +122,15 @@ Route::prefix('indicadores-resultados-peg')->group(function () {
 Route::prefix('comentarios')->group(function () {
     Route::get('/comentariosbypoa/{poaId}', [ComentarioController::class, 'getCommentsByPoaId']);
     Route::post('/insertarcomentario', [ComentarioController::class, 'insertNewComment']);
+});
+
+Route::prefix('resultados-finales')->group(function () {
+    Route::get('/obtenerTodosResultadosFinales', [ResultadoFinalController::class, 'getAllResultadoFinal']);
+    Route::get('/indicadoresbyresultado/{resultadoFinalId}', [ResultadoFinalController::class, 'getAllIndicadoresByResultadoFinalId']);
+});
+
+Route::prefix('resultados')->group(function () {
+    Route::post('/insertarResultado', [ResultadoController::class, 'insertResultado']);
 });
 
 
