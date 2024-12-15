@@ -131,6 +131,7 @@ Route::prefix('resultados-finales')->group(function () {
 
 Route::prefix('resultados')->group(function () {
     Route::post('/insertarResultado', [ResultadoController::class, 'insertResultado']);
+    Route::post('/insertPoaResultadosImpactos', [ResultadoController::class, 'insertPoaResultadosImpactos']);
 });
 
 
