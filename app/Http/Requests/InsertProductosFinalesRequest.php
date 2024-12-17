@@ -24,7 +24,7 @@ class InsertProductosFinalesRequest extends FormRequest
         return [
             'codigo_poa' => 'required|integer|exists:poa_t_poas,codigo_poa',
             'productos_finales' => 'required|array|min:1',
-            'productos_finales.*.objetivo_operativo' => 'required|integer',
+            'productos_finales.*.objetivo_operativo' => 'required|integer|exists:t_objetivos_operativos,codigo_objetivo_operativo',
             'productos_finales.*.producto_final' => 'required|string|max:500',
             'productos_finales.*.indicador_producto_final' => 'required|string|max:500',
             'productos_finales.*.producto_final_primario' => 'required|boolean',
@@ -47,6 +47,8 @@ class InsertProductosFinalesRequest extends FormRequest
             'productos_finales.required' => 'Debe proporcionar al menos un producto final.',
             'productos_finales.array' => 'El campo productos_finales debe ser un arreglo.',
             'productos_finales.*.objetivo_operativo.required' => 'El campo objetivo_operativo es obligatorio.',
+            'productos_finales.*.objetivo_operativo.integer' => 'El campo objetivo_operativo debe ser un número entero.',
+            'productos_finales.*.objetivo_operativo.exists' => 'El objetivo operativo no existe.',
             'productos_finales.*.producto_final.required' => 'El campo producto_final es obligatorio.',
             'productos_finales.*.indicador_producto_final.required' => 'El campo indicador_producto_final es obligatorio.',
             'productos_finales.*.producto_final_primario.required' => 'El campo producto_final_primario es obligatorio.',
