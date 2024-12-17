@@ -23,6 +23,8 @@ use App\Http\Controllers\Api\ComentarioController;
 use App\Http\Controllers\Api\ResultadoFinalController;
 use App\Http\Controllers\Api\ResultadoController;
 use App\Http\Controllers\Api\ObjetivosOperativosController;
+use App\Http\Controllers\Api\ProductosFinalesController;
+use App\Http\Controllers\Api\ProductosIntermediosController;
 
 Route::prefix('instituciones')->group(function () {
     Route::get('/obtenerTodasInstituciones', [InstitucionController::class, 'getInstitucionesList']);
@@ -138,6 +140,11 @@ Route::prefix('resultados')->group(function () {
 Route::prefix('objetivos-operativos')->group(function () {
     Route::post('/insertObjetivosOperativos', [ObjetivosOperativosController::class, 'insertObjetivosOperativos']);
     Route::get('/objetivos-operativos-by-poa/{codigo_poa}', [ObjetivosOperativosController::class, 'getObjetivosOperativosByPoa']);
+});
+
+Route::prefix('productos')->group(function () {
+    Route::post('/insertProductosFinales', [ProductosFinalesController::class, 'insertProductosFinales']);
+    Route::post('/insertProductosIntermedios', [ProductosIntermediosController::class, 'insertProductosIntermedios']);
 });
 
 
