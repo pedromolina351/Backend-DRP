@@ -40,6 +40,7 @@ Route::prefix('poas')->group(function () {
     Route::put('/desactivarPoa/{id}', [PoaController::class, 'deactivatePoa']);
     Route::get('/obtenerPoasPorInstitucion', [PoaController::class, 'getPoasByInstitution']);
     Route::post('/insertPoaMain', [PoaController::class, 'insertPoaMain']);
+    Route::put('/editPoa', [PoaController::class, 'editPoaMain']);
 });
 
 Route::prefix('programas')->group(function () {
