@@ -128,6 +128,33 @@ class ResultadoController extends Controller
             ], 500);
         }
     }
+
+    public function getResultadosByPoa($codigo_poa){
+        try {
+            // Verificar si el codigo_poa existe en la tabla correspondiente
+            $poaExists = DB::table('poa_t_poas')->where('codigo_poa', $codigo_poa)->exists();
+
+            if (!$poaExists) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'El codigo_poa proporcionado no existe.',
+                ], 400); // Bad Request
+            }
+
+            $resultados = DB::select('EXEC sp_GetById_poa_t_poas_resultados @codigo_poa = ?', [$codigo_poa]);
+
+            return response()->json([
+                'success' => true,
+                'resultados' => $resultados,
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener los resultados: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
     
     
     

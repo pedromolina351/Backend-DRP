@@ -70,5 +70,30 @@ class ImpactoController extends Controller
             ], 500);
         }
     }
+
+    public function getImpactosByPoaId($codigo_poa){
+        try {
+            // Verificar si el codigo_poa existe en la tabla correspondiente
+            $poaExists = DB::table('poa_t_poas')->where('codigo_poa', $codigo_poa)->exists();
+
+            if (!$poaExists) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'El codigo_poa proporcionado no existe.',
+                ], 400); // Bad Request
+            }
+            $impactos = DB::select('EXEC sp_GetAll_t_poa_t_poas_impactos_by_poa @codigo_poa = ?', [$codigo_poa]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Impactos obtenidos con éxito.',
+                'impactos' => $impactos,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener los impactos: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
     
 }

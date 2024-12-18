@@ -137,6 +137,8 @@ Route::prefix('resultados-finales')->group(function () {
 Route::prefix('resultados')->group(function () {
     Route::post('/insertarResultados', [ResultadoController::class, 'insertResultado']);
     Route::post('/insertarImpactos', [ImpactoController::class, 'insertImpactos']);
+    Route::get('/impactosbypoa/{codigo_poa}', [ImpactoController::class, 'getImpactosByPoaId']);
+    Route::get('/resultadosbypoa/{codigo_poa}', [ResultadoController::class, 'getResultadosByPoa']);
 });
 
 Route::prefix('objetivos-operativos')->group(function () {
@@ -147,6 +149,7 @@ Route::prefix('objetivos-operativos')->group(function () {
 Route::prefix('productos')->group(function () {
     Route::post('/insertProductosFinales', [ProductosFinalesController::class, 'insertProductosFinales']);
     Route::post('/insertProductosIntermedios', [ProductosIntermediosController::class, 'insertProductosIntermedios']);
+    Route::get('/productos-finales-by-poa/{codigo_poa}', [ProductosFinalesController::class, 'getProductosFinalesByPoa']);
+    Route::get('/productos-intermedios-by-poa/{codigo_poa}', [ProductosIntermediosController::class, 'getProductosIntermediosByPoa']);
 });
-
 

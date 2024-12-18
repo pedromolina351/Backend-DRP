@@ -83,4 +83,30 @@ class ProductosFinalesController extends Controller
             ], 500);
         }
     }
+
+    public function getProductosFinalesByPoa($codigo_poa){
+        try {
+            // Verificar si el codigo_poa existe en la tabla correspondiente
+            $poaExists = DB::table('poa_t_poas')->where('codigo_poa', $codigo_poa)->exists();
+
+            if (!$poaExists) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'El codigo_poa proporcionado no existe.',
+                ], 400); // Bad Request
+            }
+
+            $productos_finales = DB::select('EXEC sp_GetById_t_productos_finales_by_poa_or_objetivo_operativo @codigo_poa = ?', [$codigo_poa]);
+
+            return response()->json([
+                'success' => true,
+                'productos_finales' => $productos_finales,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener los productos finales: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
 }
