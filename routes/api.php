@@ -25,6 +25,7 @@ use App\Http\Controllers\Api\ResultadoController;
 use App\Http\Controllers\Api\ObjetivosOperativosController;
 use App\Http\Controllers\Api\ProductosFinalesController;
 use App\Http\Controllers\Api\ProductosIntermediosController;
+use App\Http\Controllers\Api\ImpactoController;
 
 Route::prefix('instituciones')->group(function () {
     Route::get('/obtenerTodasInstituciones', [InstitucionController::class, 'getInstitucionesList']);
@@ -134,8 +135,8 @@ Route::prefix('resultados-finales')->group(function () {
 });
 
 Route::prefix('resultados')->group(function () {
-    Route::post('/insertarResultado', [ResultadoController::class, 'insertResultado']);
-    Route::post('/insertPoaResultadosImpactos', [ResultadoController::class, 'insertPoaResultadosImpactos']);
+    Route::post('/insertarResultados', [ResultadoController::class, 'insertResultado']);
+    Route::post('/insertarImpactos', [ImpactoController::class, 'insertImpactos']);
 });
 
 Route::prefix('objetivos-operativos')->group(function () {

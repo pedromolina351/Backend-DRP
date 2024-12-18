@@ -19,21 +19,27 @@ class StoreResultadoRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
-    public function rules(): array
+    public function rules()
     {
         return [
-            'resultado_institucional' => 'required|string',
-            'indicador_resultado_institucional' => 'required|string',
+            'Resultados' => 'required|array|min:1',
+            'Resultados.*.resultado_institucional' => 'required|string|max:255',
+            'Resultados.*.indicador_resultado_institucional' => 'required|string|max:255',
         ];
     }
 
-    public function messages(): array
+    public function messages()
     {
         return [
-            'resultado_institucional.required' => 'El resultado institucional es requerido',
-            'indicador_resultado_institucional.required' => 'El indicador del resultado institucional es requerido',
-            'resultado_institucional.string' => 'El resultado institucional debe ser una cadena de texto',
-            'indicador_resultado_institucional.string' => 'El indicador del resultado institucional debe ser una cadena de texto',
+            'Resultados.required' => 'El campo Resultados es obligatorio.',
+            'Resultados.array' => 'El campo Resultados debe ser un arreglo.',
+            'Resultados.min' => 'Debe proporcionar al menos un resultado.',
+            'Resultados.*.resultado_institucional.required' => 'El campo resultado_institucional es obligatorio para cada resultado.',
+            'Resultados.*.resultado_institucional.string' => 'El campo resultado_institucional debe ser una cadena de texto.',
+            'Resultados.*.resultado_institucional.max' => 'El campo resultado_institucional no debe exceder los 255 caracteres.',
+            'Resultados.*.indicador_resultado_institucional.required' => 'El campo indicador_resultado_institucional es obligatorio para cada resultado.',
+            'Resultados.*.indicador_resultado_institucional.string' => 'El campo indicador_resultado_institucional debe ser una cadena de texto.',
+            'Resultados.*.indicador_resultado_institucional.max' => 'El campo indicador_resultado_institucional no debe exceder los 255 caracteres.',
         ];
     }
 }

@@ -24,23 +24,6 @@ class EditPoaRequest extends FormRequest
     public function rules()
     {
         return [
-            // 'codigo_usuario_modificador' => [
-            //     'required',
-            //     'integer',
-            //     function ($attribute, $value, $fail) {
-            //         // Validación de existencia en la base de datos
-            //         $user = DB::table('config_t_usuarios')
-            //             ->where('codigo_usuario', $value)
-            //             ->select('super_user', 'usuario_drp')
-            //             ->first();
-
-            //         if (!$user) {
-            //             $fail('El código de usuario modificador es inválido.');
-            //         } elseif ($user->super_user == 0 && $user->usuario_drp == 0) {
-            //             $fail('El usuario no tiene permisos para realizar esta operación.');
-            //         }
-            //     },
-            // ],
             'codigo_poa' => 'required|integer|exists:poa_t_poas,codigo_poa',
             'codigo_institucion' => 'nullable|integer|exists:t_instituciones,codigo_institucion',
             'codigo_programa' => 'nullable|integer|exists:t_programas,codigo_programa',
