@@ -22,6 +22,7 @@ class StoreResultadoRequest extends FormRequest
     public function rules()
     {
         return [
+            'codigo_poa' => 'required|integer|max:255',
             'Resultados' => 'required|array|min:1',
             'Resultados.*.resultado_institucional' => 'required|string|max:255',
             'Resultados.*.indicador_resultado_institucional' => 'required|string|max:255',

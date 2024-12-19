@@ -14,6 +14,15 @@ class ResultadoController extends Controller
     public function insertResultado(StoreResultadoRequest $request)
     {
         try {
+            // Verificar si el codigo_poa existe en la tabla correspondiente
+            $poaExists = DB::table('poa_t_poas')->where('codigo_poa', $request->codigo_poa)->exists();
+
+            if (!$poaExists) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'El codigo_poa proporcionado no existe.',
+                ], 400); // Bad Request
+            }
             // Inicializar un arreglo para registrar errores
             $errors = [];
     
@@ -25,12 +34,14 @@ class ResultadoController extends Controller
                         EXEC sp_Insert_t_resultados
                             @resultado_institucional = :resultado_institucional,
                             @indicador_resultado_institucional = :indicador_resultado_institucional,
-                            @codigo_resultado = @codigo_resultado OUTPUT;
+                            @codigo_resultado = @codigo_resultado OUTPUT,
+                            @codigo_poa = :codigo_poa;
                     ";
     
                     DB::statement($sql, [
                         'resultado_institucional' => $resultado['resultado_institucional'],
                         'indicador_resultado_institucional' => $resultado['indicador_resultado_institucional'],
+                        'codigo_poa' => $request->codigo_poa,
                     ]);
                 } catch (\Exception $e) {
                     // Capturar errores por cada resultado fallido
