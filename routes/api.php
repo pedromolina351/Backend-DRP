@@ -37,7 +37,7 @@ Route::prefix('instituciones')->group(function () {
 
 Route::prefix('poas')->group(function () {
     Route::get('/obtenerTodosPoas', [PoaController::class, 'getPoasList']);
-    Route::get('/obtenerPoa/{id}', [PoaController::class, 'getPoa']);
+    Route::get('/obtenerPoa/{codigo_poa}', [PoaController::class, 'getPoa']);
     Route::post('/registrarPoa', [PoaController::class, 'createPoa']);
     Route::put('/desactivarPoa/{id}', [PoaController::class, 'deactivatePoa']);
     Route::get('/obtenerPoasPorInstitucion', [PoaController::class, 'getPoasByInstitution']);

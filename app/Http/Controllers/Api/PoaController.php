@@ -30,21 +30,62 @@ class PoaController extends Controller
         return response()->json($data, 200, [], JSON_UNESCAPED_UNICODE);
     }
 
-    public function getPoa($codigo_poa)
+    public function getPoa($codigo_poa) 
     {
-        $poa = Poa::where('codigo_poa', $codigo_poa)->where('estado_poa', 1)->first();
-        if ($poa == null) {
-            $data = [
-                'status' => 404,
-                'message' => 'Poa no encontrado',
-            ];
-            return response()->json($data, 404, [], JSON_UNESCAPED_UNICODE);
+        try {
+            // Obtener el codigo_institucion a partir de la tabla poa_t_poas
+            $codigo_institucion = DB::table('poa_t_poas')
+                ->where('codigo_poa', $codigo_poa)
+                ->value('codigo_institucion');
+    
+            if (!$codigo_institucion) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'El codigo_poa proporcionado no existe o no tiene una institución asociada.'
+                ], 404);
+            }
+    
+            // Inicializar arreglo para almacenar resultados
+            $result = [];
+    
+            // Ejecutar cada procedimiento almacenado y almacenar los resultados en el arreglo
+            $result['Vision_Pais'] = DB::select('EXEC sp_GetById_poa_t_poas_vision_paisXPoa @codigo_poa = :codigo_poa', [
+                'codigo_poa' => $codigo_poa
+            ]);
+    
+            $result['Politicas'] = DB::select('EXEC sp_GetById_poa_t_poas_politicasXPoa @codigo_poa = :codigo_poa', [
+                'codigo_poa' => $codigo_poa
+            ]);
+    
+            $result['An_ODs'] = DB::select('EXEC sp_GetById_poa_t_poas_an_odsXPoa @codigo_poa = :codigo_poa', [
+                'codigo_poa' => $codigo_poa
+            ]);
+    
+            $result['PEG'] = DB::select('EXEC sp_GetById_poa_t_poas_pegXPoa @codigo_poa = :codigo_poa', [
+                'codigo_poa' => $codigo_poa
+            ]);
+    
+            $result['Programas_Poa'] = DB::select('EXEC sp_GetById_poa_t_poas_programasXPoa @codigo_poa = :codigo_poa', [
+                'codigo_poa' => $codigo_poa
+            ]);
+    
+            $result['Programas_Institucion'] = DB::select('EXEC sp_GetById_t_programasXInstitucion @codigo_institucion = :codigo_institucion', [
+                'codigo_institucion' => $codigo_institucion
+            ]);
+    
+            // Retornar la respuesta con los resultados
+            return response()->json([
+                'success' => true,
+                'data' => $result
+            ], 200);
+    
+        } catch (\Exception $e) {
+            // Manejo de errores
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener los datos: ' . $e->getMessage()
+            ], 500);
         }
-        $data = [
-            'status' => 200,
-            'poa' => $poa,
-        ];
-        return response()->json($data, 200, [], JSON_UNESCAPED_UNICODE);
     }
 
     public function createPoa(StorePoaRequest $request)
