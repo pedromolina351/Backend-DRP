@@ -26,6 +26,7 @@ use App\Http\Controllers\Api\ObjetivosOperativosController;
 use App\Http\Controllers\Api\ProductosFinalesController;
 use App\Http\Controllers\Api\ProductosIntermediosController;
 use App\Http\Controllers\Api\ImpactoController;
+use App\Http\Controllers\Api\ActividadInsumoController;
 
 Route::prefix('instituciones')->group(function () {
     Route::get('/obtenerTodasInstituciones', [InstitucionController::class, 'getInstitucionesList']);
@@ -151,5 +152,9 @@ Route::prefix('productos')->group(function () {
     Route::post('/insertProductosIntermedios', [ProductosIntermediosController::class, 'insertProductosIntermedios']);
     Route::get('/productos-finales-by-poa/{codigo_poa}', [ProductosFinalesController::class, 'getProductosFinalesByPoa']);
     Route::get('/productos-intermedios-by-poa/{codigo_poa}', [ProductosIntermediosController::class, 'getProductosIntermediosByPoa']);
+});
+
+Route::prefix('actividades-insumos')->group(function () {
+    Route::post('/insertarActividadesInsumos', [ActividadInsumoController::class, 'insertActividadInsumo']);
 });
 
