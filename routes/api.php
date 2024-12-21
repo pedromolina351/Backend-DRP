@@ -27,6 +27,7 @@ use App\Http\Controllers\Api\ProductosFinalesController;
 use App\Http\Controllers\Api\ProductosIntermediosController;
 use App\Http\Controllers\Api\ImpactoController;
 use App\Http\Controllers\Api\ActividadInsumoController;
+use App\Http\Controllers\Api\DatosComplementariosController;
 
 Route::prefix('instituciones')->group(function () {
     Route::get('/obtenerTodasInstituciones', [InstitucionController::class, 'getInstitucionesList']);
@@ -156,5 +157,12 @@ Route::prefix('productos')->group(function () {
 
 Route::prefix('actividades-insumos')->group(function () {
     Route::post('/insertarActividadesInsumos', [ActividadInsumoController::class, 'insertActividadInsumo']);
+    Route::get('/actividades-insumos-by-poa/{codigo_poa}', [ActividadInsumoController::class, 'getActividadesInsumosByPoaId']);
+    Route::get('/actividades-insumos-by-producto-and-poa/{codigo_producto_final}/{codigo_poa}', [ActividadInsumoController::class, 'getActividadesInsumosByProductoAndPoa']);
+});
+
+Route::prefix('datos-complementarios')->group(function () {
+    Route::get('/datos-complementarios-by-poa/{codigo_poa}', [DatosComplementariosController::class, 'getDatosComplementariosByPoa']);
+    Route::post('/insertar-datos-complementarios', [DatosComplementariosController::class, 'insertDatosComplementarios']);
 });
 

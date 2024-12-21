@@ -23,12 +23,12 @@ class StoreActividadInsumoRequest extends FormRequest
     {
         return [
             'codigo_poa' => 'required|integer|exists:poa_t_poas,codigo_poa',
-            'codigo_objetivo_operativo' => 'required|integer|exists:t_objetivos_operativos,codigo_objetivo_operativo',
             'actividades_insumos' => 'required|array|min:1',
             'actividades_insumos.*.codigo_producto_final' => 'required|integer|exists:t_productos_finales,codigo_producto_final',
             'actividades_insumos.*.actividad' => 'required|string|max:500',
             'actividades_insumos.*.insumo_PACC' => 'nullable|string|max:500',
             'actividades_insumos.*.insumo_no_PACC' => 'nullable|string|max:500',
+            'actividades_insumos.*.codigo_objetivo_operativo' => 'required|integer|exists:t_objetivos_operativos,codigo_objetivo_operativo',
         ];
     }
 

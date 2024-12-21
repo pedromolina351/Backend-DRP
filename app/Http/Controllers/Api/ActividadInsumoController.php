@@ -43,7 +43,7 @@ class ActividadInsumoController extends Controller
                         'insumo_PACC' => $actividadInsumo['insumo_PACC'],
                         'insumo_no_PACC' => $actividadInsumo['insumo_no_PACC'],
                         'codigo_poa' => $request->codigo_poa,
-                        'codigo_objetivo_operativo' => $request->codigo_objetivo_operativo,
+                        'codigo_objetivo_operativo' => $actividadInsumo['codigo_objetivo_operativo'],
                     ]);
                 } catch (\Exception $e) {
                     // Capturar errores por cada actividad_insumo fallida
@@ -73,6 +73,80 @@ class ActividadInsumoController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Error al procesar las actividades_insumos: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function getActividadesInsumosByPoaId($codigo_poa){
+        try {
+            //Verificar si el codigo_poa existe en la tabla correspondiente
+            $poaExists = DB::table('poa_t_poas')->where('codigo_poa', $codigo_poa)->exists();
+
+            if (!$poaExists) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'El codigo_poa proporcionado no existe.',
+                ], 400); // Bad Request
+            }
+
+            $actividadesInsumos = DB::select('EXEC sp_GetById_actividades_insumosXPoa :codigo_poa', [
+                'codigo_poa' => $codigo_poa
+            ]);
+
+            $jsonField = $actividadesInsumos[0]->{'JSON_F52E2B61-18A1-11d1-B105-00805F49916B'} ?? null;
+            $data = $jsonField ? json_decode($jsonField, true) : [];
+
+            return response()->json([
+                'success' => true,
+                'actividades_insumos' => $data,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener las actividades_insumos: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function getActividadesInsumosByProductoAndPoa($codigo_producto_final, $codigo_poa)
+    {
+        try {
+            // Verificar si el codigo_producto_final existe en la tabla correspondiente
+            $productoExists = DB::table('t_productos_finales')->where('codigo_producto_final', $codigo_producto_final)->exists();
+
+            if (!$productoExists) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'El codigo_producto_final proporcionado no existe.',
+                ], 400); // Bad Request
+            }
+
+            // Verificar si el codigo_poa existe en la tabla correspondiente
+            $poaExists = DB::table('poa_t_poas')->where('codigo_poa', $codigo_poa)->exists();
+
+            if (!$poaExists) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'El codigo_poa proporcionado no existe.',
+                ], 400); // Bad Request
+            }
+
+            $actividadesInsumos = DB::select('EXEC sp_GetById_actividades_insumosXProductoFinal_POA :codigo_producto_final, :codigo_poa', [
+                'codigo_producto_final' => $codigo_producto_final,
+                'codigo_poa' => $codigo_poa
+            ]);
+
+            $jsonField = $actividadesInsumos[0]->{'JSON_F52E2B61-18A1-11d1-B105-00805F49916B'} ?? null;
+            $data = $jsonField ? json_decode($jsonField, true) : [];
+
+            return response()->json([
+                'success' => true,
+                'actividades_insumos' => $data,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener las actividades_insumos: ' . $e->getMessage(),
             ], 500);
         }
     }
