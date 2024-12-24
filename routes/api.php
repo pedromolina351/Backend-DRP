@@ -120,7 +120,7 @@ Route::prefix('objetivos-peg')->group(function () {
 });
 
 Route::prefix('resultados-peg')->group(function () {
-    Route::get('/obtenerResultadosPegPorObjetivoPeg/{codigo_objetivo_peg}', [ResultadoPegController::class, 'getResultadosPegByObjetivoPeg']);
+    Route::get('/obtenerResultadosPegPorEjeEstrategico/{codigo_eje_estrategico}', [ResultadoPegController::class, 'getResultadosPegByEjeEstrategico']);
 });
 
 Route::prefix('indicadores-resultados-peg')->group(function () {

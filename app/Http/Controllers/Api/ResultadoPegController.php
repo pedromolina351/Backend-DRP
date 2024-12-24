@@ -8,9 +8,9 @@ use Illuminate\Support\Facades\DB;
 
 class ResultadoPegController extends Controller
 {
-    public function getResultadosPegByObjetivoPeg($codigo_objetivo_peg){
+    public function getResultadosPegByEjeEstrategico($codigo_eje_estrategico){
         try{
-            $resultados = DB::select('EXEC sp_GetById_poa_t_resultado_pegXobjetivo_peg ?', [$codigo_objetivo_peg]);
+            $resultados = DB::select('EXEC sp_GetById_poa_t_resultado_pegXeje_estrategico_peg ?', [$codigo_eje_estrategico]);
             return response()->json([
                 'success' => true,
                 'data' => $resultados,
