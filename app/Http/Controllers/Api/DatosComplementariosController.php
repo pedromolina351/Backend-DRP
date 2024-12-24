@@ -44,7 +44,11 @@ class DatosComplementariosController extends Controller
     public function insertDatosComplementarios(StoreDatosComplementariosRequest $request)
     {
         try {
-            // Ejecutar el procedimiento almacenado
+            // Extraer el primer beneficiario por programa y por pueblo
+            $primerBeneficiarioPrograma = $request->Listado_Beneficiarios_Programa[0];
+            $primerBeneficiarioPueblo = $request->Listado_Beneficiarios_Pueblos[0];
+    
+            // Inserción inicial con el primer beneficiario por programa y pueblo
             DB::statement('EXEC mmr.sp_Insert_Datos_Complementarios_POA 
                 @codigo_poa = :codigo_poa,
                 @GrupoEdadID = :GrupoEdadID,
@@ -60,11 +64,11 @@ class DatosComplementariosController extends Controller
                 @InversionIgualdad = :InversionIgualdad,
                 @CantidadTotalBeneficiarios = :CantidadTotalBeneficiarios', [
                 'codigo_poa' => $request->codigo_poa,
-                'GrupoEdadID' => $request->GrupoEdadID,
-                'GeneroID' => $request->GeneroID,
-                'CantidadBeneficiarios' => $request->CantidadBeneficiarios,
-                'PuebloID' => $request->PuebloID,
-                'CantidadPueblo' => $request->CantidadPueblo,
+                'GrupoEdadID' => $primerBeneficiarioPrograma['GrupoEdadID'],
+                'GeneroID' => $primerBeneficiarioPrograma['GeneroID'],
+                'CantidadBeneficiarios' => $primerBeneficiarioPrograma['CantidadBeneficiarios'],
+                'PuebloID' => $primerBeneficiarioPueblo['PuebloID'],
+                'CantidadPueblo' => $primerBeneficiarioPueblo['CantidadPueblo'],
                 'NombreUnidad' => $request->NombreUnidad,
                 'ResponsableUnidad' => $request->ResponsableUnidad,
                 'PresupuestoTotal' => $request->PresupuestoTotal,
@@ -74,6 +78,51 @@ class DatosComplementariosController extends Controller
                 'CantidadTotalBeneficiarios' => $request->CantidadTotalBeneficiarios,
             ]);
     
+            // Iterar sobre los demás beneficiarios por programa
+            foreach (array_slice($request->Listado_Beneficiarios_Programa, 1) as $beneficiarioPrograma) {
+                DB::statement('EXEC mmr.sp_Insert_Datos_Complementarios_POA 
+                    @codigo_poa = :codigo_poa,
+                    @GrupoEdadID = :GrupoEdadID,
+                    @GeneroID = :GeneroID,
+                    @CantidadBeneficiarios = :CantidadBeneficiarios,
+                    @PuebloID = NULL,
+                    @CantidadPueblo = NULL,
+                    @NombreUnidad = NULL,
+                    @ResponsableUnidad = NULL,
+                    @PresupuestoTotal = NULL,
+                    @InversionMujeres = NULL,
+                    @InversionFamilia = NULL,
+                    @InversionIgualdad = NULL,
+                    @CantidadTotalBeneficiarios = NULL', [
+                    'codigo_poa' => $request->codigo_poa,
+                    'GrupoEdadID' => $beneficiarioPrograma['GrupoEdadID'],
+                    'GeneroID' => $beneficiarioPrograma['GeneroID'],
+                    'CantidadBeneficiarios' => $beneficiarioPrograma['CantidadBeneficiarios'],
+                ]);
+            }
+    
+            // Iterar sobre los demás beneficiarios por pueblos
+            foreach (array_slice($request->Listado_Beneficiarios_Pueblos, 1) as $beneficiarioPueblo) {
+                DB::statement('EXEC mmr.sp_Insert_Datos_Complementarios_POA 
+                    @codigo_poa = :codigo_poa,
+                    @GrupoEdadID = NULL,
+                    @GeneroID = NULL,
+                    @CantidadBeneficiarios = NULL,
+                    @PuebloID = :PuebloID,
+                    @CantidadPueblo = :CantidadPueblo,
+                    @NombreUnidad = NULL,
+                    @ResponsableUnidad = NULL,
+                    @PresupuestoTotal = NULL,
+                    @InversionMujeres = NULL,
+                    @InversionFamilia = NULL,
+                    @InversionIgualdad = NULL,
+                    @CantidadTotalBeneficiarios = NULL', [
+                    'codigo_poa' => $request->codigo_poa,
+                    'PuebloID' => $beneficiarioPueblo['PuebloID'],
+                    'CantidadPueblo' => $beneficiarioPueblo['CantidadPueblo'],
+                ]);
+            }
+    
             // Retornar respuesta exitosa
             return response()->json([
                 'success' => true,
@@ -81,7 +130,7 @@ class DatosComplementariosController extends Controller
             ], 201);
     
         } catch (\Exception $e) {
-            // Verificar si el error proviene del procedimiento almacenado
+            // Manejo de errores
             $errorMessage = $e->getMessage();
     
             if (str_contains($errorMessage, 'Ya existe un beneficiario con el mismo GrupoEdadID y GeneroID para este POA')) {
@@ -104,7 +153,6 @@ class DatosComplementariosController extends Controller
                 'message' => 'Error al insertar los datos complementarios: ' . $errorMessage,
             ], 500);
         }
-    }
-    
+    }    
     
 }

@@ -28,6 +28,7 @@ use App\Http\Controllers\Api\ProductosIntermediosController;
 use App\Http\Controllers\Api\ImpactoController;
 use App\Http\Controllers\Api\ActividadInsumoController;
 use App\Http\Controllers\Api\DatosComplementariosController;
+use App\Http\Controllers\DictamenController;
 
 Route::prefix('instituciones')->group(function () {
     Route::get('/obtenerTodasInstituciones', [InstitucionController::class, 'getInstitucionesList']);
@@ -166,3 +167,8 @@ Route::prefix('datos-complementarios')->group(function () {
     Route::post('/insertar-datos-complementarios', [DatosComplementariosController::class, 'insertDatosComplementarios']);
 });
 
+
+
+
+//Api para generar archivo Word:
+Route::get('/get-dictamen', [DictamenController::class, 'generateDictamen']);
