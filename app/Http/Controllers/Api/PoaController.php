@@ -101,52 +101,108 @@ class PoaController extends Controller
 
     public function insertPoaMain(InsertPoaMainRequest $request)
     {
-        Log::info('insertPoaMain function called');
         try {
-            $poaMain = DB::statement(
-                'EXEC sp_Insert_poa_t_poas_main
-                @codigo_institucion = :codigo_institucion,
-                @codigo_programa = :codigo_programa,
-                @codigo_usuario_creador = :codigo_usuario_creador,
-                @codigo_politica = :codigo_politica,
-                @codigo_objetivo_an_ods = :codigo_objetivo_an_ods,
-                @codigo_meta_an_ods = :codigo_meta_an_ods,
-                @codigo_indicador_an_ods = :codigo_indicador_an_ods,
-                @codigo_objetivo_vp = :codigo_objetivo_vp,
-                @codigo_meta_vp = :codigo_meta_vp,
-                @codigo_gabinete = :codigo_gabinete,
-                @codigo_eje_estrategico = :codigo_eje_estrategico,
-                @codigo_objetivo_peg = :codigo_objetivo_peg,
-                @codigo_resultado_peg = :codigo_resultado_peg,
-                @codigo_indicador_resultado_peg = :codigo_indicador_resultado_peg',
-                [
-                    'codigo_institucion' => $request->codigo_institucion,
-                    'codigo_programa' => $request->codigo_programa,
-                    'codigo_usuario_creador' => $request->codigo_usuario_creador,
-                    'codigo_politica' => $request->codigo_politica,
-                    'codigo_objetivo_an_ods' => $request->codigo_objetivo_an_ods,
-                    'codigo_meta_an_ods' => $request->codigo_meta_an_ods,
-                    'codigo_indicador_an_ods' => $request->codigo_indicador_an_ods,
-                    'codigo_objetivo_vp' => $request->codigo_objetivo_vp,
-                    'codigo_meta_vp' => $request->codigo_meta_vp,
-                    'codigo_gabinete' => $request->codigo_gabinete,
-                    'codigo_eje_estrategico' => $request->codigo_eje_estrategico,
-                    'codigo_objetivo_peg' => $request->codigo_objetivo_peg,
-                    'codigo_resultado_peg' => $request->codigo_resultado_peg,
-                    'codigo_indicador_resultado_peg' => $request->codigo_indicador_resultado_peg,
-                ]
-            );
-
-            $data = [
-                'status' => 201,
-                'message' => 'Poa creado con éxito',
-                'poa' => $poaMain
-            ];
-            return response()->json($data, 201, [], JSON_UNESCAPED_UNICODE);
+            // Ejecutar el procedimiento almacenado principal para insertar el POA
+            $codigo_poa = DB::transaction(function () use ($request) {
+                $result = DB::select(
+                    'EXEC sp_Insert_poa_t_poas_main
+                    @codigo_institucion = :codigo_institucion,
+                    @codigo_programa = :codigo_programa,
+                    @codigo_usuario_creador = :codigo_usuario_creador,
+                    @codigo_politica = NULL,
+                    @codigo_objetivo_an_ods = NULL,
+                    @codigo_meta_an_ods = NULL,
+                    @codigo_indicador_an_ods = NULL,
+                    @codigo_objetivo_vp = NULL,
+                    @codigo_meta_vp = NULL,
+                    @codigo_gabinete = NULL,
+                    @codigo_eje_estrategico = NULL,
+                    @codigo_objetivo_peg = NULL,
+                    @codigo_resultado_peg = NULL,
+                    @codigo_indicador_resultado_peg = NULL',
+                    [
+                        'codigo_institucion' => $request->codigo_institucion,
+                        'codigo_programa' => $request->codigo_programa,
+                        'codigo_usuario_creador' => $request->codigo_usuario_creador,
+                    ]
+                );
+    
+                $codigo_poa = $result[0]->codigo_poa ?? null;
+    
+                if (!$codigo_poa) {
+                    throw new \Exception('No se pudo generar el código del POA.');
+                }
+    
+                // Iterar sobre las políticas y agregar registros relacionados
+                foreach ($request->listado_politicas as $politica) {
+                    DB::statement('EXEC sp_Insert_poa_t_poas_politicas @codigo_poa = :codigo_poa, @codigo_politica_publica = :codigo_politica', [
+                        'codigo_poa' => $codigo_poa,
+                        'codigo_politica' => $politica['codigo_politica'],
+                    ]);
+                }
+    
+                // Iterar sobre los objetivos AN-ODS
+                foreach ($request->listado_objetivos as $objetivo) {
+                    DB::statement('EXEC sp_Insert_poa_t_poas_an_ods 
+                        @codigo_poa = :codigo_poa,
+                        @codigo_objetivo_an_ods = :codigo_objetivo_an_ods,
+                        @codigo_meta_an_ods = :codigo_meta_an_ods,
+                        @codigo_indicador_an_ods = :codigo_indicador_an_ods,
+                        @estado_an_ods = 1', [
+                        'codigo_poa' => $codigo_poa,
+                        'codigo_objetivo_an_ods' => $objetivo['codigo_objetivo_an_ods'],
+                        'codigo_meta_an_ods' => $objetivo['codigo_meta_an_ods'],
+                        'codigo_indicador_an_ods' => $objetivo['codigo_indicador_an_ods'],
+                    ]);
+                }
+    
+                // Iterar sobre los objetivos de Visión País
+                foreach ($request->listado_objetivos_vp as $vp) {
+                    DB::statement('EXEC sp_Insert_poa_t_poas_vision_pais 
+                        @codigo_poa = :codigo_poa,
+                        @codigo_objetivo_vp = :codigo_objetivo_vp,
+                        @codigo_meta_vp = :codigo_meta_vp,
+                        @estado_vp = 1', [
+                        'codigo_poa' => $codigo_poa,
+                        'codigo_objetivo_vp' => $vp['codigo_objetivo_vp'],
+                        'codigo_meta_vp' => $vp['codigo_meta_vp'],
+                    ]);
+                }
+    
+                // Iterar sobre el plan estratégico
+                foreach ($request->listado_plan_estrategico as $peg) {
+                    DB::statement('EXEC sp_Insert_poa_t_poas_peg 
+                        @codigo_poa = :codigo_poa,
+                        @codigo_gabinete = :codigo_gabinete,
+                        @codigo_eje_estrategico = :codigo_eje_estrategico,
+                        @codigo_objetivo_peg = :codigo_objetivo_peg,
+                        @codigo_resultado_peg = :codigo_resultado_peg,
+                        @codigo_indicador_resultado_peg = :codigo_indicador_resultado_peg,
+                        @estado_poa_peg = 1', [
+                        'codigo_poa' => $codigo_poa,
+                        'codigo_gabinete' => $peg['codigo_gabinete'],
+                        'codigo_eje_estrategico' => $peg['codigo_eje_estrategico'],
+                        'codigo_objetivo_peg' => $peg['codigo_objetivo_peg'],
+                        'codigo_resultado_peg' => $peg['codigo_resultado_peg'],
+                        'codigo_indicador_resultado_peg' => $peg['codigo_indicador_resultado_peg'],
+                    ]);
+                }
+    
+                return $codigo_poa;
+            });
+    
+            return response()->json([
+                'success' => true,
+                'message' => 'POA creado con éxito.',
+                'codigo_poa' => $codigo_poa,
+            ], 201);
         } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al crear el POA: ' . $e->getMessage(),
+            ], 500);
         }
-    }
+    }    
 
     public function deactivatePoa($codigo_poa)
     {
