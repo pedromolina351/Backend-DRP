@@ -29,6 +29,9 @@ use App\Http\Controllers\Api\ImpactoController;
 use App\Http\Controllers\Api\ActividadInsumoController;
 use App\Http\Controllers\Api\DatosComplementariosController;
 use App\Http\Controllers\DictamenController;
+use App\Http\Controllers\MMR\CategorizacionController;
+use App\Http\Controllers\MMR\TipoIndicadorController;
+use App\Http\Controllers\MMR\UnidadesController;
 
 Route::prefix('instituciones')->group(function () {
     Route::get('/obtenerTodasInstituciones', [InstitucionController::class, 'getInstitucionesList']);
@@ -167,6 +170,11 @@ Route::prefix('datos-complementarios')->group(function () {
     Route::post('/insertar-datos-complementarios', [DatosComplementariosController::class, 'insertDatosComplementarios']);
 });
 
+Route::prefix('mmr')->group(function () {
+    Route::get('/obtenerTodasCategorizaciones', [CategorizacionController::class, 'getCategorizacionList']);
+    Route::get('/obtenerTodosTiposIndicador', [TipoIndicadorController::class, 'getTiposIndicadoresList']);
+    Route::get('/obtenerTodasUnidades', [UnidadesController::class, 'getUnidadesList']);
+});
 
 
 
