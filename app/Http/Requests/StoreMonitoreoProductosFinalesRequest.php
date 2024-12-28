@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\DB;
 
 class StoreMonitoreoProductosFinalesRequest extends FormRequest
 {
@@ -11,7 +12,7 @@ class StoreMonitoreoProductosFinalesRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -23,20 +24,64 @@ class StoreMonitoreoProductosFinalesRequest extends FormRequest
     {
         return [
             'codigo_poa' => 'required|integer|exists:poa_t_poas,codigo_poa',
-            'codigo_producto_final' => 'required|integer|exists:t_productos_finales,codigo_producto_final',
-            'nombre_unidad_organizativa' => 'required|string|max:100',
-            'nombre_responsable_unidad_organizativa' => 'required|string|max:100',
-            'codigo_unidad_medida' => 'required|integer|exists:mmr.t_unidad_medida,codigo_unidad_medida',
-            'codigo_tipo_indicador' => 'required|integer|exists:mmr.tipo_indicador,codigo_tipo_indicador',
-            'codigo_categorizacion' => 'required|integer|exists:mmr.t_categorizacion,codigo_categorizacion',
-            'medio_verificacion' => 'required|string|max:100',
-            'fuente_financiamiento' => 'required|string|max:100',
-            'meta_cantidad_anual' => 'required|integer|min:1',
-            'codigo_tipo_riesgo' => 'required|integer|exists:mmr.t_tipo_riesgo,codigo_tipo_riesgo',
-            'codigo_nivel_impacto' => 'required|integer|exists:mmr.t_nivel_impacto,codigo_nivel_impacto',
-            'descripcion_riesgo' => 'nullable|string',
+            'listado_monitoreo' => 'required|array|min:1',
+            'listado_monitoreo.*.codigo_producto_final' => 'required|integer|exists:t_productos_finales,codigo_producto_final',
+            'listado_monitoreo.*.nombre_unidad_organizativa' => 'required|string|max:100',
+            'listado_monitoreo.*.nombre_responsable_unidad_organizativa' => 'required|string|max:100',
+            'listado_monitoreo.*.codigo_unidad_medida' => [
+                'required',
+                'integer',
+                function ($attribute, $value, $fail) {
+                    if (!DB::table('mmr.t_unidad_medida')->where('codigo_unidad_medida', $value)->exists()) {
+                        $fail("El código de unidad de medida no existe.");
+                    }
+                },
+            ],
+            'listado_monitoreo.*.codigo_tipo_indicador' => [
+                'required',
+                'integer',
+                function ($attribute, $value, $fail) {
+                    if (!DB::table('mmr.tipo_indicador')->where('codigo_tipo_indicador', $value)->exists()) {
+                        $fail("El código de tipo de indicador no existe.");
+                    }
+                },
+            ],
+            'listado_monitoreo.*.codigo_categorizacion' => [
+                'required',
+                'integer',
+                function ($attribute, $value, $fail) {
+                    if (!DB::table('mmr.t_categorizacion')->where('codigo_categorizacion', $value)->exists()) {
+                        $fail("El código de categorización no existe.");
+                    }
+                },
+            ],
+            'listado_monitoreo.*.medio_verificacion' => 'required|string|max:100',
+            'listado_monitoreo.*.fuente_financiamiento' => 'required|string|max:100',
+            'listado_monitoreo.*.meta_cantidad_anual' => 'required|integer|min:1',
+            'listado_monitoreo.*.codigo_tipo_riesgo' => [
+                'required',
+                'integer',
+                function ($attribute, $value, $fail) {
+                    if (!DB::table('mmr.t_tipo_riesgo')->where('codigo_tipo_riesgo', $value)->exists()) {
+                        $fail("El código de tipo de riesgo no existe.");
+                    }
+                },
+            ],
+            'listado_monitoreo.*.codigo_nivel_impacto' => [
+                'required',
+                'integer',
+                function ($attribute, $value, $fail) {
+                    if (!DB::table('mmr.t_nivel_impacto')->where('codigo_nivel_impacto', $value)->exists()) {
+                        $fail("El código de nivel de impacto no existe.");
+                    }
+                },
+            ],
+            'listado_monitoreo.*.descripcion_riesgo' => 'nullable|string',
+            'listado_monitoreo.*.lista_meses' => 'required|string',
+            'listado_monitoreo.*.lista_cantidades' => 'required|string',
         ];
     }
+    
 
     /**
      * Mensajes de error personalizados para la validación.

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Http\Requests\InsertProductosIntermediosRequest;
+use App\Http\Requests\StoreMonitoreoProductosIntermediosRequest;
 use Illuminate\Support\Facades\DB;
 
 class ProductosIntermediosController extends Controller
@@ -116,5 +117,89 @@ class ProductosIntermediosController extends Controller
             ], 500);
         }
     }
+
+    public function insertMonitoreoProductosIntermedios(StoreMonitoreoProductosIntermediosRequest $request)
+    {
+        try {
+            $validated = $request->validated();
+            $codigoPoa = $validated['codigo_poa'];
+            $errores = [];
+
+            foreach ($validated['listado_monitoreo'] as $producto) {
+                    try{
+                        
+                    $codigoMonitoreoProductoIntermedio = DB::select('EXEC mmr.sp_Insert_poa_t_poas_monitoreo_productos_intermedios 
+                        @codigo_poa = :codigo_poa,
+                        @codigo_producto_intermedio = :codigo_producto_intermedio,
+                        @nombre_unidad_organizativa = :nombre_unidad_organizativa,
+                        @nombre_responsable_unidad_organizativa = :nombre_responsable_unidad_organizativa,
+                        @codigo_unidad_medida = :codigo_unidad_medida,
+                        @codigo_tipo_indicador = :codigo_tipo_indicador,
+                        @codigo_categorizacion = :codigo_categorizacion,
+                        @medio_verificacion = :medio_verificacion,
+                        @meta_cantidad_anual = :meta_cantidad_anual,
+                        @codigo_tipo_riesgo = :codigo_tipo_riesgo,
+                        @codigo_nivel_impacto = :codigo_nivel_impacto,
+                        @descripcion_riesgo = :descripcion_riesgo', [
+                        'codigo_poa' => $codigoPoa,
+                        'codigo_producto_intermedio' => $producto['codigo_producto_intermedio'],
+                        'nombre_unidad_organizativa' => $producto['nombre_unidad_organizativa'],
+                        'nombre_responsable_unidad_organizativa' => $producto['nombre_responsable_unidad_organizativa'],
+                        'codigo_unidad_medida' => $producto['codigo_unidad_medida'],
+                        'codigo_tipo_indicador' => $producto['codigo_tipo_indicador'],
+                        'codigo_categorizacion' => $producto['codigo_categorizacion'],
+                        'medio_verificacion' => $producto['medio_verificacion'],
+                        'meta_cantidad_anual' => $producto['meta_cantidad_anual'],
+                        'codigo_tipo_riesgo' => $producto['codigo_tipo_riesgo'],
+                        'codigo_nivel_impacto' => $producto['codigo_nivel_impacto'],
+                        'descripcion_riesgo' => $producto['descripcion_riesgo'],
+                    ]);
+        
+                    // Obtener el código del monitoreo insertado
+                    $codigoMonitoreoProductoIntermedio = $codigoMonitoreoProductoIntermedio[0]->codigo_monitoreo_producto_intermedio ?? null;
+        
+                    if (!$codigoMonitoreoProductoIntermedio) {
+                        throw new \Exception('Error al insertar el monitoreo del producto intermedio.');
+                    }
+        
+                    // Insertar los meses asociados al producto intermedio
+                    DB::statement('EXEC mmr.sp_Insert_t_monitoreo_meses_productos_intermedios 
+                        @codigo_monitoreo_producto_intermedio = :codigo_monitoreo_producto_intermedio,
+                        @lista_meses = :lista_meses,
+                        @lista_cantidades = :lista_cantidades', [
+                        'codigo_monitoreo_producto_intermedio' => $codigoMonitoreoProductoIntermedio,
+                        'lista_meses' => $producto['lista_meses'],
+                        'lista_cantidades' => $producto['lista_cantidades'],
+                    ]);
+                } catch (\Exception $e) {
+                    $errores[] = [
+                        'producto' => $producto,
+                        'error' => $e->getMessage(),
+                    ];
+                }
+            }
+
+            if (!empty($errores)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Algunos monitoreos no se pudieron procesar.',
+                    'errors' => $errores,
+                ], 207); // 207 Multi-Status indica éxito parcial
+            }
+    
+            // Respuesta de éxito
+            return response()->json([
+                'success' => true,
+                'message' => 'Monitoreo de productos intermedios insertado con éxito.',
+            ], 201);
+        } catch (\Exception $e) {
+            // Manejo de errores
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al insertar el monitoreo de productos intermedios: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+    
     
 }

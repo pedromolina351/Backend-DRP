@@ -159,6 +159,9 @@ Route::prefix('productos')->group(function () {
     Route::post('/insertProductosIntermedios', [ProductosIntermediosController::class, 'insertProductosIntermedios']);
     Route::get('/productos-finales-by-poa/{codigo_poa}', [ProductosFinalesController::class, 'getProductosFinalesByPoa']);
     Route::get('/productos-intermedios-by-poa/{codigo_poa}', [ProductosIntermediosController::class, 'getProductosIntermediosByPoa']);
+    Route::post('/insertMonitoreoProductosFinales', [ProductosFinalesController::class, 'insertMonitoreoProductosFinales']);
+    Route::post('/insertMonitoreoProductosIntermedios', [ProductosIntermediosController::class, 'insertMonitoreoProductosIntermedios']);
+    
 });
 
 Route::prefix('actividades-insumos')->group(function () {
