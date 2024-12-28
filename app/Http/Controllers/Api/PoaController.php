@@ -30,55 +30,54 @@ class PoaController extends Controller
         return response()->json($data, 200, [], JSON_UNESCAPED_UNICODE);
     }
 
-    public function getPoa($codigo_poa) 
+    public function getPoa($codigo_poa)
     {
         try {
             // Obtener el codigo_institucion a partir de la tabla poa_t_poas
             $codigo_institucion = DB::table('poa_t_poas')
                 ->where('codigo_poa', $codigo_poa)
                 ->value('codigo_institucion');
-    
+
             if (!$codigo_institucion) {
                 return response()->json([
                     'success' => false,
                     'message' => 'El codigo_poa proporcionado no existe o no tiene una institución asociada.'
                 ], 404);
             }
-    
+
             // Inicializar arreglo para almacenar resultados
             $result = [];
-    
+
             // Ejecutar cada procedimiento almacenado y almacenar los resultados en el arreglo
             $result['Vision_Pais'] = DB::select('EXEC sp_GetById_poa_t_poas_vision_paisXPoa @codigo_poa = :codigo_poa', [
                 'codigo_poa' => $codigo_poa
             ]);
-    
+
             $result['Politicas'] = DB::select('EXEC sp_GetById_poa_t_poas_politicasXPoa @codigo_poa = :codigo_poa', [
                 'codigo_poa' => $codigo_poa
             ]);
-    
+
             $result['An_ODs'] = DB::select('EXEC sp_GetById_poa_t_poas_an_odsXPoa @codigo_poa = :codigo_poa', [
                 'codigo_poa' => $codigo_poa
             ]);
-    
+
             $result['PEG'] = DB::select('EXEC sp_GetById_poa_t_poas_pegXPoa @codigo_poa = :codigo_poa', [
                 'codigo_poa' => $codigo_poa
             ]);
-    
+
             $result['Programas_Poa'] = DB::select('EXEC sp_GetById_poa_t_poas_programasXPoa @codigo_poa = :codigo_poa', [
                 'codigo_poa' => $codigo_poa
             ]);
-    
+
             $result['Programas_Institucion'] = DB::select('EXEC sp_GetById_t_programasXInstitucion @codigo_institucion = :codigo_institucion', [
                 'codigo_institucion' => $codigo_institucion
             ]);
-    
+
             // Retornar la respuesta con los resultados
             return response()->json([
                 'success' => true,
                 'data' => $result
             ], 200);
-    
         } catch (\Exception $e) {
             // Manejo de errores
             return response()->json([
@@ -126,13 +125,13 @@ class PoaController extends Controller
                         'codigo_usuario_creador' => $request->codigo_usuario_creador,
                     ]
                 );
-    
+
                 $codigo_poa = $result[0]->codigo_poa ?? null;
-    
+
                 if (!$codigo_poa) {
                     throw new \Exception('No se pudo generar el código del POA.');
                 }
-    
+
                 // Iterar sobre las políticas y agregar registros relacionados
                 foreach ($request->listado_politicas as $politica) {
                     DB::statement('EXEC sp_Insert_poa_t_poas_politicas @codigo_poa = :codigo_poa, @codigo_politica_publica = :codigo_politica', [
@@ -140,7 +139,7 @@ class PoaController extends Controller
                         'codigo_politica' => $politica['codigo_politica'],
                     ]);
                 }
-    
+
                 // Iterar sobre los objetivos AN-ODS
                 foreach ($request->listado_objetivos as $objetivo) {
                     DB::statement('EXEC sp_Insert_poa_t_poas_an_ods 
@@ -155,7 +154,7 @@ class PoaController extends Controller
                         'codigo_indicador_an_ods' => $objetivo['codigo_indicador_an_ods'],
                     ]);
                 }
-    
+
                 // Iterar sobre los objetivos de Visión País
                 foreach ($request->listado_objetivos_vp as $vp) {
                     DB::statement('EXEC sp_Insert_poa_t_poas_vision_pais 
@@ -168,7 +167,7 @@ class PoaController extends Controller
                         'codigo_meta_vp' => $vp['codigo_meta_vp'],
                     ]);
                 }
-    
+
                 // Iterar sobre el plan estratégico
                 foreach ($request->listado_plan_estrategico as $peg) {
                     DB::statement('EXEC sp_Insert_poa_t_poas_peg 
@@ -187,10 +186,10 @@ class PoaController extends Controller
                         'codigo_indicador_resultado_peg' => $peg['codigo_indicador_resultado_peg'],
                     ]);
                 }
-    
+
                 return $codigo_poa;
             });
-    
+
             return response()->json([
                 'success' => true,
                 'message' => 'POA creado con éxito.',
@@ -202,7 +201,7 @@ class PoaController extends Controller
                 'message' => 'Error al crear el POA: ' . $e->getMessage(),
             ], 500);
         }
-    }    
+    }
 
     public function deactivatePoa($codigo_poa)
     {
@@ -280,64 +279,116 @@ class PoaController extends Controller
         try {
             // Validar los datos del request
             $validated = $request->validated();
-
-            // Validación previa del usuario
+    
+            // Validar permisos del usuario
             $user = DB::table('config_t_usuarios')
                 ->where('codigo_usuario', $validated['codigo_usuario_modificador'])
                 ->select('super_user', 'usuario_drp')
                 ->first();
-
+    
             if (!$user) {
                 return response()->json([
                     'success' => false,
                     'message' => 'El código de usuario modificador es inválido.'
                 ], 403);
             }
-
+    
             if ($user->super_user == 0 && $user->usuario_drp == 0) {
                 return response()->json([
                     'success' => false,
                     'message' => 'El usuario no tiene permisos para realizar esta operación.'
                 ], 403);
             }
-
-            // Convertir a objeto si es un array
-            $validated = (object) $validated;
-
-            // Ejecutar el procedimiento almacenado con los parámetros validados del request
-            DB::statement('EXEC sp_Update_poa_t_poas_main 
-                @codigo_poa = ?, 
-                @codigo_institucion = ?, 
-                @codigo_programa = ?, 
-                @codigo_usuario_modificador = ?, 
-                @codigo_politica = ?, 
-                @codigo_objetivo_an_ods = ?, 
-                @codigo_meta_an_ods = ?, 
-                @codigo_indicador_an_ods = ?, 
-                @codigo_objetivo_vp = ?, 
-                @codigo_meta_vp = ?, 
-                @codigo_gabinete = ?, 
-                @codigo_eje_estrategico = ?, 
-                @codigo_objetivo_peg = ?, 
-                @codigo_resultado_peg = ?, 
-                @codigo_indicador_resultado_peg = ?', [
-                $validated->codigo_poa,
-                $validated->codigo_institucion ?? null,
-                $validated->codigo_programa ?? null,
-                $validated->codigo_usuario_modificador,
-                $validated->codigo_politica ?? null,
-                $validated->codigo_objetivo_an_ods ?? null,
-                $validated->codigo_meta_an_ods ?? null,
-                $validated->codigo_indicador_an_ods ?? null,
-                $validated->codigo_objetivo_vp ?? null,
-                $validated->codigo_meta_vp ?? null,
-                $validated->codigo_gabinete ?? null,
-                $validated->codigo_eje_estrategico ?? null,
-                $validated->codigo_objetivo_peg ?? null,
-                $validated->codigo_resultado_peg ?? null,
-                $validated->codigo_indicador_resultado_peg ?? null
-            ]);
-
+    
+            DB::transaction(function () use ($validated) {
+                // Actualizar la tabla principal y limpiar datos relacionados
+                DB::statement('EXEC sp_Replace_poa_t_poas_main 
+                    @codigo_poa = :codigo_poa,
+                    @codigo_institucion = :codigo_institucion,
+                    @codigo_programa = :codigo_programa,
+                    @codigo_usuario_modificador = :codigo_usuario_modificador',
+                    [
+                        'codigo_poa' => $validated['codigo_poa'],
+                        'codigo_institucion' => $validated['codigo_institucion'],
+                        'codigo_programa' => $validated['codigo_programa'],
+                        'codigo_usuario_modificador' => $validated['codigo_usuario_modificador'],
+                    ]
+                );
+    
+                // Insertar políticas
+                if (!empty($validated['listado_politicas'])) {
+                    foreach ($validated['listado_politicas'] as $politica) {
+                        DB::statement('EXEC sp_Insert_poa_t_poas_politicas 
+                            @codigo_poa = :codigo_poa, 
+                            @codigo_politica_publica = :codigo_politica',
+                            [
+                                'codigo_poa' => $validated['codigo_poa'],
+                                'codigo_politica' => $politica['codigo_politica'],
+                            ]
+                        );
+                    }
+                }
+    
+                // Insertar objetivos AN-ODS
+                if (!empty($validated['listado_objetivos'])) {
+                    foreach ($validated['listado_objetivos'] as $objetivo) {
+                        DB::statement('EXEC sp_Insert_poa_t_poas_an_ods 
+                            @codigo_poa = :codigo_poa,
+                            @codigo_objetivo_an_ods = :codigo_objetivo_an_ods,
+                            @codigo_meta_an_ods = :codigo_meta_an_ods,
+                            @codigo_indicador_an_ods = :codigo_indicador_an_ods,
+                            @estado_an_ods = 1',
+                            [
+                                'codigo_poa' => $validated['codigo_poa'],
+                                'codigo_objetivo_an_ods' => $objetivo['codigo_objetivo_an_ods'],
+                                'codigo_meta_an_ods' => $objetivo['codigo_meta_an_ods'],
+                                'codigo_indicador_an_ods' => $objetivo['codigo_indicador_an_ods'],
+                            ]
+                        );
+                    }
+                }
+    
+                // Insertar objetivos de Visión País
+                if (!empty($validated['listado_objetivos_vp'])) {
+                    foreach ($validated['listado_objetivos_vp'] as $vp) {
+                        DB::statement('EXEC sp_Insert_poa_t_poas_vision_pais 
+                            @codigo_poa = :codigo_poa,
+                            @codigo_objetivo_vp = :codigo_objetivo_vp,
+                            @codigo_meta_vp = :codigo_meta_vp,
+                            @estado_vp = 1',
+                            [
+                                'codigo_poa' => $validated['codigo_poa'],
+                                'codigo_objetivo_vp' => $vp['codigo_objetivo_vp'],
+                                'codigo_meta_vp' => $vp['codigo_meta_vp'],
+                            ]
+                        );
+                    }
+                }
+    
+                // Insertar plan estratégico
+                if (!empty($validated['listado_plan_estrategico'])) {
+                    foreach ($validated['listado_plan_estrategico'] as $peg) {
+                        DB::statement('EXEC sp_Insert_poa_t_poas_peg 
+                            @codigo_poa = :codigo_poa,
+                            @codigo_gabinete = :codigo_gabinete,
+                            @codigo_eje_estrategico = :codigo_eje_estrategico,
+                            @codigo_objetivo_peg = :codigo_objetivo_peg,
+                            @codigo_resultado_peg = :codigo_resultado_peg,
+                            @codigo_indicador_resultado_peg = :codigo_indicador_resultado_peg,
+                            @estado_poa_peg = 1',
+                            [
+                                'codigo_poa' => $validated['codigo_poa'],
+                                'codigo_gabinete' => $peg['codigo_gabinete'],
+                                'codigo_eje_estrategico' => $peg['codigo_eje_estrategico'],
+                                'codigo_objetivo_peg' => $peg['codigo_objetivo_peg'],
+                                'codigo_resultado_peg' => $peg['codigo_resultado_peg'],
+                                'codigo_indicador_resultado_peg' => $peg['codigo_indicador_resultado_peg'],
+                            ]
+                        );
+                    }
+                }
+            });
+    
             return response()->json([
                 'success' => true,
                 'message' => 'POA modificado con éxito.'
@@ -349,5 +400,5 @@ class PoaController extends Controller
                 'message' => 'Error al modificar el POA: ' . $e->getMessage()
             ], 500);
         }
-    }
+    }    
 }
