@@ -162,6 +162,7 @@ Route::prefix('productos')->group(function () {
     Route::post('/insertMonitoreoProductosFinales', [ProductosFinalesController::class, 'insertMonitoreoProductosFinales']);
     Route::get('/monitoreo-productos-finales/{codigo_poa}', [ProductosFinalesController::class, 'getMonitoreoProductosFinales']);
     Route::post('/insertMonitoreoProductosIntermedios', [ProductosIntermediosController::class, 'insertMonitoreoProductosIntermedios']);
+    Route::get('/monitoreo-productos-intermedios/{codigo_poa}', [ProductosIntermediosController::class, 'getMonitoreoProductosIntermedios']);
     
 });
 

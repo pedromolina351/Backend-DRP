@@ -37,7 +37,7 @@ class PoaController extends Controller
             $codigo_institucion = DB::table('poa_t_poas')
                 ->where('codigo_poa', $codigo_poa)
                 ->value('codigo_institucion');
-
+            
             if (!$codigo_institucion) {
                 return response()->json([
                     'success' => false,

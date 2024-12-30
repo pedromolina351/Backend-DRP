@@ -201,4 +201,41 @@ class ProductosIntermediosController extends Controller
         }
     }
     
+    public function getMonitoreoProductosIntermedios($codigo_poa)
+    {
+        try {
+            // Verificar si el codigo_poa existe en la tabla correspondiente
+            $poaExists = DB::table('poa_t_poas')->where('codigo_poa', $codigo_poa)->exists();
+    
+            if (!$poaExists) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'El codigo_poa proporcionado no existe.',
+                ], 400); // Bad Request
+            }
+    
+            // Ejecutar el procedimiento almacenado
+            $monitoreo_productos_intermedios = DB::select('EXEC mmr.sp_Get_t_poa_t_poas_monitoreo_productos_intermedios @codigo_poa = ?', [$codigo_poa]);
+    
+            // Manejar el resultado
+            if (count($monitoreo_productos_intermedios) > 0) {
+                // Acceder al primer resultado
+                $jsonField = array_values((array) $monitoreo_productos_intermedios[0])[0];
+                $data = json_decode($jsonField, true); // Decodificar JSON
+            } else {
+                $data = [];
+            }
+    
+            return response()->json([
+                'success' => true,
+                'monitoreo_productos_intermedios' => $data,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener el monitoreo de productos intermedios: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+    
 }
