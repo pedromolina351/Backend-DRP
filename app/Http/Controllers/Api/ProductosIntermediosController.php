@@ -24,7 +24,7 @@ class ProductosIntermediosController extends Controller
             }
             // Inicializar un arreglo para errores
             $errors = [];
-    
+
             // Iterar sobre los productos_intermedios recibidos en el body
             foreach ($request->productos_intermedios as $producto) {
                 try {
@@ -67,7 +67,7 @@ class ProductosIntermediosController extends Controller
                     ];
                 }
             }
-    
+
             // Verificar si hubo errores
             if (!empty($errors)) {
                 return response()->json([
@@ -76,12 +76,11 @@ class ProductosIntermediosController extends Controller
                     'errors' => $errors,
                 ], 207); // 207 Multi-Status indica éxito parcial
             }
-    
+
             return response()->json([
                 'success' => true,
                 'message' => 'Productos intermedios procesados con éxito.',
             ], 201);
-    
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -109,7 +108,6 @@ class ProductosIntermediosController extends Controller
                 'success' => true,
                 'productos_intermedios' => $productos_intermedios,
             ], 200);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -126,8 +124,8 @@ class ProductosIntermediosController extends Controller
             $errores = [];
 
             foreach ($validated['listado_monitoreo'] as $producto) {
-                    try{
-                        
+                try {
+
                     $codigoMonitoreoProductoIntermedio = DB::select('EXEC mmr.sp_Insert_poa_t_poas_monitoreo_productos_intermedios 
                         @codigo_poa = :codigo_poa,
                         @codigo_producto_intermedio = :codigo_producto_intermedio,
@@ -154,14 +152,14 @@ class ProductosIntermediosController extends Controller
                         'codigo_nivel_impacto' => $producto['codigo_nivel_impacto'],
                         'descripcion_riesgo' => $producto['descripcion_riesgo'],
                     ]);
-        
+
                     // Obtener el código del monitoreo insertado
                     $codigoMonitoreoProductoIntermedio = $codigoMonitoreoProductoIntermedio[0]->codigo_monitoreo_producto_intermedio ?? null;
-        
+
                     if (!$codigoMonitoreoProductoIntermedio) {
                         throw new \Exception('Error al insertar el monitoreo del producto intermedio.');
                     }
-        
+
                     // Insertar los meses asociados al producto intermedio
                     DB::statement('EXEC mmr.sp_Insert_t_monitoreo_meses_productos_intermedios 
                         @codigo_monitoreo_producto_intermedio = :codigo_monitoreo_producto_intermedio,
@@ -186,7 +184,7 @@ class ProductosIntermediosController extends Controller
                     'errors' => $errores,
                 ], 207); // 207 Multi-Status indica éxito parcial
             }
-    
+
             // Respuesta de éxito
             return response()->json([
                 'success' => true,
@@ -200,32 +198,32 @@ class ProductosIntermediosController extends Controller
             ], 500);
         }
     }
-    
+
     public function getMonitoreoProductosIntermedios($codigo_poa)
     {
         try {
             // Verificar si el codigo_poa existe en la tabla correspondiente
             $poaExists = DB::table('poa_t_poas')->where('codigo_poa', $codigo_poa)->exists();
-    
+
             if (!$poaExists) {
                 return response()->json([
                     'success' => false,
                     'message' => 'El codigo_poa proporcionado no existe.',
                 ], 400); // Bad Request
             }
-    
+
             // Ejecutar el procedimiento almacenado
-            $monitoreo_productos_intermedios = DB::select('EXEC mmr.sp_Get_t_poa_t_poas_monitoreo_productos_intermedios @codigo_poa = ?', [$codigo_poa]);
-    
-            // Manejar el resultado
-            if (count($monitoreo_productos_intermedios) > 0) {
-                // Acceder al primer resultado
-                $jsonField = array_values((array) $monitoreo_productos_intermedios[0])[0];
-                $data = json_decode($jsonField, true); // Decodificar JSON
+            $result = DB::select('EXEC mmr.sp_Get_t_poa_t_poas_monitoreo_productos_intermedios @codigo_poa = ?', [$codigo_poa]);
+
+            // Decodificar el JSON desde la respuesta
+            $jsonField = $result[0]->Monitoreos ?? null;
+
+            if ($jsonField) {
+                $data = json_decode($jsonField, true); // Convertir JSON en un array asociativo
             } else {
                 $data = [];
             }
-    
+
             return response()->json([
                 'success' => true,
                 'monitoreo_productos_intermedios' => $data,
@@ -237,5 +235,4 @@ class ProductosIntermediosController extends Controller
             ], 500);
         }
     }
-    
 }
