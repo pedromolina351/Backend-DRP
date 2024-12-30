@@ -194,4 +194,32 @@ class ProductosFinalesController extends Controller
             ], 500);
         }
     }    
+
+    public function getMonitoreoProductosFinales($codigo_poa){
+        try {
+            // Verificar si el codigo_poa existe en la tabla correspondiente
+            $poaExists = DB::table('poa_t_poas')->where('codigo_poa', $codigo_poa)->exists();
+
+            if (!$poaExists) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'El codigo_poa proporcionado no existe.',
+                ], 400); // Bad Request
+            }
+
+            $monitoreo_productos_finales = DB::select('EXEC mmr.sp_Get_t_poa_t_poas_monitoreo_productos_finales @codigo_poa = ?', [$codigo_poa]);
+            $jsonField = $monitoreo_productos_finales[0]->{'JSON_F52E2B61-18A1-11d1-B105-00805F49916B'} ?? null;
+            $data = $jsonField ? json_decode($jsonField, true) : [];
+
+            return response()->json([
+                'success' => true,
+                'monitoreo_productos_finales' => $data,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener el monitoreo de productos finales: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
 }

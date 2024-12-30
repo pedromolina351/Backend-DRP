@@ -201,5 +201,4 @@ class ProductosIntermediosController extends Controller
         }
     }
     
-    
 }
