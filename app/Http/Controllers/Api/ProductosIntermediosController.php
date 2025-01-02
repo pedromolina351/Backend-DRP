@@ -220,14 +220,18 @@ class ProductosIntermediosController extends Controller
 
             if ($jsonField) {
                 $data = json_decode($jsonField, true); // Convertir JSON en un array asociativo
+                return response()->json([
+                    'success' => true,
+                    'monitoreo_productos_intermedios' => $data,
+                ], 200);
             } else {
                 $data = [];
+                return response()->json([
+                    'success' => false,
+                    'monitoreo_productos_intermedios' => $data,
+                ], 200);
             }
 
-            return response()->json([
-                'success' => true,
-                'monitoreo_productos_intermedios' => $data,
-            ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,

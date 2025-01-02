@@ -207,14 +207,25 @@ class ProductosFinalesController extends Controller
                 ], 400); // Bad Request
             }
 
-            $monitoreo_productos_finales = DB::select('EXEC mmr.sp_Get_t_poa_t_poas_monitoreo_productos_finales @codigo_poa = ?', [$codigo_poa]);
-            $jsonField = $monitoreo_productos_finales[0]->{'JSON_F52E2B61-18A1-11d1-B105-00805F49916B'} ?? null;
-            $data = $jsonField ? json_decode($jsonField, true) : [];
+            // Ejecutar el procedimiento almacenado
+            $result = DB::select('EXEC mmr.sp_Get_t_poa_t_poas_monitoreo_productos_finales @codigo_poa = ?', [$codigo_poa]);
 
-            return response()->json([
-                'success' => true,
-                'monitoreo_productos_finales' => $data,
-            ], 200);
+            // Decodificar el JSON desde la respuesta
+            $jsonField = $result[0]->Monitoreos ?? null;
+
+            if ($jsonField) {
+                $data = json_decode($jsonField, true); // Convertir JSON en un array asociativo
+                return response()->json([
+                    'success' => true,
+                    'monitoreo_productos_intermedios' => $data,
+                ], 200);
+            } else {
+                $data = [];
+                return response()->json([
+                    'success' => false,
+                    'monitoreo_productos_intermedios' => $data,
+                ], 200);
+            }
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
