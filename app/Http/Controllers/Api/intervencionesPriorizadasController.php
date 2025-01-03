@@ -23,7 +23,7 @@ class intervencionesPriorizadasController extends Controller
             }
             return response()->json([
                 'success' => true,
-                'productos_finales' => $data,
+                'data' => $data,
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
@@ -90,15 +90,67 @@ class intervencionesPriorizadasController extends Controller
                     'message' => 'No se encontraron intervenciones priorizadas para la institución.',
                 ], 404); // Not Found
             }
-            
+
             return response()->json([
                 'success' => true,
-                'intervenciones_priorizadas' => $data,
+                'data' => $data,
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Error al obtener las intervenciones priorizadas: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function getAllDepartamentos(){
+        try {
+            $departamentos = DB::select('EXEC [intervensiones_priorizadas].[sp_GetAll_t_glo_departamentos]');
+
+            $jsonField = $departamentos[0]->{'JSON_F52E2B61-18A1-11d1-B105-00805F49916B'} ?? null;
+            $data = $jsonField ? json_decode($jsonField, true) : [];
+
+            if (empty($data)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No se encontraron departamentos.',
+                ], 404); // Not Found
+            }
+            return response()->json([
+                'success' => true,
+                'data' => $data,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener los productos finales: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function getMunicipiosByDepartamento($codigo_departamento){
+        try {
+            $municipios = DB::select('EXEC [intervensiones_priorizadas].[sp_GetById_t_glo_municipiosXDepartamento] @cod_departamento = :cod_departamento', [
+                'cod_departamento' => $codigo_departamento,
+            ]);
+
+            $jsonField = $municipios[0]->{'JSON_F52E2B61-18A1-11d1-B105-00805F49916B'} ?? null;
+            $data = $jsonField ? json_decode($jsonField, true) : [];
+
+            if (empty($data)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No se encontraron municipios.',
+                ], 404); // Not Found
+            }
+            return response()->json([
+                'success' => true,
+                'data' => $data,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener los productos finales: ' . $e->getMessage(),
             ], 500);
         }
     }
