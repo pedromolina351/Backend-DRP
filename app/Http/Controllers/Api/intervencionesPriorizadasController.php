@@ -181,4 +181,8 @@ class intervencionesPriorizadasController extends Controller
             ], 500);
         }
     }
+
+    public function insertarIntervencionPriorizada(){
+        return "insertarIntervencionPriorizada";
+    }
 }
