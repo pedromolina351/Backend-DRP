@@ -1,0 +1,78 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreAldeaRequest;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+
+class intervencionesPriorizadasController extends Controller
+{
+    public function getAldeasPriorizadas()
+    {
+        try {
+            $aldeas = DB::select('EXEC [intervensiones_priorizadas].[sp_get_aldeas_priorizadas]');
+            $jsonField = $aldeas[0]->{'JSON_F52E2B61-18A1-11d1-B105-00805F49916B'} ?? null;
+            $data = $jsonField ? json_decode($jsonField, true) : [];
+            if (empty($data)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No se encontraron aldeas priorizadas.',
+                ], 404); // Not Found
+            }
+            return response()->json([
+                'success' => true,
+                'productos_finales' => $data,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener los productos finales: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function insertAldeas(StoreAldeaRequest $request)
+    {
+        try {
+            // Obtener los datos validados del request
+            $validated = $request->validated();
+    
+            // Ejecutar el procedimiento almacenado
+            DB::statement('EXEC intervensiones_priorizadas.sp_insert_aldea_priorizada 
+                @codigo_intervension_priorizada = :codigo_intervension_priorizada,
+                @cod_departamento = :cod_departamento,
+                @cod_municipio = :cod_municipio,
+                @cod_aldea = :cod_aldea,
+                @estado = :estado', [
+                'codigo_intervension_priorizada' => $validated['codigo_intervension_priorizada'],
+                'cod_departamento' => $validated['cod_departamento'],
+                'cod_municipio' => $validated['cod_municipio'],
+                'cod_aldea' => $validated['cod_aldea'],
+                'estado' => $validated['estado'],
+            ]);
+    
+            // Respuesta exitosa
+            return response()->json([
+                'success' => true,
+                'message' => 'Aldea priorizada insertada exitosamente.',
+            ], 201);
+    
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Manejar errores de validación
+            return response()->json([
+                'success' => false,
+                'message' => 'Error de validación.',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            // Manejar errores generales
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al insertar la aldea priorizada: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+    
+}

@@ -33,7 +33,8 @@ RUN mkdir -p /var/run/php && \
 # Configurar PHP para cargar un archivo php.ini
 RUN cp /usr/local/etc/php/php.ini-production /usr/local/etc/php/php.ini && \
     echo "memory_limit = 512M" >> /usr/local/etc/php/php.ini && \
-    echo "max_execution_time = 120" >> /usr/local/etc/php/php.ini
+    echo "max_execution_time = 120" >> /usr/local/etc/php/php.ini && \
+    echo "extension = zip" >> /usr/local/etc/php/php.ini 
 
 # Agregar clave y repositorio de Microsoft
 RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \

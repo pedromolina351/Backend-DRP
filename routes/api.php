@@ -34,6 +34,7 @@ use App\Http\Controllers\MMR\TipoIndicadorController;
 use App\Http\Controllers\MMR\UnidadesController;
 use App\Http\Controllers\MMR\NivelImpactoController;
 use App\Http\Controllers\MMR\TiposRiesgoController;
+use App\Http\Controllers\Api\IntervencionesPriorizadasController;
 
 Route::prefix('instituciones')->group(function () {
     Route::get('/obtenerTodasInstituciones', [InstitucionController::class, 'getInstitucionesList']);
@@ -183,7 +184,11 @@ Route::prefix('mmr')->group(function () {
     Route::get('/obtenerTodasUnidades', [UnidadesController::class, 'getUnidadesList']);
     Route::get('/obtenerTodosNivelesImpacto', [NivelImpactoController::class, 'getNivelesImpactoList']);
     Route::get('/obtenerTodosTiposRiesgo', [TiposRiesgoController::class, 'getTiposRiesgoList']);
+});
 
+Route::prefix('intervenciones-priorizadas')->group(function () {
+    Route::get('/obtenerAldeasPriorizadas', [IntervencionesPriorizadasController::class, 'getAldeasPriorizadas']);
+    Route::post('/insertarAldeas', [IntervencionesPriorizadasController::class, 'insertAldeas']);
 });
 
 
