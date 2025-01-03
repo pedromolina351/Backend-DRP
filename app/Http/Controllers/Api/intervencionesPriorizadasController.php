@@ -74,5 +74,33 @@ class intervencionesPriorizadasController extends Controller
             ], 500);
         }
     }
+
+    public function getIntervencionesPriorizadasByInstitucion($codigo_institucion){
+        try {
+            $intervenciones = DB::select('EXEC [intervensiones_priorizadas].[sp_GetById_intervenciones_por_institucion] @codigo_institucion = :codigo_institucion', [
+                'codigo_institucion' => $codigo_institucion,
+            ]);
+
+            $jsonField = $intervenciones[0]->{'JSON_F52E2B61-18A1-11d1-B105-00805F49916B'} ?? null;
+            $data = $jsonField ? json_decode($jsonField, true) : [];
+
+            if (empty($data)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No se encontraron intervenciones priorizadas para la institución.',
+                ], 404); // Not Found
+            }
+            
+            return response()->json([
+                'success' => true,
+                'intervenciones_priorizadas' => $data,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener las intervenciones priorizadas: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
     
 }

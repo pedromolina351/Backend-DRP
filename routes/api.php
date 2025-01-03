@@ -189,6 +189,7 @@ Route::prefix('mmr')->group(function () {
 Route::prefix('intervenciones-priorizadas')->group(function () {
     Route::get('/obtenerAldeasPriorizadas', [IntervencionesPriorizadasController::class, 'getAldeasPriorizadas']);
     Route::post('/insertarAldeas', [IntervencionesPriorizadasController::class, 'insertAldeas']);
+    Route::get('/getIntervencionesPriorizadasByInstitucion/{codigo_institucion}', [IntervencionesPriorizadasController::class, 'getIntervencionesPriorizadasByInstitucion']);
 });
 
 
