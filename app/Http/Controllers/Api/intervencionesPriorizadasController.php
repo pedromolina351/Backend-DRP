@@ -7,7 +7,7 @@ use App\Http\Requests\StoreAldeaRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class intervencionesPriorizadasController extends Controller
+class IntervencionesPriorizadasController extends Controller
 {
     public function getAldeasPriorizadas()
     {
