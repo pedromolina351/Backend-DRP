@@ -34,7 +34,7 @@ use App\Http\Controllers\MMR\TipoIndicadorController;
 use App\Http\Controllers\MMR\UnidadesController;
 use App\Http\Controllers\MMR\NivelImpactoController;
 use App\Http\Controllers\MMR\TiposRiesgoController;
-use app\Http\Controllers\Api\IntervencionesPriorizadasController;
+use App\Http\Controllers\Api\IntervencionesPriorizadasController;
 
 Route::prefix('instituciones')->group(function () {
     Route::get('/obtenerTodasInstituciones', [InstitucionController::class, 'getInstitucionesList']);
