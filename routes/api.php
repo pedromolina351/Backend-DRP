@@ -192,6 +192,7 @@ Route::prefix('intervenciones-priorizadas')->group(function () {
     Route::get('/getIntervencionesPriorizadasByInstitucion/{codigo_institucion}', [IntervencionesPriorizadasController::class, 'getIntervencionesPriorizadasByInstitucion']);
     Route::get('/obtenerDepartamentos', [IntervencionesPriorizadasController::class, 'getAllDepartamentos']);
     Route::get('/obtenerMunicipios/{codigo_departamento}', [IntervencionesPriorizadasController::class, 'getMunicipiosByDepartamento']);
+    Route::get('/obtenerAldeas/{codigo_municipio}', [IntervencionesPriorizadasController::class, 'getAldeasByMunicipio']);
 });
 
 

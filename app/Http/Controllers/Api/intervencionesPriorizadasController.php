@@ -123,7 +123,7 @@ class intervencionesPriorizadasController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error al obtener los productos finales: ' . $e->getMessage(),
+                'message' => 'Error al obtener los departamentos: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -150,9 +150,35 @@ class intervencionesPriorizadasController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error al obtener los productos finales: ' . $e->getMessage(),
+                'message' => 'Error al obtener los municipios: ' . $e->getMessage(),
             ], 500);
         }
     }
-    
+
+    public function getAldeasByMunicipio($codigo_municipio){
+        try {
+            $aldeas = DB::select('EXEC [intervensiones_priorizadas].[sp_GetById_t_glo_aldeasXMunicipio] @cod_municipio = :cod_municipio', [
+                'cod_municipio' => $codigo_municipio,
+            ]);
+
+            $jsonField = $aldeas[0]->{'JSON_F52E2B61-18A1-11d1-B105-00805F49916B'} ?? null;
+            $data = $jsonField ? json_decode($jsonField, true) : [];
+
+            if (empty($data)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No se encontraron aldeas.',
+                ], 404); // Not Found
+            }
+            return response()->json([
+                'success' => true,
+                'data' => $data,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener las aldeas: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
 }
