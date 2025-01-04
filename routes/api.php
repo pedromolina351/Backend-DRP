@@ -35,6 +35,7 @@ use App\Http\Controllers\MMR\UnidadesController;
 use App\Http\Controllers\MMR\NivelImpactoController;
 use App\Http\Controllers\MMR\TiposRiesgoController;
 use App\Http\Controllers\Api\IntervencionesPriorizadasController;
+use App\Http\Controllers\Api\FilController;
 
 Route::prefix('instituciones')->group(function () {
     Route::get('/obtenerTodasInstituciones', [InstitucionController::class, 'getInstitucionesList']);
@@ -195,6 +196,10 @@ Route::prefix('intervenciones-priorizadas')->group(function () {
     Route::get('/obtenerAldeas/{codigo_municipio}', [IntervencionesPriorizadasController::class, 'getAldeasByMunicipio']);
 });
 
+Route::prefix('fil')->group(function () {
+    Route::get('/obtenerFil', [FilController::class, 'getAllFil']);
+    Route::post('/insertarComentarioFil', [FilController::class, 'insertarComentarioFil']);
+});
 
 
 //Api para generar archivo Word:
