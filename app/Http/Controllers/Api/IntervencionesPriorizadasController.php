@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreAldeaRequest;
+use App\Http\Requests\StoreIntervencionesPriorizadasRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -182,7 +183,70 @@ class IntervencionesPriorizadasController extends Controller
         }
     }
 
-    public function insertarIntervencionPriorizada(){
-        return "insertarIntervencionPriorizada";
-    }
+    public function insertIntervencionesPriorizadas(StoreIntervencionesPriorizadasRequest $request)
+    {
+        try {
+            //$validated = $request->validated();
+    
+            foreach ($request['listado_intervenciones'] as $intervencion) {
+                // Insertar la intervención priorizada y obtener el ID generado
+                $intervencionResult = DB::select('EXEC intervensiones_priorizadas.sp_Insert_intervension_priorizada 
+                    @id_intervension_priorizada = NULL, 
+                    @codigo_institucion = :codigo_institucion, 
+                    @codigo_programa = :codigo_programa, 
+                    @descripcion_paquete_priorizado = :descripcion_paquete_priorizado, 
+                    @cantidad_anio = :cantidad_anio, 
+                    @presupuesto_proyectado_anual_lempiras = :presupuesto_proyectado_anual_lempiras, 
+                    @cantidad_ejecutada_primer_trimestre = :cantidad_ejecutada_primer_trimestre, 
+                    @cantidad_ejecutada_segundo_trimestre = :cantidad_ejecutada_segundo_trimestre, 
+                    @cantidad_ejecutada_tercer_trimestre = :cantidad_ejecutada_tercer_trimestre, 
+                    @cantidad_ejecutada_cuarto_trimestre = :cantidad_ejecutada_cuarto_trimestre, 
+                    @observaciones = :observaciones, 
+                    @estado = 1', [
+                    'codigo_institucion' => $intervencion['codigo_institucion'],
+                    'codigo_programa' => $intervencion['codigo_programa'],
+                    'descripcion_paquete_priorizado' => $intervencion['descripcion_paquete_priorizado'],
+                    'cantidad_anio' => $intervencion['cantidad_anio'],
+                    'presupuesto_proyectado_anual_lempiras' => $intervencion['presupuesto_proyectado_anual_lempiras'],
+                    'cantidad_ejecutada_primer_trimestre' => $intervencion['cantidad_ejecutada_primer_trimestre'],
+                    'cantidad_ejecutada_segundo_trimestre' => $intervencion['cantidad_ejecutada_segundo_trimestre'],
+                    'cantidad_ejecutada_tercer_trimestre' => $intervencion['cantidad_ejecutada_tercer_trimestre'],
+                    'cantidad_ejecutada_cuarto_trimestre' => $intervencion['cantidad_ejecutada_cuarto_trimestre'],
+                    'observaciones' => $intervencion['observaciones']
+                ]);
+    
+                // Obtener el ID de la intervención priorizada recién creada
+                $codigoIntervencion = $intervencionResult[0]->codigo_intervension_priorizada ?? null;
+    
+                if (!$codigoIntervencion) {
+                    throw new \Exception('Error al insertar la intervención priorizada.');
+                }
+    
+                // Insertar las aldeas asociadas a la intervención priorizada
+                foreach ($intervencion['listado_aldeas'] as $aldea) {
+                    DB::statement('EXEC intervensiones_priorizadas.sp_insert_aldea_priorizada 
+                        @codigo_intervension_priorizada = :codigo_intervension_priorizada, 
+                        @cod_departamento = :cod_departamento, 
+                        @cod_municipio = :cod_municipio, 
+                        @cod_aldea = :cod_aldea, 
+                        @estado = 1', [
+                        'codigo_intervension_priorizada' => $codigoIntervencion,
+                        'cod_departamento' => $aldea['cod_departamento'],
+                        'cod_municipio' => $aldea['cod_municipio'],
+                        'cod_aldea' => $aldea['cod_aldea']
+                    ]);
+                }
+            }
+    
+            return response()->json([
+                'success' => true,
+                'message' => 'Intervenciones y aldeas asociadas insertadas correctamente.'
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al insertar intervenciones priorizadas: ' . $e->getMessage()
+            ], 500);
+        }
+    }    
 }
