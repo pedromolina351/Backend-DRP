@@ -10,36 +10,84 @@ use Illuminate\Support\Facades\DB;
 
 class IntervencionesPriorizadasController extends Controller
 {
-    public function getAldeasPriorizadas()
+    public function getAldeasPriorizadas(Request $request)
     {
         try {
-            $aldeas = DB::select('EXEC [intervensiones_priorizadas].[sp_get_aldeas_priorizadas]');
-            $jsonField = $aldeas[0]->{'JSON_F52E2B61-18A1-11d1-B105-00805F49916B'} ?? null;
-            $data = $jsonField ? json_decode($jsonField, true) : [];
-            if (empty($data)) {
+            // Obtener los parámetros opcionales
+            $codigo_aldea_intervenida = $request->query('codigo_aldea_intervenida');
+            $codigo_intervension_priorizada = $request->query('codigo_intervension_priorizada');
+    
+            // Verificar si ambos parámetros están presentes
+            if ($codigo_aldea_intervenida && $codigo_intervension_priorizada) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'No se encontraron aldeas priorizadas.',
-                ], 404); // Not Found
+                    'message' => 'Solo se puede proporcionar uno de los dos parámetros: codigo_aldea_intervenida o codigo_intervension_priorizada.',
+                ], 400);
+            }else if($codigo_aldea_intervenida){
+                //Verificar que el codigo_aldea_intervenida exista
+                $aldeaExists = DB::table('intervensiones_priorizadas.aldeas_intervenidas')->where('codigo_aldea_intervenida', $codigo_aldea_intervenida)->exists();
+                if (!$aldeaExists) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'El codigo_aldea_intervenida proporcionado no existe.',
+                    ], 400); // Bad Request
+                }
+            }else if($codigo_intervension_priorizada){
+                //Verificar que el codigo_intervension_priorizada
+                $intervencionExists = DB::table('intervensiones_priorizadas.intervensiones_priorizadas')->where('codigo_intervension_priorizada', $codigo_intervension_priorizada)->exists();
+                if (!$intervencionExists) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'El codigo_intervension_priorizada proporcionado no existe.',
+                    ], 400); // Bad Request
+                }
             }
+    
+            // Ejecutar el procedimiento almacenado con los parámetros adecuados
+            $aldeas = DB::select('EXEC [intervensiones_priorizadas].[sp_get_aldeas_priorizadas] @codigo_aldea_intervenida = ?, @codigo_intervension_priorizada = ?', [
+                $codigo_aldea_intervenida,
+                $codigo_intervension_priorizada,
+            ]);
+    
+            // Validar si hay resultados
+        // Verificar si el resultado contiene datos
+        if (!empty($aldeas) && isset($aldeas[0]->aldeas_intervenidas)) {
+            $jsonField = $aldeas[0]->aldeas_intervenidas;
+            $data = json_decode($jsonField, true);
+
+            if (json_last_error() === JSON_ERROR_NONE) {
+                return response()->json([
+                    'success' => true,
+                    'aldeas_priorizadas' => $data['aldeas_intervenidas'], // Acceder al nodo raíz del JSON
+                ], 200);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al decodificar el JSON devuelto por el procedimiento almacenado.',
+                    'json_error' => json_last_error_msg(),
+                    'json_data' => $jsonField,
+                ], 500);
+            }
+        }
+    
             return response()->json([
                 'success' => true,
-                'data' => $data,
+                'aldeas_priorizadas' => $aldeas[0]->{'JSON_F52E2B61-18A1-11d1-B105-00805F49916B'},
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error al obtener los productos finales: ' . $e->getMessage(),
+                'message' => 'Error al obtener las aldeas priorizadas: ' . $e->getMessage(),
             ], 500);
         }
-    }
+    }    
 
     public function insertAldeas(StoreAldeaRequest $request)
     {
         try {
             // Obtener los datos validados del request
             $validated = $request->validated();
-    
+
             // Ejecutar el procedimiento almacenado
             DB::statement('EXEC intervensiones_priorizadas.sp_insert_aldea_priorizada 
                 @codigo_intervension_priorizada = :codigo_intervension_priorizada,
@@ -53,13 +101,12 @@ class IntervencionesPriorizadasController extends Controller
                 'cod_aldea' => $validated['cod_aldea'],
                 'estado' => $validated['estado'],
             ]);
-    
+
             // Respuesta exitosa
             return response()->json([
                 'success' => true,
                 'message' => 'Aldea priorizada insertada exitosamente.',
             ], 201);
-    
         } catch (\Illuminate\Validation\ValidationException $e) {
             // Manejar errores de validación
             return response()->json([
@@ -76,7 +123,8 @@ class IntervencionesPriorizadasController extends Controller
         }
     }
 
-    public function getIntervencionesPriorizadasByInstitucion($codigo_institucion){
+    public function getIntervencionesPriorizadasByInstitucion($codigo_institucion)
+    {
         try {
             $intervenciones = DB::select('EXEC [intervensiones_priorizadas].[sp_GetById_intervenciones_por_institucion] @codigo_institucion = :codigo_institucion', [
                 'codigo_institucion' => $codigo_institucion,
@@ -104,7 +152,8 @@ class IntervencionesPriorizadasController extends Controller
         }
     }
 
-    public function getAllDepartamentos(){
+    public function getAllDepartamentos()
+    {
         try {
             $departamentos = DB::select('EXEC [intervensiones_priorizadas].[sp_GetAll_t_glo_departamentos]');
 
@@ -129,7 +178,8 @@ class IntervencionesPriorizadasController extends Controller
         }
     }
 
-    public function getMunicipiosByDepartamento($codigo_departamento){
+    public function getMunicipiosByDepartamento($codigo_departamento)
+    {
         try {
             $municipios = DB::select('EXEC [intervensiones_priorizadas].[sp_GetById_t_glo_municipiosXDepartamento] @cod_departamento = :cod_departamento', [
                 'cod_departamento' => $codigo_departamento,
@@ -156,7 +206,8 @@ class IntervencionesPriorizadasController extends Controller
         }
     }
 
-    public function getAldeasByMunicipio($codigo_municipio){
+    public function getAldeasByMunicipio($codigo_municipio)
+    {
         try {
             $aldeas = DB::select('EXEC [intervensiones_priorizadas].[sp_GetById_t_glo_aldeasXMunicipio] @cod_municipio = :cod_municipio', [
                 'cod_municipio' => $codigo_municipio,
@@ -187,7 +238,7 @@ class IntervencionesPriorizadasController extends Controller
     {
         try {
             //$validated = $request->validated();
-    
+
             foreach ($request['listado_intervenciones'] as $intervencion) {
                 // Insertar la intervención priorizada y obtener el ID generado
                 $intervencionResult = DB::select('EXEC intervensiones_priorizadas.sp_Insert_intervension_priorizada 
@@ -214,14 +265,14 @@ class IntervencionesPriorizadasController extends Controller
                     'cantidad_ejecutada_cuarto_trimestre' => $intervencion['cantidad_ejecutada_cuarto_trimestre'],
                     'observaciones' => $intervencion['observaciones']
                 ]);
-    
+
                 // Obtener el ID de la intervención priorizada recién creada
                 $codigoIntervencion = $intervencionResult[0]->codigo_intervension_priorizada ?? null;
-    
+
                 if (!$codigoIntervencion) {
                     throw new \Exception('Error al insertar la intervención priorizada.');
                 }
-    
+
                 // Insertar las aldeas asociadas a la intervención priorizada
                 foreach ($intervencion['listado_aldeas'] as $aldea) {
                     DB::statement('EXEC intervensiones_priorizadas.sp_insert_aldea_priorizada 
@@ -237,7 +288,7 @@ class IntervencionesPriorizadasController extends Controller
                     ]);
                 }
             }
-    
+
             return response()->json([
                 'success' => true,
                 'message' => 'Intervenciones y aldeas asociadas insertadas correctamente.'
@@ -248,5 +299,5 @@ class IntervencionesPriorizadasController extends Controller
                 'message' => 'Error al insertar intervenciones priorizadas: ' . $e->getMessage()
             ], 500);
         }
-    }    
+    }
 }
