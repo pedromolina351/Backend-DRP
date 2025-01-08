@@ -58,21 +58,22 @@ class FilController extends Controller
     
             // Iterar sobre la lista de comentarios
             foreach ($validated['lista_comentarios'] as $comentario) {
-                DB::statement('EXEC FIL.sp_insertar_comentario 
+                DB::statement('EXEC [FIL].[sp_insertar_comentario]
                     @codigo_poa = :codigo_poa, 
                     @comentario = :comentario, 
                     @lineamientos = :lineamientos, 
                     @productos_intermedios = :productos_intermedios', [
                     'codigo_poa' => $validated['codigo_poa'],
                     'comentario' => $comentario['comentario'],
-                    'lineamientos' => $comentario['lineamientos'] ?? null,
-                    'productos_intermedios' => $comentario['productos_intermedios'] ?? null,
+                    'lineamientos' => $comentario['lineamientos'],
+                    'productos_intermedios' => $comentario['productos_intermedios'],
                 ]);
             }
     
             return response()->json([
                 'success' => true,
                 'message' => 'Comentarios insertados correctamente.',
+                'data' => $validated['lista_comentarios']
             ], 201);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([

@@ -24,8 +24,7 @@ class StoreComentarioFilRequest extends FormRequest
     {
         return [
             'codigo_poa' => 'required|integer|exists:poa_t_poas,codigo_poa',
-            'lista_comentarios' => 'required|array|min:1',
-            'lista_comentarios.*.comentario' => 'required|string|max:500',
+            'lista_comentarios' => 'required|array|min:1'
         ];
     }
 }
