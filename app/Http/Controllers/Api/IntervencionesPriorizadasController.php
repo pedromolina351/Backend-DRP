@@ -300,4 +300,31 @@ class IntervencionesPriorizadasController extends Controller
             ], 500);
         }
     }
+
+    public function getAllIntervenciones()
+    {
+        try {
+            $intervenciones = DB::select('EXEC [intervensiones_priorizadas].[sp_GetAll_intervenciones]');
+
+            $jsonField = $intervenciones[0]->intervenciones ?? null;
+            $data = $jsonField ? json_decode($jsonField, true) : [];
+
+            if (empty($data)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No se encontraron intervenciones.',
+                ], 404); // Not Found
+            }
+            return response()->json([
+                'success' => true,
+                'data' => $data,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener las intervenciones: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
 }

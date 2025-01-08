@@ -195,6 +195,7 @@ Route::prefix('intervenciones-priorizadas')->group(function () {
     Route::get('/obtenerMunicipios/{codigo_departamento}', [IntervencionesPriorizadasController::class, 'getMunicipiosByDepartamento']);
     Route::get('/obtenerAldeas/{codigo_municipio}', [IntervencionesPriorizadasController::class, 'getAldeasByMunicipio']);
     Route::post('/insertarIntervencionesPriorizadas', [IntervencionesPriorizadasController::class, 'insertIntervencionesPriorizadas']);
+    Route::get('/obtenerTodasIntervenciones', [IntervencionesPriorizadasController::class, 'getAllIntervenciones']);
 });
 
 Route::prefix('fil')->group(function () {
@@ -204,4 +205,5 @@ Route::prefix('fil')->group(function () {
 
 
 //Api para generar archivo Word:
-Route::get('/get-dictamen', [DictamenController::class, 'generateDictamen']);
+Route::get('/get-dictamen/{codigo_poa}', [DictamenController::class, 'generateDictamen']);
+Route::get('/get-data/{codigo_poa}', [DictamenController::class, 'obtenerDatosPoa']);
