@@ -45,7 +45,7 @@ class DictamenController extends Controller
 
         // Agregar la imagen como fondo
         $header->addWatermark(
-            public_path('images/fondo.png'), // Ruta completa a la imagen
+            public_path('images/marca.png'), // Ruta completa a la imagen
             [
                 'width' => 612,    // Ancho en puntos para cubrir toda la página Letter
                 'height' => 792,   // Altura en puntos
@@ -944,10 +944,8 @@ class DictamenController extends Controller
             ['alignment' => 'center']
         );
 
-
-
         // Guardar el archivo
-        $fileName = 'documento_con_fondos.docx';
+        $fileName = '7. DICTAMEN DE VIABILIDAD TECNICA POA-PRESUPUESTO.docx';
         $tempPath = storage_path('App/' . $fileName);
 
         // Eliminar el archivo existente si ya existe
