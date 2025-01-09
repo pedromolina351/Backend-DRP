@@ -130,7 +130,7 @@ class IntervencionesPriorizadasController extends Controller
                 'codigo_institucion' => $codigo_institucion,
             ]);
 
-            $jsonField = $intervenciones[0]->{'JSON_F52E2B61-18A1-11d1-B105-00805F49916B'} ?? null;
+            $jsonField = $intervenciones[0]->intervencion ?? null;
             $data = $jsonField ? json_decode($jsonField, true) : [];
 
             if (empty($data)) {
