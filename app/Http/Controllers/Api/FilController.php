@@ -55,6 +55,11 @@ class FilController extends Controller
         try {
             // Validar datos del request
             $validated = $request->validated();
+
+            // Ejecutar sp para eliminar todos los comentarios asociados al POA
+            DB::statement('EXEC [FIL].[sp_eliminar_comentarios_poa] @codigo_poa = :codigo_poa', [
+                'codigo_poa' => $validated['codigo_poa']
+            ]);
     
             // Iterar sobre la lista de comentarios
             foreach ($validated['lista_comentarios'] as $comentario) {
