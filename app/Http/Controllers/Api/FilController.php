@@ -55,13 +55,23 @@ class FilController extends Controller
         try {
             // Validar datos del request
             $validated = $request->validated();
-
-            // Ejecutar sp para eliminar todos los comentarios asociados al POA
-            DB::statement('EXEC [FIL].[sp_eliminar_comentarios_poa] @codigo_poa = :codigo_poa', [
-                'codigo_poa' => $validated['codigo_poa']
-            ]);
     
-            // Iterar sobre la lista de comentarios
+            // Intentar ejecutar el procedimiento almacenado para eliminar los comentarios
+            try {
+                DB::statement('EXEC [FIL].[sp_eliminar_comentarios_poa] @codigo_poa = :codigo_poa', [
+                    'codigo_poa' => $validated['codigo_poa']
+                ]);
+            } catch (\Exception $e) {
+                // Si ocurre un error específico por "no tiene comentarios", continuar la ejecución
+                if (str_contains($e->getMessage(), 'El código POA proporcionado no tiene comentarios')) {
+                    // Log o manejar esta excepción si es necesario
+                } else {
+                    // Si es otro error, lanzar la excepción
+                    throw $e;
+                }
+            }
+    
+            // Iterar sobre la lista de comentarios e insertarlos
             foreach ($validated['lista_comentarios'] as $comentario) {
                 DB::statement('EXEC [FIL].[sp_insertar_comentario]
                     @codigo_poa = :codigo_poa, 
@@ -70,8 +80,8 @@ class FilController extends Controller
                     @productos_intermedios = :productos_intermedios', [
                     'codigo_poa' => $validated['codigo_poa'],
                     'comentario' => $comentario['comentario'],
-                    'lineamientos' => $comentario['lineamientos'],
-                    'productos_intermedios' => $comentario['productos_intermedios'],
+                    'lineamientos' => $comentario['lineamientos'] ?? '',
+                    'productos_intermedios' => $comentario['productos_intermedios'] ?? '',
                 ]);
             }
     
@@ -92,7 +102,7 @@ class FilController extends Controller
                 'message' => 'Error al insertar los comentarios: ' . $e->getMessage(),
             ], 500);
         }
-    }
+    }    
     
     
 }
