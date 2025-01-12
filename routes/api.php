@@ -73,15 +73,18 @@ Route::prefix('usuarios')->group(function () {
     Route::get('/obtenerTodosUsuarios', [UsuarioController::class, 'getUsuariosList']);
     Route::get('/obtenerUsuario/{id}', [UsuarioController::class, 'getUsuario']);
     Route::post('/registrarUsuario', [UsuarioController::class, 'createUsuario']);
+    Route::put('/modificarUsuario', [UsuarioController::class, 'updateUser']);
+    Route::delete('/eliminarUsuario/{codigo_usuario}', [UsuarioController::class, 'deleteUser']);
 });
 
 Route::prefix('roles')->group(function () {
-    Route::get('/obtenerTodosRoles', [RolController::class, 'getRolesList']);
+    Route::get('/obtenerTodosRoles', [RolesController::class, 'getAllRoles']);
     Route::get('/obtenerRol/{id}', [RolController::class, 'getRol']);
-    Route::post('/registrarRol', [RolController::class, 'createRol']);
-    Route::get('/activarRol/{codigo_rol}', [RolesController::class, 'activateRole']);
+    Route::post('/registrarRol', [RolesController::class, 'createRole']);
+    Route::put('/modificarEstadoRol', [RolesController::class, 'modificarEstadoRol']);
     Route::put('/actualizarRol', [RolesController::class, 'updateRole']);
     Route::get('/obtenerAccesos/{codigo_rol}', [RolesController::class, 'getAccesosRol']);
+    Route::get('/obtenerDetalles/{codigo_rol}', [RolesController::class, 'getInfoRol']);
 });
 
 Route::prefix('pantallas')->group(function () {
