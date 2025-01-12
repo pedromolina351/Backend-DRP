@@ -85,6 +85,7 @@ Route::prefix('roles')->group(function () {
     Route::put('/actualizarRol', [RolesController::class, 'updateRole']);
     Route::get('/obtenerAccesos/{codigo_rol}', [RolesController::class, 'getAccesosRol']);
     Route::get('/obtenerDetalles/{codigo_rol}', [RolesController::class, 'getInfoRol']);
+    Route::get('/obtenerModulos', [RolesController::class, 'getAllModulos']);
 });
 
 Route::prefix('pantallas')->group(function () {

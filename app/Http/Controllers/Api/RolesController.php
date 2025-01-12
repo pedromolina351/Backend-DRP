@@ -27,6 +27,22 @@ class RolesController extends Controller
         }
     }
 
+    public function getAllModulos(){
+        try {
+            $modulos = DB::select('EXEC [roles].[sp_consultar_accesos_modulos_pantallas]');
+
+            return response()->json([
+                'success' => true,
+                'data' => $modulos,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener los módulos: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
     public function createRole(StoreRoleRequest $request)
     {
         try {
