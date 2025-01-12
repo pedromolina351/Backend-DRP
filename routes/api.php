@@ -36,6 +36,7 @@ use App\Http\Controllers\MMR\NivelImpactoController;
 use App\Http\Controllers\MMR\TiposRiesgoController;
 use App\Http\Controllers\Api\IntervencionesPriorizadasController;
 use App\Http\Controllers\Api\FilController;
+use App\Http\Controllers\Api\RolesController;
 
 Route::prefix('instituciones')->group(function () {
     Route::get('/obtenerTodasInstituciones', [InstitucionController::class, 'getInstitucionesList']);
@@ -78,6 +79,9 @@ Route::prefix('roles')->group(function () {
     Route::get('/obtenerTodosRoles', [RolController::class, 'getRolesList']);
     Route::get('/obtenerRol/{id}', [RolController::class, 'getRol']);
     Route::post('/registrarRol', [RolController::class, 'createRol']);
+    Route::get('/activarRol/{codigo_rol}', [RolesController::class, 'activateRole']);
+    Route::put('/actualizarRol', [RolesController::class, 'updateRole']);
+    Route::get('/obtenerAccesos/{codigo_rol}', [RolesController::class, 'getAccesosRol']);
 });
 
 Route::prefix('pantallas')->group(function () {
