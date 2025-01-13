@@ -6,7 +6,7 @@ use App\Http\Controllers\Api\InstitucionController;
 use App\Http\Controllers\Api\PoaController;
 use App\Http\Controllers\Api\ProgramaController;
 use App\Http\Controllers\Api\ModuloController;
-use App\Http\Controllers\Api\UsuarioController;
+use App\Http\Controllers\Api\usuarioController;
 use App\Http\Controllers\Api\RolController;
 use App\Http\Controllers\Api\PantallaController;
 use App\Http\Controllers\Api\PoliticaController;
@@ -70,11 +70,11 @@ Route::prefix('modulos')->group(function () {
 });
 
 Route::prefix('usuarios')->group(function () {
-    Route::get('/obtenerTodosUsuarios', [UsuarioController::class, 'getUsuariosList']);
-    Route::get('/obtenerUsuario/{id}', [UsuarioController::class, 'getUsuario']);
-    Route::post('/registrarUsuario', [UsuarioController::class, 'createUsuario']);
-    Route::put('/modificarUsuario', [UsuarioController::class, 'updateUser']);
-    Route::delete('/eliminarUsuario/{codigo_usuario}', [UsuarioController::class, 'deleteUser']);
+    Route::get('/obtenerTodosUsuarios', [usuarioController::class, 'getUsuariosList']);
+    Route::get('/obtenerUsuario/{id}', [usuarioController::class, 'getUsuario']);
+    Route::post('/registrarUsuario', [usuarioController::class, 'createUsuario']);
+    Route::put('/modificarUsuario', [usuarioController::class, 'updateUser']);
+    Route::delete('/eliminarUsuario/{codigo_usuario}', [usuarioController::class, 'deleteUser']);
 });
 
 Route::prefix('roles')->group(function () {

@@ -9,7 +9,7 @@ use App\Http\Requests\StoreUsuarioRequest;
 use App\Http\Requests\UpdateUserRequest;
 use Illuminate\Support\Facades\DB;
 
-class UsuarioController extends Controller
+class usuarioController extends Controller
 {
     public function getUsuariosList(){
         try {
