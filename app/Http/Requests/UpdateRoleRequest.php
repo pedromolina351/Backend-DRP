@@ -35,17 +35,7 @@ class UpdateRoleRequest extends FormRequest
             'nombre_rol' => 'nullable|string|max:100',
             'descripcion_rol' => 'nullable|string|max:255',
             'estado_rol' => 'nullable|integer|in:0,1', // Suponiendo que los estados válidos son 0 (inactivo) y 1 (activo)
-            'listado_accesos' => 'required|array|min:1', // Validar que listado_accesos sea un array con al menos un elemento
-            'listado_accesos.*.codigo_acceso_modulo' => [
-                'required',
-                'integer',
-                function ($attribute, $value, $fail) {
-                    if (!DB::table('roles.t_accesos_modulos')->where('codigo_acceso_modulo', $value)->exists()) {
-                        $fail("El código de acceso del módulo {$value} no existe.");
-                    }
-                },
-            ],
-            'listado_accesos.*.estado_rol_acceso' => 'required|integer|in:0,1', // Validar que el estado sea 0 o 1
+            'codigos_acceso_modulo' => 'required|string'    
         ];
     }
     
@@ -63,14 +53,6 @@ class UpdateRoleRequest extends FormRequest
             'descripcion_rol.max' => 'La descripción del rol no puede exceder los 255 caracteres.',
             'estado_rol.integer' => 'El estado del rol debe ser un número entero.',
             'estado_rol.in' => 'El estado del rol debe ser 0 (inactivo) o 1 (activo).',
-            'listado_accesos.required' => 'El listado de accesos es obligatorio.',
-            'listado_accesos.array' => 'El listado de accesos debe ser un arreglo.',
-            'listado_accesos.min' => 'Debe proporcionar al menos un acceso en el listado de accesos.',
-            'listado_accesos.*.codigo_acceso_modulo.required' => 'El código del acceso del módulo es obligatorio.',
-            'listado_accesos.*.codigo_acceso_modulo.integer' => 'El código del acceso del módulo debe ser un número entero.',
-            'listado_accesos.*.estado_rol_acceso.required' => 'El estado del acceso del rol es obligatorio.',
-            'listado_accesos.*.estado_rol_acceso.integer' => 'El estado del acceso del rol debe ser un número entero.',
-            'listado_accesos.*.estado_rol_acceso.in' => 'El estado del acceso del rol debe ser 0 (inactivo) o 1 (activo).',
         ];
     }
 }

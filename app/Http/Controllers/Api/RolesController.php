@@ -11,7 +11,8 @@ use Illuminate\Support\Facades\DB;
 
 class RolesController extends Controller
 {
-    public function getAllRoles(){
+    public function getAllRoles()
+    {
         try {
             $roles = DB::select('EXEC [roles].[sp_consultar_roles]');
 
@@ -27,7 +28,8 @@ class RolesController extends Controller
         }
     }
 
-    public function getAllModulos(){
+    public function getAllModulos()
+    {
         try {
             $modulos = DB::select('EXEC [roles].[sp_consultar_accesos_modulos_pantallas]');
 
@@ -46,42 +48,39 @@ class RolesController extends Controller
     public function createRole(StoreRoleRequest $request)
     {
         try {
-            // Validar los datos del request
             $validated = $request->validated();
-    
-            // Ejecutar el procedimiento almacenado para crear el rol
-            $result = DB::select('EXEC [roles].[sp_crear_rol] 
-                @nombre_rol = :nombre_rol, 
-                @descripcion_rol = :descripcion_rol, 
+
+            // Crear el rol
+            $resultadoRol = DB::select('EXEC [roles].[sp_crear_rol] 
+                @nombre_rol = :nombre_rol,
+                @descripcion_rol = :descripcion_rol,
                 @estado_rol = :estado_rol', [
                 'nombre_rol' => $validated['nombre_rol'],
                 'descripcion_rol' => $validated['descripcion_rol'] ?? null,
-                'estado_rol' => $validated['estado_rol'] ?? 1, // Valor predeterminado: Activo
+                'estado_rol' => $validated['estado_rol'] ?? 1,
             ]);
-    
-            // Verificar si el rol fue creado y obtener el ID
-            $id_nuevo_rol = $result[0]->id_nuevo_rol ?? null;
-    
-            if (!$id_nuevo_rol) {
-                throw new \Exception('No se pudo crear el rol.');
+
+            // Obtener el ID del nuevo rol
+            $nuevoRolId = $resultadoRol[0]->id_nuevo_rol ?? null;
+
+            if (!$nuevoRolId) {
+                throw new \Exception('No se pudo obtener el ID del rol recién creado.');
             }
-    
+
+            // Asignar los accesos al rol
+            DB::select('EXEC [roles].[sp_asignar_actualizar_eliminar_accesos_de_rol]
+                @codigo_rol = :codigo_rol,
+                @codigos_acceso_modulo = :codigos_acceso_modulo,
+                @estado_rol_acceso = :estado_rol_acceso', [
+                'codigo_rol' => $nuevoRolId,
+                'codigos_acceso_modulo' => $validated['codigos_acceso_modulo'],
+                'estado_rol_acceso' => $validated['estado_rol'], // Asumimos que es el mismo estado del rol
+            ]);
+
             return response()->json([
                 'success' => true,
-                'message' => 'Rol creado exitosamente.',
-                'data' => [
-                    'id_nuevo_rol' => $id_nuevo_rol,
-                    'nombre_rol' => $validated['nombre_rol'],
-                    'descripcion_rol' => $validated['descripcion_rol'] ?? null,
-                    'estado_rol' => $validated['estado_rol'] ?? 1,
-                ],
+                'message' => 'Rol creado y accesos asignados correctamente.'
             ], 201);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error de validación.',
-                'errors' => $e->errors(),
-            ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -89,9 +88,11 @@ class RolesController extends Controller
             ], 500);
         }
     }
-    
 
-    public function modificarEstadoRol(UpdateRoleStateRequest $request){
+
+
+    public function modificarEstadoRol(UpdateRoleStateRequest $request)
+    {
         try {
             // Construir la llamada al procedimiento almacenado
             $query = 'EXEC [roles].[sp_actualizar_rol] @codigo_rol = :codigo_rol, @estado_rol = :estado_rol';
@@ -128,7 +129,7 @@ class RolesController extends Controller
         try {
             // Validar datos del request
             $validated = $request->validated();
-    
+
             // Ejecutar el procedimiento almacenado para actualizar el rol
             DB::select('EXEC [roles].[sp_actualizar_rol] 
                 @codigo_rol = :codigo_rol, 
@@ -140,19 +141,15 @@ class RolesController extends Controller
                 'descripcion_rol' => $validated['descripcion_rol'] ?? null,
                 'estado_rol' => $validated['estado_rol'] ?? null,
             ]);
-    
-            // Iterar sobre el listado de accesos y asignarlos
-            foreach ($validated['listado_accesos'] as $acceso) {
-                DB::statement('EXEC [roles].[sp_asignar_acceso_a_rol] 
-                    @codigo_rol = :codigo_rol, 
-                    @codigo_acceso_modulo = :codigo_acceso_modulo, 
-                    @estado_rol_acceso = :estado_rol_acceso', [
-                    'codigo_rol' => $validated['codigo_rol'],
-                    'codigo_acceso_modulo' => $acceso['codigo_acceso_modulo'],
-                    'estado_rol_acceso' => $acceso['estado_rol_acceso'],
-                ]);
-            }
-    
+
+            //asignar los accesos al rol
+            DB::select('EXEC [roles].[sp_asignar_actualizar_eliminar_accesos_de_rol]
+            @codigo_rol = :codigo_rol,
+            @codigos_acceso_modulo = :codigos_acceso_modulo', [
+                'codigo_rol' => $validated['codigo_rol'],
+                'codigos_acceso_modulo' => $validated['codigos_acceso_modulo']
+            ]);
+
             // Retornar respuesta exitosa
             return response()->json([
                 'success' => true,
@@ -172,7 +169,7 @@ class RolesController extends Controller
         }
     }
 
-    
+
     public function getAccesosRol($codigo_rol)
     {
         try {
@@ -202,7 +199,8 @@ class RolesController extends Controller
         }
     }
 
-    public function getInfoRol($codigo_rol){
+    public function getInfoRol($codigo_rol)
+    {
         try {
             $rol = DB::select('EXEC [roles].[sp_consultar_detalles_rol] @codigo_rol = :codigo_rol', [
                 'codigo_rol' => $codigo_rol,
@@ -229,5 +227,4 @@ class RolesController extends Controller
             ], 500);
         }
     }
-    
 }
