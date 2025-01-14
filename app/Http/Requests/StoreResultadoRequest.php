@@ -24,8 +24,8 @@ class StoreResultadoRequest extends FormRequest
         return [
             'codigo_poa' => 'required|integer|max:255',
             'Resultados' => 'required|array|min:1',
-            'Resultados.*.resultado_institucional' => 'required|string|max:255',
-            'Resultados.*.indicador_resultado_institucional' => 'required|string|max:255',
+            'Resultados.*.resultado_institucional' => 'required|string',
+            'Resultados.*.indicador_resultado_institucional' => 'required|string',
         ];
     }
 
@@ -37,10 +37,8 @@ class StoreResultadoRequest extends FormRequest
             'Resultados.min' => 'Debe proporcionar al menos un resultado.',
             'Resultados.*.resultado_institucional.required' => 'El campo resultado_institucional es obligatorio para cada resultado.',
             'Resultados.*.resultado_institucional.string' => 'El campo resultado_institucional debe ser una cadena de texto.',
-            'Resultados.*.resultado_institucional.max' => 'El campo resultado_institucional no debe exceder los 255 caracteres.',
             'Resultados.*.indicador_resultado_institucional.required' => 'El campo indicador_resultado_institucional es obligatorio para cada resultado.',
             'Resultados.*.indicador_resultado_institucional.string' => 'El campo indicador_resultado_institucional debe ser una cadena de texto.',
-            'Resultados.*.indicador_resultado_institucional.max' => 'El campo indicador_resultado_institucional no debe exceder los 255 caracteres.',
         ];
     }
 }
