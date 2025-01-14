@@ -86,6 +86,7 @@ Route::prefix('roles')->group(function () {
     Route::get('/obtenerAccesos/{codigo_rol}', [RolesController::class, 'getAccesosRol']);
     Route::get('/obtenerDetalles/{codigo_rol}', [RolesController::class, 'getInfoRol']);
     Route::get('/obtenerModulos', [RolesController::class, 'getAllModulos']);
+    Route::delete('/eliminarRol/{codigo_rol}', [RolesController::class, 'deleteRole']);
 });
 
 Route::prefix('pantallas')->group(function () {

@@ -227,4 +227,33 @@ class RolesController extends Controller
             ], 500);
         }
     }
+
+    public function deleteRole($codigo_rol){
+        try {
+            //verificar si el rol es existe
+            $rolExists = DB::table('roles.t_roles')->where('codigo_rol', $codigo_rol)->exists();
+
+            if (!$rolExists) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'El rol proporcionado no existe.',
+                ], 400); // Bad Request
+            }
+
+            $rol = DB::select('EXEC [roles].[sp_eliminar_rol_permanente] @codigo_rol = :codigo_rol', [
+                'codigo_rol' => $codigo_rol,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Rol eliminado correctamente.',
+                'data' => $rol,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al eliminar el rol: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
 }
