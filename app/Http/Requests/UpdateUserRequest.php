@@ -79,6 +79,7 @@ class UpdateUserRequest extends FormRequest
             'usuario_drp' => 'nullable|boolean',
             'estado' => 'nullable|boolean',
             'password' => 'nullable|string|min:8',
+            'url_img_perfil' => 'nullable|string'
         ];
     }
     

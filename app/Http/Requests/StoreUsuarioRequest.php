@@ -48,6 +48,7 @@ class StoreUsuarioRequest extends FormRequest
             'usuario_drp' => 'nullable|boolean',
             'estado' => 'nullable|boolean',
             'password' => 'required|string|min:8',
+            'url_img_perfil' => 'string',
         ];
     }
     

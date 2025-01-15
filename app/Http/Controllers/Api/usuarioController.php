@@ -66,7 +66,8 @@ class usuarioController extends Controller
                 @super_user = :super_user,
                 @usuario_drp = :usuario_drp,
                 @estado = :estado,
-                @password_hash = :password_hash', [
+                @password_hash = :password_hash,
+                @url_img_perfil = :url_img_perfil', [
                 'primer_nombre' => $validated['primer_nombre'],
                 'segundo_nombre' => $validated['segundo_nombre'],
                 'primer_apellido' => $validated['primer_apellido'],
@@ -80,6 +81,7 @@ class usuarioController extends Controller
                 'usuario_drp' => $validated['usuario_drp'] ?? 0,
                 'estado' => $validated['estado'] ?? 1,
                 'password_hash' => bcrypt($validated['password']),
+                'url_img_perfil' => $validated['url_img_perfil']
             ]);
     
             return response()->json([
@@ -124,7 +126,8 @@ class usuarioController extends Controller
                 @super_user = :super_user,
                 @usuario_drp = :usuario_drp,
                 @estado = :estado,
-                @password_hash = :password_hash', [
+                @password_hash = :password_hash,
+                @url_img_perfil = :url_img_perfil', [
                 'codigo_usuario' => $validated['codigo_usuario'],
                 'primer_nombre' => $validated['primer_nombre'] ?? null,
                 'segundo_nombre' => $validated['segundo_nombre'] ?? null,
@@ -138,7 +141,8 @@ class usuarioController extends Controller
                 'super_user' => $validated['super_user'] ?? null,
                 'usuario_drp' => $validated['usuario_drp'] ?? null,
                 'estado' => $validated['estado'] ?? null,
-                'password_hash' => $passwordHash,
+                'password_hash' => $passwordHash ?? null,
+                'url_img_perfil' => $validated['url_img_perfil'] ?? null
             ]);
     
             return response()->json([
