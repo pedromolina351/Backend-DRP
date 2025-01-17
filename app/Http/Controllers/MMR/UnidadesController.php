@@ -12,7 +12,7 @@ class UnidadesController extends Controller
     {
         try {
             $unidades_medida = DB::select('EXEC mmr.sp_GetAll_t_unidad_medida');
-            $jsonField = $unidades_medida[0]->JSONResult ?? null;
+            $jsonField = $unidades_medida[0]->JSONResult->UnidadesMedida ?? null;
             $data = $jsonField ? json_decode($jsonField, true) : [];
             return response()->json([
                 'success' => true,
