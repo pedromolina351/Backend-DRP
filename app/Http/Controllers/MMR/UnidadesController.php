@@ -16,7 +16,7 @@ class UnidadesController extends Controller
             $data = $jsonField ? json_decode($jsonField, true) : [];
             return response()->json([
                 'success' => true,
-                'data' => $data,
+                'data' => $unidades_medida,
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
