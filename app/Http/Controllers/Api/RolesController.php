@@ -50,14 +50,28 @@ class RolesController extends Controller
         try {
             $validated = $request->validated();
 
+            //recorrer el string de codigos_acceso_modulo y validar que existan en la base de datos
+            $codigos_acceso_modulo = explode(',', $validated['codigos_acceso_modulo']);
+            foreach ($codigos_acceso_modulo as $codigo_acceso_modulo) {
+                $accesoExists = DB::table('roles.t_accesos_modulos')->where('codigo_acceso_modulo', $codigo_acceso_modulo)->exists();
+                if (!$accesoExists) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'El módulo con id : ' . $codigo_acceso_modulo . ' no existe en la base de datos.',
+                    ], 400); // Bad Request
+                }
+            }
+
             // Crear el rol
             $resultadoRol = DB::select('EXEC [roles].[sp_crear_rol] 
                 @nombre_rol = :nombre_rol,
                 @descripcion_rol = :descripcion_rol,
-                @estado_rol = :estado_rol', [
+                @estado_rol = :estado_rol,
+                @editar = :editar', [
                 'nombre_rol' => $validated['nombre_rol'],
                 'descripcion_rol' => $validated['descripcion_rol'] ?? null,
                 'estado_rol' => $validated['estado_rol'] ?? 1,
+                'editar' => $validated['editar'] ?? 0,
             ]);
 
             // Obtener el ID del nuevo rol
@@ -135,11 +149,13 @@ class RolesController extends Controller
                 @codigo_rol = :codigo_rol, 
                 @nombre_rol = :nombre_rol, 
                 @descripcion_rol = :descripcion_rol, 
-                @estado_rol = :estado_rol', [
+                @estado_rol = :estado_rol,
+                @editar = :editar', [
                 'codigo_rol' => $validated['codigo_rol'],
                 'nombre_rol' => $validated['nombre_rol'] ?? null,
                 'descripcion_rol' => $validated['descripcion_rol'] ?? null,
                 'estado_rol' => $validated['estado_rol'] ?? null,
+                'editar' => $validated['editar'] ?? 0,
             ]);
 
             //asignar los accesos al rol

@@ -35,6 +35,7 @@ class StoreRoleRequest extends FormRequest
             ],
             'descripcion_rol' => 'nullable|string|max:255',
             'estado_rol' => 'required|integer|in:0,1',
+            'editar' => 'nullable|integer|in:0,1',
             'codigos_acceso_modulo' => [
                 'required',
                 'string'

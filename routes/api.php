@@ -79,7 +79,6 @@ Route::prefix('usuarios')->group(function () {
 
 Route::prefix('roles')->group(function () {
     Route::get('/obtenerTodosRoles', [RolesController::class, 'getAllRoles']);
-    Route::get('/obtenerRol/{id}', [RolController::class, 'getRol']);
     Route::post('/registrarRol', [RolesController::class, 'createRole']);
     Route::put('/modificarEstadoRol', [RolesController::class, 'modificarEstadoRol']);
     Route::put('/actualizarRol', [RolesController::class, 'updateRole']);

@@ -35,6 +35,7 @@ class UpdateRoleRequest extends FormRequest
             'nombre_rol' => 'nullable|string|max:100',
             'descripcion_rol' => 'nullable|string|max:255',
             'estado_rol' => 'nullable|integer|in:0,1', // Suponiendo que los estados válidos son 0 (inactivo) y 1 (activo)
+            'editar' => 'nullable|integer|in:0,1',
             'codigos_acceso_modulo' => 'required|string'    
         ];
     }
