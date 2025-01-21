@@ -73,16 +73,25 @@ class FilController extends Controller
     
             // Iterar sobre la lista de comentarios e insertarlos
             foreach ($validated['lista_comentarios'] as $comentario) {
-                DB::statement('EXEC [FIL].[sp_insertar_comentario]
+                try {
+                    DB::statement('EXEC [FIL].[sp_insertar_comentario]
                     @codigo_poa = :codigo_poa, 
                     @comentario = :comentario, 
                     @lineamientos = :lineamientos, 
-                    @productos_intermedios = :productos_intermedios', [
+                    @productos_intermedios = :productos_intermedios,
+                    @grupos_vulnerables = :grupos_vulnerables', [
                     'codigo_poa' => $validated['codigo_poa'],
                     'comentario' => $comentario['comentario'],
                     'lineamientos' => $comentario['lineamientos'] ?? '',
                     'productos_intermedios' => $comentario['productos_intermedios'] ?? '',
+                    'grupos_vulnerables' => $comentario['grupos_vulnerables'] ?? ''
                 ]);
+                } catch (\Exception $e) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Error al insertar los comentarios: ' . $e->getMessage(),
+                    ], 500);
+                }
             }
     
             return response()->json([
