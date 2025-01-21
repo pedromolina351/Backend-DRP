@@ -17,7 +17,7 @@ class FilController extends Controller
 
         try {
             // Construir la llamada al procedimiento almacenado
-            $query = 'EXEC FIL.sp_obtener_FIL @codigo_comentario = :codigo_comentario, @codigo_poa = :codigo_poa';
+            $query = 'EXEC [FIL].[sp_obtener_comentarios_activos] @codigo_comentario = :codigo_comentario, @codigo_poa = :codigo_poa';
             $params = [
                 'codigo_comentario' => $codigo_comentario,
                 'codigo_poa' => $codigo_poa
@@ -113,5 +113,20 @@ class FilController extends Controller
         }
     }    
     
-    
+    public function getGruposVulnerables(){
+        try {
+            $query = 'EXEC [FIL].[sp_consultar_grupos_vulnerables]';
+            $result = DB::select($query);
+
+            return response()->json([
+                'success' => true,
+                'data' => $result
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener los datos: ' . $e->getMessage()
+            ], 500);
+        }
+    }    
 }
