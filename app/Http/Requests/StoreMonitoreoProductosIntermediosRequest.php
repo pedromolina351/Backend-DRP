@@ -26,8 +26,6 @@ class StoreMonitoreoProductosIntermediosRequest extends FormRequest
             'codigo_poa' => 'required|integer|exists:poa_t_poas,codigo_poa',
             'listado_monitoreo' => 'required|array|min:1',
             'listado_monitoreo.*.codigo_producto_intermedio' => 'required|integer|exists:t_productos_intermedios,codigo_producto_intermedio',
-            'listado_monitoreo.*.nombre_unidad_organizativa' => 'required|string|max:100',
-            'listado_monitoreo.*.nombre_responsable_unidad_organizativa' => 'required|string|max:100',
             'listado_monitoreo.*.codigo_unidad_medida' => [
                 'required',
                 'integer',

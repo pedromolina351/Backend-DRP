@@ -125,8 +125,6 @@ class ProductosFinalesController extends Controller
                     $result = DB::select('EXEC mmr.sp_Insert_poa_t_poas_monitoreo_productos_finales 
                     @codigo_poa = :codigo_poa,
                     @codigo_producto_final = :codigo_producto_final,
-                    @nombre_unidad_organizativa = :nombre_unidad_organizativa,
-                    @nombre_responsable_unidad_organizativa = :nombre_responsable_unidad_organizativa,
                     @codigo_unidad_medida = :codigo_unidad_medida,
                     @codigo_tipo_indicador = :codigo_tipo_indicador,
                     @codigo_categorizacion = :codigo_categorizacion,
@@ -138,8 +136,6 @@ class ProductosFinalesController extends Controller
                     @descripcion_riesgo = :descripcion_riesgo', [
                         'codigo_poa' => $codigoPoa,
                         'codigo_producto_final' => $monitoreo['codigo_producto_final'],
-                        'nombre_unidad_organizativa' => $monitoreo['nombre_unidad_organizativa'],
-                        'nombre_responsable_unidad_organizativa' => $monitoreo['nombre_responsable_unidad_organizativa'],
                         'codigo_unidad_medida' => $monitoreo['codigo_unidad_medida'],
                         'codigo_tipo_indicador' => $monitoreo['codigo_tipo_indicador'],
                         'codigo_categorizacion' => $monitoreo['codigo_categorizacion'],

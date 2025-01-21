@@ -129,8 +129,6 @@ class ProductosIntermediosController extends Controller
                     $codigoMonitoreoProductoIntermedio = DB::select('EXEC mmr.sp_Insert_poa_t_poas_monitoreo_productos_intermedios 
                         @codigo_poa = :codigo_poa,
                         @codigo_producto_intermedio = :codigo_producto_intermedio,
-                        @nombre_unidad_organizativa = :nombre_unidad_organizativa,
-                        @nombre_responsable_unidad_organizativa = :nombre_responsable_unidad_organizativa,
                         @codigo_unidad_medida = :codigo_unidad_medida,
                         @codigo_tipo_indicador = :codigo_tipo_indicador,
                         @codigo_categorizacion = :codigo_categorizacion,
@@ -141,8 +139,6 @@ class ProductosIntermediosController extends Controller
                         @descripcion_riesgo = :descripcion_riesgo', [
                         'codigo_poa' => $codigoPoa,
                         'codigo_producto_intermedio' => $producto['codigo_producto_intermedio'],
-                        'nombre_unidad_organizativa' => $producto['nombre_unidad_organizativa'],
-                        'nombre_responsable_unidad_organizativa' => $producto['nombre_responsable_unidad_organizativa'],
                         'codigo_unidad_medida' => $producto['codigo_unidad_medida'],
                         'codigo_tipo_indicador' => $producto['codigo_tipo_indicador'],
                         'codigo_categorizacion' => $producto['codigo_categorizacion'],
