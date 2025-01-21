@@ -253,6 +253,8 @@ class IntervencionesPriorizadasController extends Controller
                     @cantidad_ejecutada_tercer_trimestre = :cantidad_ejecutada_tercer_trimestre, 
                     @cantidad_ejecutada_cuarto_trimestre = :cantidad_ejecutada_cuarto_trimestre, 
                     @observaciones = :observaciones, 
+                    @es_obra = :es_obra,
+                    @es_beneficiario = :es_beneficiario,
                     @estado = 1', [
                     'codigo_institucion' => $intervencion['codigo_institucion'],
                     'codigo_programa' => $intervencion['codigo_programa'],
@@ -263,7 +265,9 @@ class IntervencionesPriorizadasController extends Controller
                     'cantidad_ejecutada_segundo_trimestre' => $intervencion['cantidad_ejecutada_segundo_trimestre'],
                     'cantidad_ejecutada_tercer_trimestre' => $intervencion['cantidad_ejecutada_tercer_trimestre'],
                     'cantidad_ejecutada_cuarto_trimestre' => $intervencion['cantidad_ejecutada_cuarto_trimestre'],
-                    'observaciones' => $intervencion['observaciones']
+                    'observaciones' => $intervencion['observaciones'],
+                    'es_obra' => $intervencion['es_obra'],
+                    'es_beneficiario' => $intervencion['es_beneficiario']
                 ]);
 
                 // Obtener el ID de la intervención priorizada recién creada
