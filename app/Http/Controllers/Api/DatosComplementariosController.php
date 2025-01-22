@@ -23,7 +23,7 @@ class DatosComplementariosController extends Controller
 
             $datosComplementarios = DB::select('EXEC [mmr].[sp_GetById_poa_datosComplementarios] ?', [$codigo_poa]);
 
-            $jsonField = $datosComplementarios[0]->{'JSON_F52E2B61-18A1-11d1-B105-00805F49916B'} ?? null;
+            $jsonField = $datosComplementarios[0]->ResultadoJSON ?? null;
             $data = $jsonField ? json_decode($jsonField, true) : [];
 
             return response()->json([
