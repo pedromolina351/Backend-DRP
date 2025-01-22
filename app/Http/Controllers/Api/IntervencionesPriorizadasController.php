@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreAldeaRequest;
 use App\Http\Requests\StoreIntervencionesPriorizadasRequest;
+use App\Http\Requests\UpdateIntervencionPriorizadaRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -237,8 +238,6 @@ class IntervencionesPriorizadasController extends Controller
     public function insertIntervencionesPriorizadas(StoreIntervencionesPriorizadasRequest $request)
     {
         try {
-            //$validated = $request->validated();
-
             foreach ($request['listado_intervenciones'] as $intervencion) {
                 // Insertar la intervención priorizada y obtener el ID generado
                 $intervencionResult = DB::select('EXEC intervensiones_priorizadas.sp_Insert_intervension_priorizada 
@@ -305,6 +304,84 @@ class IntervencionesPriorizadasController extends Controller
         }
     }
 
+    public function updateIntervencionPriorizada(UpdateIntervencionPriorizadaRequest $request)
+    {
+        try {
+            // Validar los datos del request
+            $validated = $request;
+    
+            // Actualizar la intervención priorizada
+            $intervencionResult = DB::select('EXEC [intervensiones_priorizadas].[sp_Insert_intervension_priorizada] 
+                @id_intervension_priorizada = :id_intervension_priorizada,
+                @codigo_institucion = :codigo_institucion,
+                @codigo_programa = :codigo_programa,
+                @descripcion_paquete_priorizado = :descripcion_paquete_priorizado,
+                @cantidad_anio = :cantidad_anio,
+                @presupuesto_proyectado_anual_lempiras = :presupuesto_proyectado_anual_lempiras,
+                @cantidad_ejecutada_primer_trimestre = :cantidad_ejecutada_primer_trimestre,
+                @cantidad_ejecutada_segundo_trimestre = :cantidad_ejecutada_segundo_trimestre,
+                @cantidad_ejecutada_tercer_trimestre = :cantidad_ejecutada_tercer_trimestre,
+                @cantidad_ejecutada_cuarto_trimestre = :cantidad_ejecutada_cuarto_trimestre,
+                @observaciones = :observaciones,
+                @estado = :estado,
+                @es_obra = :es_obra,
+                @es_beneficiario = :es_beneficiario', [
+                    'id_intervension_priorizada' => $validated['id_intervension_priorizada'],
+                    'codigo_institucion' => $validated['codigo_institucion'],
+                    'codigo_programa' => $validated['codigo_programa'],
+                    'descripcion_paquete_priorizado' => $validated['descripcion_paquete_priorizado'],
+                    'cantidad_anio' => $validated['cantidad_anio'],
+                    'presupuesto_proyectado_anual_lempiras' => $validated['presupuesto_proyectado_anual_lempiras'],
+                    'cantidad_ejecutada_primer_trimestre' => $validated['cantidad_ejecutada_primer_trimestre'],
+                    'cantidad_ejecutada_segundo_trimestre' => $validated['cantidad_ejecutada_segundo_trimestre'],
+                    'cantidad_ejecutada_tercer_trimestre' => $validated['cantidad_ejecutada_tercer_trimestre'],
+                    'cantidad_ejecutada_cuarto_trimestre' => $validated['cantidad_ejecutada_cuarto_trimestre'],
+                    'observaciones' => $validated['observaciones'],
+                    'estado' => $validated['estado'] ?? 1,
+                    'es_obra' => $validated['es_obra'],
+                    'es_beneficiario' => $validated['es_beneficiario']
+            ]);
+    
+            // Obtener el ID de la intervención actualizada
+            $codigoIntervencion = $intervencionResult[0]->codigo_intervension_priorizada ?? null;
+    
+            if (!$codigoIntervencion) {
+                throw new \Exception('Error al actualizar la intervención priorizada.');
+            }
+    
+            // Insertar las aldeas asociadas a la intervención priorizada
+            foreach ($validated['listado_aldeas'] as $aldea) {
+                DB::statement('EXEC [intervensiones_priorizadas].[sp_insert_aldea_priorizada] 
+                    @codigo_intervension_priorizada = :codigo_intervension_priorizada, 
+                    @cod_departamento = :cod_departamento, 
+                    @cod_municipio = :cod_municipio, 
+                    @cod_aldea = :cod_aldea, 
+                    @estado = 1', [
+                    'codigo_intervension_priorizada' => $codigoIntervencion,
+                    'cod_departamento' => $aldea['cod_departamento'],
+                    'cod_municipio' => $aldea['cod_municipio'],
+                    'cod_aldea' => $aldea['cod_aldea']
+                ]);
+            }
+    
+            return response()->json([
+                'success' => true,
+                'message' => 'Intervención priorizada actualizada correctamente.',
+            ], 200);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error de validación.',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al actualizar la intervención priorizada: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+    
     public function getAllIntervenciones()
     {
         try {
@@ -332,3 +409,6 @@ class IntervencionesPriorizadasController extends Controller
     }
 
 }
+
+
+
