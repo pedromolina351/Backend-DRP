@@ -349,7 +349,21 @@ class IntervencionesPriorizadasController extends Controller
                 throw new \Exception('Error al actualizar la intervención priorizada.');
             }
     
-            // Insertar las aldeas asociadas a la intervención priorizada
+            try{
+                // Eliminar las aldeas intervenidas relacionadas con la intervención priorizada
+                DB::statement('EXEC [intervensiones_priorizadas].[sp_Eliminar_Aldeas_Intervenidas] 
+                @codigo_intervension_priorizada = :codigo_intervension_priorizada', [
+                'codigo_intervension_priorizada' => $validated['id_intervension_priorizada']
+                ]);
+            }catch(\Exception $e){
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al eliminar las aldeas intervenidas relacionadas con la intervención priorizada: ' . $e->getMessage(),
+                ], 500);
+            }
+
+    
+            // Insertar las nuevas aldeas asociadas a la intervención priorizada
             foreach ($validated['listado_aldeas'] as $aldea) {
                 DB::statement('EXEC [intervensiones_priorizadas].[sp_insert_aldea_priorizada] 
                     @codigo_intervension_priorizada = :codigo_intervension_priorizada, 
