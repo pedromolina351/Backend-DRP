@@ -31,6 +31,10 @@ class ActividadInsumoController extends Controller
                         EXEC sp_Insert_t_actividades_insumos 
                             @codigo_producto_final = :codigo_producto_final,
                             @actividad = :actividad,
+                            @fecha_inicio = :fecha_inicio,
+                            @fecha_fin = :fecha_fin,
+                            @responsable = :responsable,
+                            @medio_verificacion = :medio_verificacion,
                             @insumo_PACC = :insumo_PACC,
                             @insumo_no_PACC = :insumo_no_PACC,
                             @codigo_poa = :codigo_poa,
@@ -40,6 +44,10 @@ class ActividadInsumoController extends Controller
                     DB::statement($sql, [
                         'codigo_producto_final' => $actividadInsumo['codigo_producto_final'],
                         'actividad' => $actividadInsumo['actividad'],
+                        'fecha_inicio' => $actividadInsumo['fecha_inicio'],
+                        'fecha_fin' => $actividadInsumo['fecha_fin'],
+                        'responsable' => $actividadInsumo['responsable'],
+                        'medio_verificacion' => $actividadInsumo['medio_verificacion'],
                         'insumo_PACC' => $actividadInsumo['insumo_PACC'],
                         'insumo_no_PACC' => $actividadInsumo['insumo_no_PACC'],
                         'codigo_poa' => $request->codigo_poa,
