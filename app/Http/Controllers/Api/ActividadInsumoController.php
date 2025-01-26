@@ -151,4 +151,51 @@ class ActividadInsumoController extends Controller
         }
     }
 
+    public function getActividadesByProductoIntermedio($codigo_producto_intermedio, $codigo_producto_final = null)
+    {
+        try {
+            // Validar si el producto intermedio existe
+            $productoIntermedioExiste = DB::table('dbo.t_productos_intermedios')
+                ->where('codigo_producto_intermedio', $codigo_producto_intermedio)
+                ->exists();
+    
+            if (!$productoIntermedioExiste) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'El producto intermedio especificado no existe.',
+                ], 404);
+            }
+    
+            // Ejecutar el procedimiento almacenado
+            $actividades = DB::select('EXEC dbo.sp_getById_t_actividades_x_producto_intermedio 
+                @codigo_producto_intermedio = :codigo_producto_intermedio, 
+                @codigo_producto_final = :codigo_producto_final', [
+                'codigo_producto_intermedio' => $codigo_producto_intermedio,
+                'codigo_producto_final' => $codigo_producto_final,
+            ]);
+    
+            // Verificar si se encontraron actividades
+            if (empty($actividades)) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'No se encontraron actividades para el producto intermedio especificado.',
+                    'data' => [],
+                ], 200);
+            }
+    
+            // Retornar actividades
+            return response()->json([
+                'success' => true,
+                'message' => 'Actividades obtenidas correctamente.',
+                'data' => $actividades,
+            ], 200);
+    
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener las actividades: ' . $e->getMessage(),
+            ], 500);
+        }
+    }    
+
 }

@@ -180,6 +180,7 @@ Route::prefix('actividades-insumos')->group(function () {
     Route::post('/insertarActividadesInsumos', [ActividadInsumoController::class, 'insertActividadInsumo']);
     Route::get('/actividades-insumos-by-poa/{codigo_poa}', [ActividadInsumoController::class, 'getActividadesInsumosByPoaId']);
     Route::get('/actividades-insumos-by-producto-and-poa/{codigo_producto_final}/{codigo_poa}', [ActividadInsumoController::class, 'getActividadesInsumosByProductoAndPoa']);
+    Route::get('/actividades-por-producto-intermedio/{codigo_producto_intermedio}/{codigo_producto_final?}', [ActividadInsumoController::class, 'getActividadesByProductoIntermedio']);
 });
 
 Route::prefix('datos-complementarios')->group(function () {
