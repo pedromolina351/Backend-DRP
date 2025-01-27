@@ -190,12 +190,24 @@ class ActividadInsumoController extends Controller
                     'data' => [],
                 ], 200);
             }
+
+            //Organizar arreglo para que el campo FECHA_INICIO esté en minúsculas
+            $actividades_arreglo = array_map(function ($actividad) {
+                return [
+                    'codigo_producto_final' => $actividad->codigo_producto_final,
+                    'codigo_producto_intermedio' => $actividad->codigo_producto_intermedio,
+                    'fecha_inicio' => $actividad->FECHA_INICIO,
+                    'fecha_fin' => $actividad->FECHA_FIN,
+                    'responsable' => $actividad->RESPONSABLE,
+                    'medio_verificacion' => $actividad->MEDIO_VERIFICACION
+                ];
+            }, $actividades);
     
             // Retornar actividades
             return response()->json([
                 'success' => true,
                 'message' => 'Actividades obtenidas correctamente.',
-                'data' => $actividades,
+                'data' => $actividades_arreglo,
             ], 200);
     
         } catch (\Exception $e) {
