@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Http\Requests\InsertProductosIntermediosRequest;
 use App\Http\Requests\StoreMonitoreoProductosIntermediosRequest;
+use App\Http\Requests\UpdateProductoIntermedioRequest;
 use Illuminate\Support\Facades\DB;
 
 class ProductosIntermediosController extends Controller
@@ -243,4 +244,74 @@ class ProductosIntermediosController extends Controller
             ], 500);
         }
     }
+
+    public function updateProductoIntermedio(UpdateProductoIntermedioRequest $request)
+    {
+        try {
+            // Validar los datos del request
+            $validated = $request;
+    
+            // Ejecutar el procedimiento almacenado para actualizar el producto intermedio
+            DB::statement('EXEC [dbo].[sp_Update_t_productos_intermedios] 
+                @codigo_producto_intermedio = :codigo_producto_intermedio,
+                @objetivo_operativo = :objetivo_operativo,
+                @producto_intermedio = :producto_intermedio,
+                @codigo_producto_final = :codigo_producto_final,
+                @indicador_producto_intermedio = :indicador_producto_intermedio,
+                @producto_intermedio_primario = :producto_intermedio_primario,
+                @programa = :programa,
+                @subprograma = :subprograma,
+                @proyecto = :proyecto,
+                @fecha_inicio = :fecha_inicio,
+                @fecha_fin = :fecha_fin,
+                @responsable = :responsable,
+                @medio_verificacion = :medio_verificacion,
+                @actividad = :actividad,
+                @fuente_financiamiento = :fuente_financiamiento,
+                @ente_de_financiamiento = :ente_de_financiamiento,
+                @costro_aproximado = :costro_aproximado,
+                @estado = :estado,
+                @codigo_poa = :codigo_poa', [
+                'codigo_producto_intermedio' => $validated['codigo_producto_intermedio'],
+                'objetivo_operativo' => $validated['objetivo_operativo'] ?? null,
+                'producto_intermedio' => $validated['producto_intermedio'] ?? null,
+                'codigo_producto_final' => $validated['codigo_producto_final'] ?? null,
+                'indicador_producto_intermedio' => $validated['indicador_producto_intermedio'] ?? null,
+                'producto_intermedio_primario' => $validated['producto_intermedio_primario'] ?? null,
+                'programa' => $validated['programa'] ?? null,
+                'subprograma' => $validated['subprograma'] ?? null,
+                'proyecto' => $validated['proyecto'] ?? null,
+                'fecha_inicio' => $validated['fecha_inicio'] ?? null,
+                'fecha_fin' => $validated['fecha_fin'] ?? null,
+                'responsable' => $validated['responsable'] ?? null,
+                'medio_verificacion' => $validated['medio_verificacion'] ?? null,
+                'actividad' => $validated['actividad'] ?? null,
+                'fuente_financiamiento' => $validated['fuente_financiamiento'] ?? null,
+                'ente_de_financiamiento' => $validated['ente_de_financiamiento'] ?? null,
+                'costro_aproximado' => $validated['costro_aproximado'] ?? null,
+                'estado' => $validated['estado'] ?? null,
+                'codigo_poa' => $validated['codigo_poa'] ?? null,
+            ]);
+    
+            // Retornar respuesta exitosa
+            return response()->json([
+                'success' => true,
+                'message' => 'Producto intermedio actualizado correctamente.'
+            ], 200);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Manejar errores de validación
+            return response()->json([
+                'success' => false,
+                'message' => 'Error de validación.',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            // Manejar errores generales
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al actualizar el producto intermedio: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+    
 }
