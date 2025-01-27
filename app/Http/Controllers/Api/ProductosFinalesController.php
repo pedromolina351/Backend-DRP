@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests\InsertProductosFinalesRequest;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\StoreMonitoreoProductosFinalesRequest;
+use App\Http\Requests\UpdateProductoFinalRequest;
 
 class ProductosFinalesController extends Controller
 {
@@ -237,4 +238,70 @@ class ProductosFinalesController extends Controller
             ], 500);
         }
     }
+
+    public function updateProductoFinal(UpdateProductoFinalRequest $request)
+    {
+        try {
+            // Validar los datos del request
+            $validated = $request;
+    
+            // Ejecutar el procedimiento almacenado para actualizar el producto final
+            DB::statement('EXEC dbo.sp_Update_t_productos_finales 
+                @codigo_producto_final = :codigo_producto_final,
+                @objetivo_operativo = :objetivo_operativo,
+                @producto_final = :producto_final,
+                @indicador_producto_final = :indicador_producto_final,
+                @producto_final_primario = :producto_final_primario,
+                @programa = :programa,
+                @fecha_inicio = :fecha_inicio,
+                @fecha_fin = :fecha_fin,
+                @responsable = :responsable,
+                @medio_verificacion = :medio_verificacion,
+                @subprograma = :subprograma,
+                @proyecto = :proyecto,
+                @actividad = :actividad,
+                @costo_total_aproximado = :costo_total_aproximado,
+                @nombre_obra = :nombre_obra,
+                @estado = :estado,
+                @codigo_poa = :codigo_poa', [
+                'codigo_producto_final' => $validated['codigo_producto_final'],
+                'objetivo_operativo' => $validated['objetivo_operativo'] ?? null,
+                'producto_final' => $validated['producto_final'] ?? null,
+                'indicador_producto_final' => $validated['indicador_producto_final'] ?? null,
+                'producto_final_primario' => $validated['producto_final_primario'] ?? null,
+                'programa' => $validated['programa'] ?? null,
+                'fecha_inicio' => $validated['fecha_inicio'] ?? null,
+                'fecha_fin' => $validated['fecha_fin'] ?? null,
+                'responsable' => $validated['responsable'] ?? null,
+                'medio_verificacion' => $validated['medio_verificacion'] ?? null,
+                'subprograma' => $validated['subprograma'] ?? null,
+                'proyecto' => $validated['proyecto'] ?? null,
+                'actividad' => $validated['actividad'] ?? null,
+                'costo_total_aproximado' => $validated['costo_total_aproximado'] ?? null,
+                'nombre_obra' => $validated['nombre_obra'] ?? null,
+                'estado' => $validated['estado'] ?? null,
+                'codigo_poa' => $validated['codigo_poa'] ?? null,
+            ]);
+    
+            // Retornar respuesta exitosa
+            return response()->json([
+                'success' => true,
+                'message' => 'Producto final actualizado correctamente.',
+            ], 200);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Manejo de errores de validación
+            return response()->json([
+                'success' => false,
+                'message' => 'Error de validación.',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            // Manejo de errores generales
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al actualizar el producto final: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+    
 }

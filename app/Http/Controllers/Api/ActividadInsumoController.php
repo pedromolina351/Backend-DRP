@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreActividadInsumoRequest;
+use App\Http\Requests\UpdateActividadRequest;
 use Illuminate\Support\Facades\DB;
 
 class ActividadInsumoController extends Controller
@@ -214,6 +215,60 @@ class ActividadInsumoController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Error al obtener las actividades: ' . $e->getMessage(),
+            ], 500);
+        }
+    }    
+
+    public function updateActividad(UpdateActividadRequest $request)
+    {
+        try {
+            // Validar los datos del request
+            $validated = $request->validated();
+    
+            // Ejecutar el procedimiento almacenado para actualizar la actividad
+            DB::statement('EXEC dbo.sp_Update_t_actividades_insumos 
+                @codigo_actividad_insumo = :codigo_actividad_insumo,
+                @codigo_producto_final = :codigo_producto_final,
+                @actividad = :actividad,
+                @fecha_inicio = :fecha_inicio,
+                @fecha_fin = :fecha_fin,
+                @responsable = :responsable,
+                @medio_verificacion = :medio_verificacion,
+                @insumo_PACC = :insumo_PACC,
+                @insumo_no_PACC = :insumo_no_PACC,
+                @codigo_poa = :codigo_poa,
+                @codigo_objetivo_operativo = :codigo_objetivo_operativo', [
+                'codigo_actividad_insumo' => $validated['codigo_actividad_insumo'],
+                'codigo_producto_final' => $validated['codigo_producto_final'] ?? null,
+                'actividad' => $validated['actividad'] ?? null,
+                'fecha_inicio' => $validated['fecha_inicio'] ?? null,
+                'fecha_fin' => $validated['fecha_fin'] ?? null,
+                'responsable' => $validated['responsable'] ?? null,
+                'medio_verificacion' => $validated['medio_verificacion'] ?? null,
+                'insumo_PACC' => $validated['insumo_PACC'] ?? null,
+                'insumo_no_PACC' => $validated['insumo_no_PACC'] ?? null,
+                'codigo_poa' => $validated['codigo_poa'] ?? null,
+                'codigo_objetivo_operativo' => $validated['codigo_objetivo_operativo'] ?? null,
+            ]);
+    
+            // Responder con éxito
+            return response()->json([
+                'success' => true,
+                'message' => 'Actividad actualizada correctamente.',
+            ], 200);
+    
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Manejar errores de validación
+            return response()->json([
+                'success' => false,
+                'message' => 'Error de validación.',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            // Manejar errores generales
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al actualizar la actividad: ' . $e->getMessage(),
             ], 500);
         }
     }    
