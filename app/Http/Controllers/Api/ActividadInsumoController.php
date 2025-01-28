@@ -200,7 +200,9 @@ class ActividadInsumoController extends Controller
                     'fecha_inicio' => $actividad->FECHA_INICIO,
                     'fecha_fin' => $actividad->FECHA_FIN,
                     'responsable' => $actividad->RESPONSABLE,
-                    'medio_verificacion' => $actividad->MEDIO_VERIFICACION
+                    'medio_verificacion' => $actividad->MEDIO_VERIFICACION,
+                    'actividad' => $actividad->actividad,
+                    'codigo_actividad_insumo' => $actividad->codigo_actividad_insumo,
                 ];
             }, $actividades);
     
