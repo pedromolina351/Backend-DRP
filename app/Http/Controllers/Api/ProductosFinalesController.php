@@ -243,7 +243,7 @@ class ProductosFinalesController extends Controller
     {
         try {
             // Validar los datos del request
-            $validated = $request->validated();
+            $validated = $request;
     
             // Verificar que el arreglo de productos finales exista y no esté vacío
             if (!isset($validated['productos_finales']) || !is_array($validated['productos_finales']) || empty($validated['productos_finales'])) {
