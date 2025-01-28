@@ -251,52 +251,62 @@ class ProductosIntermediosController extends Controller
             // Validar los datos del request
             $validated = $request;
     
-            // Ejecutar el procedimiento almacenado para actualizar el producto intermedio
-            DB::statement('EXEC [dbo].[sp_Update_t_productos_intermedios] 
-                @codigo_producto_intermedio = :codigo_producto_intermedio,
-                @objetivo_operativo = :objetivo_operativo,
-                @producto_intermedio = :producto_intermedio,
-                @codigo_producto_final = :codigo_producto_final,
-                @indicador_producto_intermedio = :indicador_producto_intermedio,
-                @producto_intermedio_primario = :producto_intermedio_primario,
-                @programa = :programa,
-                @subprograma = :subprograma,
-                @proyecto = :proyecto,
-                @fecha_inicio = :fecha_inicio,
-                @fecha_fin = :fecha_fin,
-                @responsable = :responsable,
-                @medio_verificacion = :medio_verificacion,
-                @actividad = :actividad,
-                @fuente_financiamiento = :fuente_financiamiento,
-                @ente_de_financiamiento = :ente_de_financiamiento,
-                @costro_aproximado = :costro_aproximado,
-                @estado = :estado,
-                @codigo_poa = :codigo_poa', [
-                'codigo_producto_intermedio' => $validated['codigo_producto_intermedio'],
-                'objetivo_operativo' => $validated['objetivo_operativo'] ?? null,
-                'producto_intermedio' => $validated['producto_intermedio'] ?? null,
-                'codigo_producto_final' => $validated['codigo_producto_final'] ?? null,
-                'indicador_producto_intermedio' => $validated['indicador_producto_intermedio'] ?? null,
-                'producto_intermedio_primario' => $validated['producto_intermedio_primario'] ?? null,
-                'programa' => $validated['programa'] ?? null,
-                'subprograma' => $validated['subprograma'] ?? null,
-                'proyecto' => $validated['proyecto'] ?? null,
-                'fecha_inicio' => $validated['fecha_inicio'] ?? null,
-                'fecha_fin' => $validated['fecha_fin'] ?? null,
-                'responsable' => $validated['responsable'] ?? null,
-                'medio_verificacion' => $validated['medio_verificacion'] ?? null,
-                'actividad' => $validated['actividad'] ?? null,
-                'fuente_financiamiento' => $validated['fuente_financiamiento'] ?? null,
-                'ente_de_financiamiento' => $validated['ente_de_financiamiento'] ?? null,
-                'costro_aproximado' => $validated['costro_aproximado'] ?? null,
-                'estado' => $validated['estado'] ?? null,
-                'codigo_poa' => $validated['codigo_poa'] ?? null,
-            ]);
+            // Verificar que el arreglo de productos intermedios exista y no esté vacío
+            if (!isset($validated['productos_intermedios']) || !is_array($validated['productos_intermedios']) || empty($validated['productos_intermedios'])) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'El arreglo de productos intermedios es obligatorio y no puede estar vacío.',
+                ], 400);
+            }
+    
+            // Iterar sobre cada producto intermedio en el arreglo y ejecutar el SP
+            foreach ($validated['productos_intermedios'] as $productoIntermedio) {
+                DB::statement('EXEC [dbo].[sp_Update_t_productos_intermedios] 
+                    @codigo_producto_intermedio = :codigo_producto_intermedio,
+                    @objetivo_operativo = :objetivo_operativo,
+                    @producto_intermedio = :producto_intermedio,
+                    @codigo_producto_final = :codigo_producto_final,
+                    @indicador_producto_intermedio = :indicador_producto_intermedio,
+                    @producto_intermedio_primario = :producto_intermedio_primario,
+                    @programa = :programa,
+                    @subprograma = :subprograma,
+                    @proyecto = :proyecto,
+                    @fecha_inicio = :fecha_inicio,
+                    @fecha_fin = :fecha_fin,
+                    @responsable = :responsable,
+                    @medio_verificacion = :medio_verificacion,
+                    @actividad = :actividad,
+                    @fuente_financiamiento = :fuente_financiamiento,
+                    @ente_de_financiamiento = :ente_de_financiamiento,
+                    @costro_aproximado = :costro_aproximado,
+                    @estado = :estado,
+                    @codigo_poa = :codigo_poa', [
+                    'codigo_producto_intermedio' => $productoIntermedio['codigo_producto_intermedio'],
+                    'objetivo_operativo' => $productoIntermedio['objetivo_operativo'] ?? null,
+                    'producto_intermedio' => $productoIntermedio['producto_intermedio'] ?? null,
+                    'codigo_producto_final' => $productoIntermedio['codigo_producto_final'] ?? null,
+                    'indicador_producto_intermedio' => $productoIntermedio['indicador_producto_intermedio'] ?? null,
+                    'producto_intermedio_primario' => $productoIntermedio['producto_intermedio_primario'] ?? null,
+                    'programa' => $productoIntermedio['programa'] ?? null,
+                    'subprograma' => $productoIntermedio['subprograma'] ?? null,
+                    'proyecto' => $productoIntermedio['proyecto'] ?? null,
+                    'fecha_inicio' => $productoIntermedio['fecha_inicio'] ?? null,
+                    'fecha_fin' => $productoIntermedio['fecha_fin'] ?? null,
+                    'responsable' => $productoIntermedio['responsable'] ?? null,
+                    'medio_verificacion' => $productoIntermedio['medio_verificacion'] ?? null,
+                    'actividad' => $productoIntermedio['actividad'] ?? null,
+                    'fuente_financiamiento' => $productoIntermedio['fuente_financiamiento'] ?? null,
+                    'ente_de_financiamiento' => $productoIntermedio['ente_de_financiamiento'] ?? null,
+                    'costro_aproximado' => $productoIntermedio['costro_aproximado'] ?? null,
+                    'estado' => $productoIntermedio['estado'] ?? null,
+                    'codigo_poa' => $productoIntermedio['codigo_poa'] ?? null,
+                ]);
+            }
     
             // Retornar respuesta exitosa
             return response()->json([
                 'success' => true,
-                'message' => 'Producto intermedio actualizado correctamente.'
+                'message' => 'Productos intermedios actualizados correctamente.'
             ], 200);
         } catch (\Illuminate\Validation\ValidationException $e) {
             // Manejar errores de validación
@@ -309,7 +319,7 @@ class ProductosIntermediosController extends Controller
             // Manejar errores generales
             return response()->json([
                 'success' => false,
-                'message' => 'Error al actualizar el producto intermedio: ' . $e->getMessage(),
+                'message' => 'Error al actualizar los productos intermedios: ' . $e->getMessage(),
             ], 500);
         }
     }
