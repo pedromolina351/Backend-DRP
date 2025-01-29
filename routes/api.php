@@ -37,6 +37,7 @@ use App\Http\Controllers\MMR\TiposRiesgoController;
 use App\Http\Controllers\Api\IntervencionesPriorizadasController;
 use App\Http\Controllers\Api\FilController;
 use App\Http\Controllers\Api\RolesController;
+use App\Http\Controllers\Api\Indicador;
 
 Route::prefix('instituciones')->group(function () {
     Route::get('/obtenerTodasInstituciones', [InstitucionController::class, 'getInstitucionesList']);
@@ -215,6 +216,12 @@ Route::prefix('fil')->group(function () {
     Route::get('/obtenerFil', [FilController::class, 'getAllFil']);
     Route::post('/insertarComentarioFil', [FilController::class, 'insertarComentarioFil']);
     Route::get('/obtenerGruposVulnerables', [FilController::class, 'getGruposVulnerables']);
+});
+
+Route::prefix('indicador')->group(function () {
+    Route::get('/programas-inversion-genero', [Indicador::class, 'getProgramasConInversionEnGenero']);
+    Route::get('/instituciones-vision-pais', [Indicador::class, 'getInstitucionesByVisionPais']);
+    Route::get('/instituciones-resultado-peg', [Indicador::class, 'getInstitucionesByResultadoPEG']);
 });
 
 
