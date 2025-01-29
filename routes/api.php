@@ -222,6 +222,15 @@ Route::prefix('indicador')->group(function () {
     Route::get('/programas-inversion-genero', [Indicador::class, 'getProgramasConInversionEnGenero']);
     Route::get('/instituciones-vision-pais', [Indicador::class, 'getInstitucionesByVisionPais']);
     Route::get('/instituciones-resultado-peg', [Indicador::class, 'getInstitucionesByResultadoPEG']);
+    Route::get('/instituciones-politica', [Indicador::class, 'getInstitucionesByPolitica']);
+    Route::get('/instituciones-indicador', [Indicador::class, 'getInstitucionesByIndicadorResultado']);
+    Route::get('/beneficiarios-pueblos', [Indicador::class, 'getBeneficiariosByPueblos']);
+    Route::get('/beneficiarios-grupo-edad', [Indicador::class, 'getBeneficiariosByGrupoEdad']);
+    Route::get('/instituciones-eje-estrategico', [Indicador::class, 'getInstitucionesByEjeEstrategico']);
+    Route::get('/instituciones-gabinete', [Indicador::class, 'getInstitucionesByGabinete']);
+    Route::get('/instituciones-an-ods', [Indicador::class, 'getInstitucionesByAnOds']);
+    Route::get('/instituciones-intervencion', [Indicador::class, 'getInstitucionesByIntervencion']);
+    Route::get('/actividades-producto', [Indicador::class, 'getActividadesByProductoIntermedio']);
 });
 
 
