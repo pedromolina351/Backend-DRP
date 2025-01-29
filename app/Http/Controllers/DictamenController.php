@@ -945,7 +945,7 @@ class DictamenController extends Controller
         );
 
         // Guardar el archivo
-        $fileName = '7. DICTAMEN DE VIABILIDAD TECNICA POA-PRESUPUESTO.docx';
+        $fileName = 'Dictamen_viabilidad.docx';
         $tempPath = storage_path('App/' . $fileName);
 
         // Eliminar el archivo existente si ya existe
