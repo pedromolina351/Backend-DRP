@@ -8,6 +8,7 @@ use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\IOFactory;
 use App\Http\Requests\DictamenPoaRequest;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 
 class DictamenController extends Controller
 {
@@ -945,19 +946,26 @@ class DictamenController extends Controller
         );
 
         // Guardar el archivo
-        $fileName = 'Dictamen_viabilidad.docx';
-        $tempPath = storage_path('App/' . $fileName);
+        $fileName = 'dictamen_viabilidad.docx';
+        $directory = storage_path('app/dictamenes'); // Directorio corregido
 
-        // Eliminar el archivo existente si ya existe
+        // Crear directorio si no existe
+        if (!File::exists($directory)) {
+            File::makeDirectory($directory, 0755, true);
+        }
+    
+        $tempPath = $directory . '/' . $fileName;
+    
+        // Eliminar archivo existente si es necesario
         if (file_exists($tempPath)) {
             unlink($tempPath);
         }
-
+    
         // Guardar el archivo
         $writer = IOFactory::createWriter($phpWord, 'Word2007');
         $writer->save($tempPath);
-
-        // Devolver el archivo
-        return response()->download($tempPath)->deleteFileAfterSend(true);
+    
+        // Descargar el archivo
+        return response()->download($tempPath)->deleteFileAfterSend(true);    
     }
 }
