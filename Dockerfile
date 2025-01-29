@@ -69,7 +69,7 @@ COPY nginx.conf /etc/nginx/nginx.conf
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache && \
     chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 RUN chmod -R 777 /var/log/nginx
-RUN sudo chmod -R 777 /var/www/storage/App
+RUN chmod -R 777 /var/www/storage/App
 
 # Instalar Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
