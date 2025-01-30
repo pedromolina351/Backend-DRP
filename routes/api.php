@@ -76,6 +76,7 @@ Route::prefix('usuarios')->group(function () {
     Route::post('/registrarUsuario', [usuarioController::class, 'createUsuario']);
     Route::put('/modificarUsuario', [usuarioController::class, 'updateUser']);
     Route::delete('/eliminarUsuario/{codigo_usuario}', [usuarioController::class, 'deleteUser']);
+    Route::post('/login', [usuarioController::class, 'userLogin']);
 });
 
 Route::prefix('roles')->group(function () {

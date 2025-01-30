@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\Usuario;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\LoginRequest;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreUsuarioRequest;
 use App\Http\Requests\UpdateUserRequest;
@@ -190,5 +191,70 @@ class usuarioController extends Controller
             ], 500);
         }
     }
+
+    public function userLogin(LoginRequest $request)
+    {
+        try {
+            // Validar los datos del request
+            $validated = $request->validated();
+    
+            // Ejecutar el procedimiento almacenado para validar el inicio de sesión
+            $result = DB::select('EXEC [usuarios].[sp_inicio_sesion] 
+                @correo_electronico = :correo_electronico,
+                @password_hash = :password_hash', [
+                'correo_electronico' => $validated['correo_electronico'],
+                'password_hash' => $validated['password'], // Se envía la contraseña en texto plano ya que el SP maneja la validación
+            ]);
+    
+            // Verificar si la consulta devolvió un resultado
+            if (empty($result)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Usuario no encontrado o credenciales inválidas.',
+                ], 401);
+            }
+    
+            // Extraer los datos del usuario
+            $userData = $result[0];
+    
+            // Verificar si el estado es 'error'
+            if ($userData->Estado === 'error') {
+                return response()->json([
+                    'success' => false,
+                    'message' => $userData->Mensaje,
+                ], 401);
+            }
+    
+            // Retornar respuesta exitosa con los datos del usuario
+            return response()->json([
+                'success' => true,
+                'message' => $userData->Mensaje,
+                'data' => [
+                    'codigo_usuario' => $userData->codigo_usuario,
+                    'nombres' => $userData->Nombres,
+                    'apellidos' => $userData->Apellidos,
+                    'codigo_rol' => $userData->codigo_rol,
+                    'codigo_institucion' => $userData->codigo_institucion,
+                    'super_user' => $userData->super_user,
+                    'usuario_drp' => $userData->usuario_drp,
+                    'firstLogin' => $userData->firstLogin,
+                    'url_img_perfil' => $userData->url_img_perfil,
+                ]
+            ], 200);
+    
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error de validación.',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al iniciar sesión: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+    
 
 }
