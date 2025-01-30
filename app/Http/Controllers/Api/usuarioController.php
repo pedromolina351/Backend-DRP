@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\Usuario;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\changePasswordRequest;
 use App\Http\Requests\LoginRequest;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreUsuarioRequest;
@@ -256,5 +257,46 @@ class usuarioController extends Controller
         }
     }
     
+    public function changePassword(ChangePasswordRequest $request)
+    {
+        try {
+            // Validar los datos del request
+            $validated = $request->validated();
 
+
+            // Ejecutar el procedimiento almacenado
+            $result = DB::select('EXEC usuarios.sp_reiniciar_contrasenia 
+                @correo_electronico = :correo_electronico,
+                @nuevo_password_hash = :nuevo_password_hash', [
+                'correo_electronico' => $validated['correo_electronico'],
+                'nuevo_password_hash' => $validated['nuevo_password'],
+            ]);
+
+            // Validar respuesta del procedimiento almacenado
+            if (!isset($result[0]->Estado) || $result[0]->Estado !== 'success') {
+                return response()->json([
+                    'success' => false,
+                    'message' => $result[0]->Mensaje ?? 'Error al actualizar la contraseña.'
+                ], 400);
+            }
+
+            // Retornar respuesta exitosa
+            return response()->json([
+                'success' => true,
+                'message' => 'Contraseña actualizada exitosamente.',
+            ], 200);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error de validación.',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al cambiar la contraseña: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
 }
