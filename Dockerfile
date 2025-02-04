@@ -32,8 +32,9 @@ RUN docker-php-ext-configure zip && \
 docker-php-ext-install zip
 
 # Instalar y habilitar la extensión GD
-# RUN docker-php-ext-configure gd --with-freetype --with-jpeg && \
-#     docker-php-ext-install gd
+RUN docker-php-ext-configure gd && \
+    docker-php-ext-install gd
+#RUN apt-get install php8.2-gd -y
 
 # Crear directorio necesario para el socket de PHP-FPM
 RUN mkdir -p /var/run/php && \
