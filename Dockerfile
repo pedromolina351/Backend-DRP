@@ -31,6 +31,10 @@ RUN apt-get update && apt-get install -y \
 RUN docker-php-ext-configure zip && \
 docker-php-ext-install zip
 
+# Instalar y habilitar la extensión GD
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg && \
+    docker-php-ext-install gd
+
 # Crear directorio necesario para el socket de PHP-FPM
 RUN mkdir -p /var/run/php && \
     chown www-data:www-data /var/run/php
@@ -85,6 +89,7 @@ RUN npm run build
 # Verificar configuración de PHP-FPM
 RUN php-fpm --test || echo "Error en configuración de PHP-FPM"
 RUN php -m | grep zip
+RUN php -m | grep gd
 
 # Agregar script de verificación del socket y logs al inicio
 RUN echo '#!/bin/bash\n' \

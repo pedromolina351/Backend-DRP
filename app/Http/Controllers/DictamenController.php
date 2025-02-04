@@ -9,6 +9,11 @@ use PhpOffice\PhpWord\IOFactory;
 use App\Http\Requests\DictamenPoaRequest;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
+
 
 class DictamenController extends Controller
 {
@@ -67,7 +72,7 @@ class DictamenController extends Controller
         $firstRowStyle = ['bgColor' => '6CC5D1']; // Fondo azul claro
         $paragraphStyle = ['spaceAfter' => 0, 'alignment' => 'left'];
 
-        
+
         //--------------------------------------------------------------------------------------------------------------
         // --------------------------------------------------- PIE DE PÁGINA -------------------------------------------
         //--------------------------------------------------------------------------------------------------------------
@@ -953,19 +958,19 @@ class DictamenController extends Controller
         if (!File::exists($directory)) {
             File::makeDirectory($directory, 0755, true);
         }
-    
+
         $tempPath = $directory . '/' . $fileName;
-    
+
         // Eliminar archivo existente si es necesario
         if (file_exists($tempPath)) {
             unlink($tempPath);
         }
-    
+
         // Guardar el archivo
         $writer = IOFactory::createWriter($phpWord, 'Word2007');
         $writer->save($tempPath);
-    
+
         // Descargar el archivo
-        return response()->download($tempPath)->deleteFileAfterSend(true);    
+        return response()->download($tempPath)->deleteFileAfterSend(true);
     }
 }

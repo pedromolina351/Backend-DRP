@@ -38,6 +38,7 @@ use App\Http\Controllers\Api\IntervencionesPriorizadasController;
 use App\Http\Controllers\Api\FilController;
 use App\Http\Controllers\Api\RolesController;
 use App\Http\Controllers\Api\Indicador;
+use App\Http\Controllers\MatrizPoaController;
 
 Route::prefix('instituciones')->group(function () {
     Route::get('/obtenerTodasInstituciones', [InstitucionController::class, 'getInstitucionesList']);
@@ -239,3 +240,4 @@ Route::prefix('indicador')->group(function () {
 //Api para generar archivo Word:
 Route::get('/get-dictamen/{codigo_poa}', [DictamenController::class, 'generateDictamen']);
 Route::get('/get-data/{codigo_poa}', [DictamenController::class, 'obtenerDatosPoa']);
+Route::get('/get-matriz/{codigo_poa}', [MatrizPoaController::class, 'generarExcel']);
