@@ -204,7 +204,7 @@ class usuarioController extends Controller
                 @correo_electronico = :correo_electronico,
                 @password_hash = :password_hash', [
                 'correo_electronico' => $validated['correo_electronico'],
-                'password_hash' => $validated['password'], // Se envía la contraseña en texto plano ya que el SP maneja la validación
+                'password_hash' => $validated['password'] ?? null, // Se envía la contraseña en texto plano ya que el SP maneja la validación
             ]);
     
             // Verificar si la consulta devolvió un resultado

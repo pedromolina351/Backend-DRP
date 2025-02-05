@@ -23,7 +23,7 @@ class LoginRequest extends FormRequest
     {
         return [
             'correo_electronico' => 'required|email',
-            'password' => 'required|string',
+            'password' => 'string',
         ];
     }
 
@@ -32,7 +32,6 @@ class LoginRequest extends FormRequest
         return [
             'correo_electronico.required' => 'El correo electrónico es obligatorio.',
             'correo_electronico.email' => 'Debe ingresar un correo electrónico válido.',
-            'password.required' => 'La contraseña es obligatoria.',
             'password.string' => 'La contraseña debe ser un texto válido.'
         ];
     }
