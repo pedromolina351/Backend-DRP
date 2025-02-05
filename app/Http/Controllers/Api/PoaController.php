@@ -401,4 +401,73 @@ class PoaController extends Controller
             ], 500);
         }
     }    
+
+    public function getAllDataPoa($codigo_poa){
+        try{
+            $data = DB::select('EXEC sp_GetAllDataPoa @codigo_poa = :codigo_poa', [
+                'codigo_poa' => $codigo_poa
+            ]);
+            if(empty($data)){
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No se encontraron datos para el POA especificado.'
+                ], 404);
+            }
+            return response()->json([
+                'success' => true,
+                'data' => $data
+            ], 200);
+        }catch (\Exception $e){
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener los datos: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function getPoliticasByPoa($codigo_poa){
+        try{
+            $data = DB::select('EXEC [dbo].[sp_GetById_poa_t_poas_politicasXPoa] @codigo_poa = :codigo_poa', [
+                'codigo_poa' => $codigo_poa
+            ]);
+            if(empty($data)){
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No se encontraron políticas para el POA especificado.'
+                ], 404);
+            }
+            return response()->json([
+                'success' => true,
+                'data' => $data
+            ], 200);
+        }catch (\Exception $e){
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener las políticas: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function getAnOdsByPoa($codigo_poa){
+        try{
+            $data = DB::select('EXEC [dbo].[sp_GetById_poa_t_poas_an_odsXPoa]  @codigo_poa = :codigo_poa', [
+                'codigo_poa' => $codigo_poa
+            ]);
+            if(empty($data)){
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No se encontraron objetivos AN-ODS para el POA especificado.'
+                ], 404);
+            }
+            return response()->json([
+                'success' => true,
+                'data' => $data
+            ], 200);
+        }catch (\Exception $e){
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener los objetivos AN-ODS: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

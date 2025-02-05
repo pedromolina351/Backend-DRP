@@ -240,6 +240,7 @@ class usuarioController extends Controller
                     'usuario_drp' => $userData->usuario_drp,
                     'firstLogin' => $userData->firstLogin,
                     'url_img_perfil' => $userData->url_img_perfil,
+                    'password_hash' => $userData->password_hash
                 ]
             ], 200);
     
