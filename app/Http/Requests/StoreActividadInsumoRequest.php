@@ -25,6 +25,7 @@ class StoreActividadInsumoRequest extends FormRequest
             'codigo_poa' => 'required|integer|exists:poa_t_poas,codigo_poa',
             'actividades_insumos' => 'required|array|min:1',
             'actividades_insumos.*.codigo_producto_final' => 'required|integer|exists:t_productos_finales,codigo_producto_final',
+            'actividades_insumos.*.codigo_producto_intermedio' => 'required|integer|exists:t_productos_intermedios,codigo_producto_intermedio',
             'actividades_insumos.*.actividad' => 'required|string|max:500',
             'actividades_insumos.*.fecha_inicio' => 'string',
             'actividades_insumos.*.fecha_fin' => 'string',

@@ -31,6 +31,7 @@ class ActividadInsumoController extends Controller
                     $sql = "
                         EXEC sp_Insert_t_actividades_insumos 
                             @codigo_producto_final = :codigo_producto_final,
+                            @codigo_producto_intermedio = :codigo_producto_intermedio,
                             @actividad = :actividad,
                             @fecha_inicio = :fecha_inicio,
                             @fecha_fin = :fecha_fin,
@@ -44,6 +45,7 @@ class ActividadInsumoController extends Controller
 
                     DB::statement($sql, [
                         'codigo_producto_final' => $actividadInsumo['codigo_producto_final'],
+                        'codigo_producto_intermedio' => $actividadInsumo['codigo_producto_intermedio'],
                         'actividad' => $actividadInsumo['actividad'],
                         'fecha_inicio' => $actividadInsumo['fecha_inicio'] ?? null,
                         'fecha_fin' => $actividadInsumo['fecha_fin'] ?? null,

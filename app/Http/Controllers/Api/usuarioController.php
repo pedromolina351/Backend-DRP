@@ -239,7 +239,7 @@ class usuarioController extends Controller
                     'super_user' => $userData->super_user,
                     'usuario_drp' => $userData->usuario_drp,
                     'firstLogin' => $userData->firstLogin,
-                    'url_img_perfil' => $userData->url_img_perfil,
+                    'url_img_perfil' => html_entity_decode($userData->url_img_perfil),
                     'password_hash' => $userData->password_hash
                 ]
             ], 200);
