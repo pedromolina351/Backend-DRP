@@ -9,7 +9,8 @@ use Illuminate\Support\Facades\DB;
 
 class ObjetivosOperativosController extends Controller
 {
-    public function getObjetivosOperativosByPoa($codigo_poa){
+    public function getObjetivosOperativosByPoa($codigo_poa)
+    {
         // Verificar si el codigo_poa existe en la tabla correspondiente
         $poaExists = DB::table('poa_t_poas')->where('codigo_poa', $codigo_poa)->exists();
 
@@ -27,7 +28,6 @@ class ObjetivosOperativosController extends Controller
                 'message' => 'Objetivos operativos obtenidos con éxito.',
                 'objetivos' => $objetivos,
             ], 200);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -48,44 +48,20 @@ class ObjetivosOperativosController extends Controller
                     'message' => 'El codigo_poa proporcionado no existe.',
                 ], 400); // Bad Request
             }
-            // Inicializar un arreglo para errores
-            $errors = [];
-    
-            // Iterar sobre los objetivos recibidos en el body
-            foreach ($request->listado_objetivos as $objetivo) {
-                try {
-                    // Ejecutar el procedimiento almacenado para cada objetivo
-                    DB::statement('EXEC sp_Insert_t_objetivos_operativos 
-                        @objetivo_operativo = ?, 
-                        @subprograma_proyecto = ?, 
-                        @codigo_poa = ?', [
-                        $objetivo['objetivo_operativo'],
-                        $objetivo['subprograma_proyecto'],
-                        $request->codigo_poa
-                    ]);
-                } catch (\Exception $e) {
-                    // Capturar el error y agregarlo al arreglo
-                    $errors[] = [
-                        'objetivo' => $objetivo,
-                        'error' => $e->getMessage(),
-                    ];
-                }
-            }
-    
-            // Verificar si hubo errores
-            if (!empty($errors)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Algunos objetivos no se pudieron procesar.',
-                    'errors' => $errors,
-                ], 207); // 207 Multi-Status indica éxito parcial
-            }
-    
+
+            DB::statement('EXEC [v2].[sp_Insert_t_objetivos_operativos]
+                @objetivos_operativos = ?, 
+                @subprogramas_proyectos = ?, 
+                @codigo_poa = ?', [
+                $request->objetivos_operativo,
+                $request->subprogramas_proyecto,
+                $request->codigo_poa
+            ]);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Objetivos procesados con éxito.',
             ], 201);
-    
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,

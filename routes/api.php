@@ -159,6 +159,7 @@ Route::prefix('resultados-finales')->group(function () {
 Route::prefix('resultados')->group(function () {
     Route::post('/insertarResultados', [ResultadoController::class, 'insertResultado']);
     Route::post('/insertarImpactos', [ImpactoController::class, 'insertImpactos']);
+    Route::post('/insertPoaResultadosImpactos', [ResultadoController::class, 'insertPoaResultadosImpactos']);
     Route::get('/impactosbypoa/{codigo_poa}', [ImpactoController::class, 'getImpactosByPoaId']);
     Route::get('/resultadosbypoa/{codigo_poa}', [ResultadoController::class, 'getResultadosByPoa']);
 });
