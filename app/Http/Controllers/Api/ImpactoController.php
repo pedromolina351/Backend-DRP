@@ -21,31 +21,26 @@ class ImpactoController extends Controller
                     'message' => 'El codigo_poa proporcionado no existe.',
                 ], 400); // Bad Request
             }
-            // Inicializar un arreglo para registrar errores
-            $errors = [];
+
     
-            // Iterar sobre cada impacto en el arreglo
-            foreach ($request->impactos as $impacto) {
-                try {
-                    $sql = "
-                        EXEC sp_Insert_t_poa_t_poas_impactos 
-                            @codigo_poa = :codigo_poa, 
-                            @codigo_resultado_final = :codigo_resultado_final, 
-                            @codigo_indicador_resultado_final = :codigo_indicador_resultado_final;
-                    ";
-    
-                    DB::statement($sql, [
-                        'codigo_poa' => $request->codigo_poa,
-                        'codigo_resultado_final' => $impacto['codigo_resultado_final'],
-                        'codigo_indicador_resultado_final' => $impacto['codigo_indicador_resultado_final'],
-                    ]);
-                } catch (\Exception $e) {
-                    // Capturar errores por cada impacto fallido
-                    $errors[] = [
-                        'impacto' => $impacto,
-                        'error' => $e->getMessage(),
-                    ];
-                }
+            try {
+                $sql = "
+                    EXEC V2.sp_Insert_t_poa_t_poas_impactos 
+                        @codigo_poa = :codigo_poa, 
+                        @codigos_resultado_final = :codigos_resultado_final, 
+                        @codigos_indicador_resultado_final = :codigos_indicador_resultado_final;
+                ";
+
+                DB::statement($sql, [
+                    'codigo_poa' => $request->codigo_poa,
+                    'codigos_resultado_final' => $request->codigos_resultado_final,
+                    'codigos_indicador_resultado_final' => $request->codigos_indicador_resultado_final
+                ]);
+            } catch (\Exception $e) {
+                // Capturar errores por cada impacto fallido
+                $errors[] = [
+                    'error' => $e->getMessage(),
+                ];
             }
     
             // Si hubo errores, retornarlos

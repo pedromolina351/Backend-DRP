@@ -9,7 +9,7 @@ use App\Http\Requests\StoreResultadoRequest;
 use App\Http\Requests\InsertPoaResultadosImpactosRequest;
 
 class ResultadoController extends Controller
-{       
+{
 
     public function insertResultado(StoreResultadoRequest $request)
     {
@@ -23,35 +23,27 @@ class ResultadoController extends Controller
                     'message' => 'El codigo_poa proporcionado no existe.',
                 ], 400); // Bad Request
             }
-            // Inicializar un arreglo para registrar errores
-            $errors = [];
-    
-            // Iterar sobre cada resultado en el arreglo
-            foreach ($request->Resultados as $resultado) {
-                try {
-                    $sql = "
+            try {
+                $sql = "
                         DECLARE @codigo_resultado INT;
-                        EXEC sp_Insert_t_resultados
+                        EXEC [v2].[sp_Insert_t_resultados]
                             @resultado_institucional = :resultado_institucional,
                             @indicador_resultado_institucional = :indicador_resultado_institucional,
-                            @codigo_resultado = @codigo_resultado OUTPUT,
                             @codigo_poa = :codigo_poa;
                     ";
-    
-                    DB::statement($sql, [
-                        'resultado_institucional' => $resultado['resultado_institucional'],
-                        'indicador_resultado_institucional' => $resultado['indicador_resultado_institucional'],
-                        'codigo_poa' => $request->codigo_poa,
-                    ]);
-                } catch (\Exception $e) {
-                    // Capturar errores por cada resultado fallido
-                    $errors[] = [
-                        'resultado' => $resultado,
-                        'error' => $e->getMessage(),
-                    ];
-                }
+
+                DB::statement($sql, [
+                    'resultado_institucional' => $request->resultado_institucional,
+                    'indicador_resultado_institucional' => $request->indicador_resultado_institucional,
+                    'codigo_poa' => $request->codigo_poa,
+                ]);
+            } catch (\Exception $e) {
+                // Capturar errores por cada resultado fallido
+                $errors[] = [
+                    'error' => $e->getMessage(),
+                ];
             }
-    
+
             // Si hubo errores, retornarlos
             if (!empty($errors)) {
                 return response()->json([
@@ -60,13 +52,12 @@ class ResultadoController extends Controller
                     'errors' => $errors,
                 ], 207); // 207 Multi-Status indica éxito parcial
             }
-    
+
             // Si todos fueron exitosos
             return response()->json([
                 'success' => true,
                 'message' => 'Todos los resultados fueron creados con éxito.',
             ], 201);
-    
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -74,11 +65,11 @@ class ResultadoController extends Controller
             ], 500);
         }
     }
-    
+
 
     public function insertPoaResultadosImpactos(InsertPoaResultadosImpactosRequest $request)
     {
-        try {  
+        try {
             // Ejecutar el procedimiento almacenado para cada combinación de impacto y resultado
             DB::statement('EXEC [v2].[sp_Insert_t_poa_t_poas_impactos_resultados]
                 @codigo_poa = ?, 
@@ -90,12 +81,11 @@ class ResultadoController extends Controller
                 $request->codigos_indicador_resultado_final,
                 $request->codigos_resultado,
             ]);
-    
+
             return response()->json([
                 'success' => true,
                 'message' => 'Impactos y resultados procesados con éxito.',
             ], 201);
-    
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -104,7 +94,8 @@ class ResultadoController extends Controller
         }
     }
 
-    public function getResultadosByPoa($codigo_poa){
+    public function getResultadosByPoa($codigo_poa)
+    {
         try {
             // Verificar si el codigo_poa existe en la tabla correspondiente
             $poaExists = DB::table('poa_t_poas')->where('codigo_poa', $codigo_poa)->exists();
@@ -122,7 +113,6 @@ class ResultadoController extends Controller
                 'success' => true,
                 'resultados' => $resultados,
             ], 200);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -130,7 +120,4 @@ class ResultadoController extends Controller
             ], 500);
         }
     }
-    
-    
-    
 }
