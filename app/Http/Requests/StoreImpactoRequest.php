@@ -24,8 +24,8 @@ class StoreImpactoRequest extends FormRequest
     {
         return [
             'codigo_poa' => 'required|integer|exists:poa_t_poas,codigo_poa',
-            'codigos_resultado_final' => 'required|string',
-            'codigos_indicador_resultado_final' => 'required|string',
+            'codigos_resultado_final' => 'nullable',
+            'codigos_indicador_resultado_final' => 'nullable',
         ];
     }
 

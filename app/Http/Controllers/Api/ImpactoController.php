@@ -78,12 +78,22 @@ class ImpactoController extends Controller
                 ], 400); // Bad Request
             }
             $impactos = DB::select('EXEC sp_GetAll_t_poa_t_poas_impactos_by_poa @codigo_poa = ?', [$codigo_poa]);
+
+            if(empty($impactos)){
+                return response()->json([
+                    'success' => true,
+                    'message' => 'No se encontraron impactos para el POA proporcionado.',
+                ], 404); // Not Found
+            }
+
             return response()->json([
                 'success' => true,
                 'message' => 'Impactos obtenidos con éxito.',
                 'impactos' => $impactos,
             ], 200);
+
         } catch (\Exception $e) {
+            
             return response()->json([
                 'success' => false,
                 'message' => 'Error al obtener los impactos: ' . $e->getMessage(),

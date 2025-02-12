@@ -23,8 +23,8 @@ class StoreResultadoRequest extends FormRequest
     {
         return [
             'codigo_poa' => 'required|integer|max:255',
-            'resultado_institucional' => 'required|string',
-            'indicador_resultado_institucional' => 'required|string',
+            'resultado_institucional' => 'nullable',
+            'indicador_resultado_institucional' => 'nullable',
         ];
     }
 }
