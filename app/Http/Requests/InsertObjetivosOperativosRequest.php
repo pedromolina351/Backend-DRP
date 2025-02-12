@@ -23,8 +23,8 @@ class InsertObjetivosOperativosRequest extends FormRequest
     {
         return [
             'codigo_poa' => 'required|integer|exists:poa_t_poas,codigo_poa', // Validar que el código existe en la tabla poa_t_poas
-            'objetivos_operativo' => 'required|string', 
-            'subprogramas_proyecto' => 'required|string',
+            'objetivos_operativo' => 'nullable', 
+            'subprogramas_proyecto' => 'nullable',
         ];
     }
 
