@@ -470,4 +470,21 @@ class PoaController extends Controller
             ], 500);
         }
     }
+
+    public function aprobarPOA($codigo_poa){
+        try{
+            DB::statement('EXEC [dbo].[sp_Aprobar_POA] @codigo_poa = :codigo_poa', [
+                'codigo_poa' => $codigo_poa
+            ]);
+            return response()->json([
+                'success' => true,
+                'message' => 'POA aprobado con éxito.'
+            ], 200);
+        }catch (\Exception $e){
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al aprobar el POA: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

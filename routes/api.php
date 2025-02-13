@@ -55,6 +55,7 @@ Route::prefix('poas')->group(function () {
     Route::get('/obtenerPoasPorInstitucion', [PoaController::class, 'getPoasByInstitution']);
     Route::post('/insertPoaMain', [PoaController::class, 'insertPoaMain']);
     Route::put('/editPoa', [PoaController::class, 'editPoaMain']);
+    Route::put('/aprobarPOA/{codigo_poa}', [PoaController::class, 'aprobarPOA']);
 });
 
 Route::prefix('programas')->group(function () {
