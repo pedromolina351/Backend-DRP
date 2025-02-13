@@ -15,7 +15,7 @@ class PoaController extends Controller
 {
     public function getPoasList()
     {
-        $poas = Poa::where('estado_poa', 1)->get();
+        $poas = Poa::get();
         if ($poas->isEmpty()) {
             $data = [
                 'status' => 204,
