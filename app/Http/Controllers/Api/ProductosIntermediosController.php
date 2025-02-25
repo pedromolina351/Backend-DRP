@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\deleteNewProductosIntermediosRequest;
 use Illuminate\Http\Request;
 use App\Http\Requests\InsertProductosIntermediosRequest;
 use App\Http\Requests\StoreMonitoreoProductosIntermediosRequest;
@@ -323,5 +324,54 @@ class ProductosIntermediosController extends Controller
             ], 500);
         }
     }
+
+    public function deleteProductosIntermedios(deleteNewProductosIntermediosRequest $request)
+    {
+        try {
+            // Validar la solicitud
+            $validated = $request->validated();
+    
+            // Obtener el código del POA
+            $codigo_poa = $validated['codigo_poa'];
+    
+            // Obtener la lista de productos intermedios a eliminar
+            $productos_intermedios = $validated['productos_intermedios'];
+    
+            // Contador de eliminaciones exitosas
+            $eliminados = 0;
+    
+            foreach ($productos_intermedios as $producto) {
+                // Ejecutar el procedimiento almacenado para cada producto intermedio
+                DB::statement('EXEC v2.sp_Delete_t_productos_intermedios 
+                    @codigo_producto_intermedio = :codigo_producto_intermedio,
+                    @codigo_poa = :codigo_poa', [
+                    'codigo_producto_intermedio' => $producto['codigo_producto_intermedio'],
+                    'codigo_poa' => $codigo_poa
+                ]);
+    
+                $eliminados++;
+            }
+    
+            // Responder con éxito si al menos un producto fue eliminado
+            return response()->json([
+                'success' => true,
+                'message' => "$eliminados productos intermedios eliminados correctamente.",
+            ], 200);
+    
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Manejar errores de validación
+            return response()->json([
+                'success' => false,
+                'message' => 'Error de validación.',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            // Manejar errores generales
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al eliminar los productos intermedios: ' . $e->getMessage(),
+            ], 500);
+        }
+    }    
     
 }

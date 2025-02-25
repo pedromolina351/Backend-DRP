@@ -8,6 +8,7 @@ use App\Http\Requests\InsertProductosFinalesRequest;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\StoreMonitoreoProductosFinalesRequest;
 use App\Http\Requests\UpdateProductoFinalRequest;
+use App\Http\Requests\deleteNewProductosFinalesRequest;
 
 class ProductosFinalesController extends Controller
 {
@@ -310,6 +311,75 @@ class ProductosFinalesController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Error al actualizar los productos finales: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+    
+    public function deleteNewProductosFinales(deleteNewProductosFinalesRequest $request)
+    {
+        try {
+            // Validar la solicitud
+            $validated = $request->validated();
+    
+            // Obtener el código del POA
+            $codigo_poa = $validated['codigo_poa'];
+    
+            // Obtener la lista de productos finales a eliminar
+            $productos_finales = $validated['productos_finales'];
+    
+            // Contador de eliminaciones exitosas
+            $eliminados = 0;
+
+            // crear un arreglo para obtener los errores
+            $errors = [];
+    
+            foreach ($productos_finales as $producto) {
+                // Ejecutar el procedimiento almacenado para cada producto final
+                try {
+                    DB::statement('EXEC v2.sp_Delete_t_productos_finales 
+                        @codigo_producto_final = :codigo_producto_final,
+                        @codigo_poa = :codigo_poa', [
+                        'codigo_producto_final' => $producto['codigo_producto_final'],
+                        'codigo_poa' => $codigo_poa
+                    ]);
+                    
+                    $eliminados++;
+                } catch (\Exception $e) {
+                    // Capturar el error y agregarlo al arreglo
+                    $errors[] = [
+                        'producto' => $producto,
+                        'error' => $e->getMessage(),
+                    ];
+                }
+            }
+
+            // Verificar si hubo errores
+            if (!empty($errors)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Algunos productos finales no se pudieron eliminar.',
+                    'errors' => $errors,
+                ], 207); // 207 Multi-Status indica éxito parcial
+            }
+    
+            // Responder con éxito si al menos un producto fue eliminado
+            return response()->json([
+                'success' => true,
+                'message' => "$eliminados productos finales eliminados correctamente.",
+            ], 200);
+    
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Manejar errores de validación
+            return response()->json([
+                'success' => false,
+                'message' => 'Error de validación.',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            // Manejar errores generales
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al eliminar los productos finales: ' . $e->getMessage(),
             ], 500);
         }
     }

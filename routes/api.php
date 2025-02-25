@@ -181,6 +181,8 @@ Route::prefix('productos')->group(function () {
     Route::get('/monitoreo-productos-intermedios/{codigo_poa}', [ProductosIntermediosController::class, 'getMonitoreoProductosIntermedios']);
     Route::put('/modificar-producto-final', [ProductosFinalesController::class, 'updateProductosFinales']);
     Route::put('/modificar-producto-intermedio', [ProductosIntermediosController::class, 'updateProductoIntermedio']);
+    Route::post('/eliminar-productos-finales', [ProductosFinalesController::class, 'deleteNewProductosFinales']);
+    Route::post('/eliminar-productos-intermedios', [ProductosIntermediosController::class, 'deleteProductosIntermedios']);
     
 });
 
