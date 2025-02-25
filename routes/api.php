@@ -181,8 +181,10 @@ Route::prefix('productos')->group(function () {
     Route::get('/monitoreo-productos-intermedios/{codigo_poa}', [ProductosIntermediosController::class, 'getMonitoreoProductosIntermedios']);
     Route::put('/modificar-producto-final', [ProductosFinalesController::class, 'updateProductosFinales']);
     Route::put('/modificar-producto-intermedio', [ProductosIntermediosController::class, 'updateProductoIntermedio']);
-    Route::post('/eliminar-productos-finales', [ProductosFinalesController::class, 'deleteNewProductosFinales']);
-    Route::post('/eliminar-productos-intermedios', [ProductosIntermediosController::class, 'deleteProductosIntermedios']);
+    Route::delete('/eliminar-productos-finales', [ProductosFinalesController::class, 'deleteNewProductosFinales']);
+    Route::delete('/eliminar-productos-intermedios', [ProductosIntermediosController::class, 'deleteProductosIntermedios']);
+    Route::delete('/eliminar-monitoreo-productos-finales', [ProductosFinalesController::class, 'deleteMonitoreoProductosFinales']);
+    Route::delete('/eliminar-monitoreo-productos-intermedios', [ProductosIntermediosController::class, 'deleteMonitoreoProductosIntermedios']);
     
 });
 
@@ -192,6 +194,7 @@ Route::prefix('actividades-insumos')->group(function () {
     Route::get('/actividades-insumos-by-producto-and-poa/{codigo_producto_final}/{codigo_poa}', [ActividadInsumoController::class, 'getActividadesInsumosByProductoAndPoa']);
     Route::get('/actividades-por-producto-intermedio/{codigo_producto_intermedio}/{codigo_producto_final?}', [ActividadInsumoController::class, 'getActividadesByProductoIntermedio']);
     Route::put('/modificar-actividad', [ActividadInsumoController::class, 'updateActividad']);
+    Route::delete('/eliminar-actividades-insumos', [ActividadInsumoController::class, 'deleteActividadesInsumos']);
 });
 
 Route::prefix('datos-complementarios')->group(function () {

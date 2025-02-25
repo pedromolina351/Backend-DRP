@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\deleteMonitoreoProductosIntermediosRequest;
 use App\Http\Requests\deleteNewProductosIntermediosRequest;
 use Illuminate\Http\Request;
 use App\Http\Requests\InsertProductosIntermediosRequest;
@@ -373,5 +374,54 @@ class ProductosIntermediosController extends Controller
             ], 500);
         }
     }    
+    
+    public function deleteMonitoreoProductosIntermedios(deleteMonitoreoProductosIntermediosRequest $request)
+    {
+        try {
+            // Validar la solicitud
+            $validated = $request->validated();
+    
+            // Obtener el código del POA
+            $codigo_poa = $validated['codigo_poa'];
+    
+            // Obtener la lista de monitoreos a eliminar
+            $monitoreos = $validated['monitoreos'];
+    
+            // Contador de eliminaciones exitosas
+            $eliminados = 0;
+    
+            foreach ($monitoreos as $monitoreo) {
+                // Ejecutar el procedimiento almacenado para cada monitoreo
+                DB::statement('EXEC v2.sp_Delete_poa_t_poas_monitoreo_productos_intermedios 
+                    @codigo_monitoreo_producto_intermedio = :codigo_monitoreo_producto_intermedio,
+                    @codigo_poa = :codigo_poa', [
+                    'codigo_monitoreo_producto_intermedio' => $monitoreo['codigo_monitoreo_producto_intermedio'],
+                    'codigo_poa' => $codigo_poa
+                ]);
+    
+                $eliminados++;
+            }
+    
+            // Retornar respuesta exitosa si al menos un monitoreo fue eliminado
+            return response()->json([
+                'success' => true,
+                'message' => "$eliminados monitoreo(s) de productos intermedios eliminado(s) correctamente.",
+            ], 200);
+    
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Manejo de errores de validación
+            return response()->json([
+                'success' => false,
+                'message' => 'Error de validación.',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            // Manejo de errores generales
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al eliminar los monitoreos de productos intermedios: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
     
 }

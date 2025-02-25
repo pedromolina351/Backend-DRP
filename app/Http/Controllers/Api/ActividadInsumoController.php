@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\deleteActividadesInsumosRequest;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreActividadInsumoRequest;
 use App\Http\Requests\UpdateActividadRequest;
@@ -287,4 +288,53 @@ class ActividadInsumoController extends Controller
         }
     }    
 
+    public function deleteActividadesInsumos(deleteActividadesInsumosRequest $request)
+    {
+        try {
+            // Validar la solicitud
+            $validated = $request->validated();
+    
+            // Obtener el código del POA
+            $codigo_poa = $validated['codigo_poa'];
+    
+            // Obtener la lista de actividades a eliminar
+            $actividades_insumos = $validated['actividades_insumos'];
+    
+            // Contador de eliminaciones exitosas
+            $eliminados = 0;
+    
+            foreach ($actividades_insumos as $actividad) {
+                // Ejecutar el procedimiento almacenado para cada actividad
+                DB::statement('EXEC v2.sp_Delete_t_actividades_insumos 
+                    @codigo_actividad_insumo = :codigo_actividad_insumo,
+                    @codigo_poa = :codigo_poa', [
+                    'codigo_actividad_insumo' => $actividad['codigo_actividad_insumo'],
+                    'codigo_poa' => $codigo_poa
+                ]);
+    
+                $eliminados++;
+            }
+    
+            // Retornar respuesta exitosa si al menos una actividad fue eliminada
+            return response()->json([
+                'success' => true,
+                'message' => "$eliminados actividades insumos eliminadas correctamente.",
+            ], 200);
+    
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Manejo de errores de validación
+            return response()->json([
+                'success' => false,
+                'message' => 'Error de validación.',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            // Manejo de errores generales
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al eliminar las actividades insumos: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+    
 }
