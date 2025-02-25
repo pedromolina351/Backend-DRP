@@ -80,6 +80,7 @@ Route::prefix('usuarios')->group(function () {
     Route::delete('/eliminarUsuario/{codigo_usuario}', [usuarioController::class, 'deleteUser']);
     Route::post('/login', [usuarioController::class, 'userLogin']);
     Route::post('/cambiarClave', [usuarioController::class, 'changePassword']);
+    Route::post('/enviar-correo-reset', [usuarioController::class, 'enviarCorreoReseteoInicioSesion']);
 });
 
 Route::prefix('roles')->group(function () {

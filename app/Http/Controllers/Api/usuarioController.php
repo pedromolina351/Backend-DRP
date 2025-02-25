@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Models\Usuario;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\changePasswordRequest;
+use App\Http\Requests\CorreoCambioRequest;
 use App\Http\Requests\LoginRequest;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreUsuarioRequest;
@@ -301,4 +302,43 @@ class usuarioController extends Controller
             ], 500);
         }
     }
+
+    public function enviarCorreoReseteoInicioSesion(CorreoCambioRequest $request)
+    {
+        try {
+            // Validar la solicitud
+            $validated = $request->validated();
+    
+            // Ejecutar el procedimiento almacenado para enviar el correo
+            DB::statement('EXEC usuarios.sp_enviar_correo_reseteo_inicio_sesion 
+                @codigo_usuario = :codigo_usuario,
+                @accion = :accion,
+                @mensaje_adicional = :mensaje_adicional', [
+                'codigo_usuario' => $validated['codigo_usuario'],
+                'accion' => $validated['accion'],
+                'mensaje_adicional' => $validated['mensaje_adicional'] ?? null
+            ]);
+    
+            // Retornar respuesta exitosa
+            return response()->json([
+                'success' => true,
+                'message' => 'Correo enviado correctamente.',
+            ], 200);
+    
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Manejo de errores de validación
+            return response()->json([
+                'success' => false,
+                'message' => 'Error de validación.',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            // Manejo de errores generales
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al enviar el correo: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+    
 }
