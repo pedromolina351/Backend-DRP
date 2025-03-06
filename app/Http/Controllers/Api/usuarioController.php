@@ -14,7 +14,8 @@ use Illuminate\Support\Facades\DB;
 
 class usuarioController extends Controller
 {
-    public function getUsuariosList(){
+    public function getUsuariosList()
+    {
         try {
             $roles = DB::select('EXEC [usuarios].[sp_consultar_todos_usuarios]');
             $jsonField = $roles[0]->lista_usuarios ?? null;
@@ -31,12 +32,13 @@ class usuarioController extends Controller
         }
     }
 
-    public function getUsuario($codigo_usuario){
+    public function getUsuario($codigo_usuario)
+    {
         try {
             $usuario = DB::select('EXEC [usuarios].[sp_consultar_detalles_usuario] @codigo_usuario = :codigo_usuario', [
                 'codigo_usuario' => $codigo_usuario,
             ]);
- 
+
             return response()->json([
                 'success' => true,
                 'data' => $usuario,
@@ -54,8 +56,11 @@ class usuarioController extends Controller
         try {
             // Validar datos del request
             $validated = $request->validated();
-    
-            // Ejecutar el procedimiento almacenado para crear el usuario
+            // Generar una cadena aleatoria de 10 caracteres
+            $passwordAleatorio = $this->generarTextoAleatorio(10);
+
+            // Hashear la contraseña generada
+            $passwdHasheada = $passwordAleatorio;
             DB::statement('EXEC [usuarios].[sp_crear_usuario] 
                 @primer_nombre = :primer_nombre,
                 @segundo_nombre = :segundo_nombre,
@@ -83,14 +88,31 @@ class usuarioController extends Controller
                 'super_user' => $validated['super_user'] ?? 0,
                 'usuario_drp' => $validated['usuario_drp'] ?? 0,
                 'estado' => $validated['estado'] ?? 1,
-                'password_hash' => bcrypt($validated['password']),
+                'password_hash' => $passwdHasheada,
                 'url_img_perfil' => $validated['url_img_perfil']
             ]);
-    
+
+            try {
+                DB::statement('EXEC [usuarios].[sp_enviar_correo_reseteo_inicio_sesion] 
+                @correo_usuario = :correo_usuario,
+                @accion = :accion,
+                @password_string = :password_string', [
+                    'correo_usuario' => $request['correo_electronico'],
+                    'accion' => 1,
+                    'password_string' => $passwdHasheada
+                ]);
+            } catch (\Exception $e) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al enviar el correo: ' . $e->getMessage(),
+                ], 500);
+            }
+
             return response()->json([
                 'success' => true,
                 'message' => 'Usuario creado exitosamente.',
             ], 201);
+
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'success' => false,
@@ -104,16 +126,16 @@ class usuarioController extends Controller
             ], 500);
         }
     }
-    
+
     public function updateUser(UpdateUserRequest $request)
     {
         try {
             // Validar datos del request
             $validated = $request->validated();
-    
+
             // Construir el parámetro para el hash de la contraseña si se proporciona
             $passwordHash = isset($validated['password']) ? bcrypt($validated['password']) : null;
-    
+
             // Ejecutar el procedimiento almacenado para actualizar el usuario
             DB::statement('EXEC [usuarios].[sp_actualizar_usuario] 
                 @codigo_usuario = :codigo_usuario,
@@ -147,7 +169,7 @@ class usuarioController extends Controller
                 'password_hash' => $passwordHash ?? null,
                 'url_img_perfil' => $validated['url_img_perfil'] ?? null
             ]);
-    
+
             return response()->json([
                 'success' => true,
                 'message' => 'Usuario actualizado correctamente.',
@@ -181,7 +203,7 @@ class usuarioController extends Controller
             DB::statement('EXEC [usuarios].[sp_eliminar_usuario] @codigo_usuario = :codigo_usuario', [
                 'codigo_usuario' => $codigo_usuario,
             ]);
-    
+
             return response()->json([
                 'success' => true,
                 'message' => 'Usuario eliminado correctamente.',
@@ -199,7 +221,7 @@ class usuarioController extends Controller
         try {
             // Validar los datos del request
             $validated = $request->validated();
-    
+
             // Ejecutar el procedimiento almacenado para validar el inicio de sesión
             $result = DB::select('EXEC [usuarios].[sp_inicio_sesion] 
                 @correo_electronico = :correo_electronico,
@@ -207,7 +229,7 @@ class usuarioController extends Controller
                 'correo_electronico' => $validated['correo_electronico'],
                 'password_hash' => $validated['password'] ?? null, // Se envía la contraseña en texto plano ya que el SP maneja la validación
             ]);
-    
+
             // Verificar si la consulta devolvió un resultado
             if (empty($result)) {
                 return response()->json([
@@ -215,10 +237,10 @@ class usuarioController extends Controller
                     'message' => 'Usuario no encontrado o credenciales inválidas.',
                 ], 401);
             }
-    
+
             // Extraer los datos del usuario
             $userData = $result[0];
-    
+
             // Verificar si el estado es 'error'
             if ($userData->Estado === 'error') {
                 return response()->json([
@@ -226,7 +248,14 @@ class usuarioController extends Controller
                     'message' => $userData->Mensaje,
                 ], 401);
             }
-    
+
+            DB::statement('EXEC [usuarios].[sp_enviar_correo_reseteo_inicio_sesion] 
+            @correo_usuario = :correo_usuario,
+            @accion = :accion', [
+                'correo_usuario' => $request['correo_electronico'],
+                'accion' => 2
+            ]);
+
             // Retornar respuesta exitosa con los datos del usuario
             return response()->json([
                 'success' => true,
@@ -245,7 +274,6 @@ class usuarioController extends Controller
                     'password_hash' => $userData->password_hash
                 ]
             ], 200);
-    
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'success' => false,
@@ -259,13 +287,12 @@ class usuarioController extends Controller
             ], 500);
         }
     }
-    
+
     public function changePassword(ChangePasswordRequest $request)
     {
         try {
             // Validar los datos del request
             $validated = $request->validated();
-
 
             // Ejecutar el procedimiento almacenado
             $result = DB::select('EXEC usuarios.sp_reiniciar_contrasenia 
@@ -283,12 +310,25 @@ class usuarioController extends Controller
                 ], 400);
             }
 
+            try {
+                DB::statement('EXEC [usuarios].[sp_enviar_correo_reseteo_inicio_sesion] 
+                @correo_usuario = :correo_usuario,
+                @accion = :accion', [
+                    'correo_usuario' => $request['correo_electronico'],
+                    'accion' => 3
+                ]);
+            } catch (\Exception $e) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al enviar el correo: ' . $e->getMessage(),
+                ], 500);
+            }
+
             // Retornar respuesta exitosa
             return response()->json([
                 'success' => true,
                 'message' => 'Contraseña actualizada exitosamente.',
             ], 200);
-
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'success' => false,
@@ -308,23 +348,25 @@ class usuarioController extends Controller
         try {
             // Validar la solicitud
             $validated = $request->validated();
-    
+            // Generar una cadena aleatoria de 10 caracteres
+            $passwordAleatorio = $this->generarTextoAleatorio(10);
+
+            // Hashear la contraseña generada
+            $passwdHasheada = $passwordAleatorio;
             // Ejecutar el procedimiento almacenado para enviar el correo
-            DB::statement('EXEC usuarios.sp_enviar_correo_reseteo_inicio_sesion 
-                @codigo_usuario = :codigo_usuario,
+            DB::statement('EXEC [usuarios].[sp_enviar_correo_reseteo_inicio_sesion] 
+                @correo_usuario = :correo_usuario,
                 @accion = :accion,
-                @mensaje_adicional = :mensaje_adicional', [
-                'codigo_usuario' => $validated['codigo_usuario'],
-                'accion' => $validated['accion'],
-                'mensaje_adicional' => $validated['mensaje_adicional'] ?? null
+                @password_string = :password_string', [
+                'correo_usuario' => $validated['correo_usuario'],
+                'accion' => 1,
+                'password_string' => $passwdHasheada
             ]);
-    
             // Retornar respuesta exitosa
             return response()->json([
                 'success' => true,
                 'message' => 'Correo enviado correctamente.',
             ], 200);
-    
         } catch (\Illuminate\Validation\ValidationException $e) {
             // Manejo de errores de validación
             return response()->json([
@@ -340,5 +382,17 @@ class usuarioController extends Controller
             ], 500);
         }
     }
-    
+
+    private function generarTextoAleatorio($longitud = 10)
+    {
+        $caracteres = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $textoAleatorio = '';
+        $max = strlen($caracteres) - 1;
+
+        for ($i = 0; $i < $longitud; $i++) {
+            $textoAleatorio .= $caracteres[random_int(0, $max)];
+        }
+
+        return $textoAleatorio;
+    }
 }
