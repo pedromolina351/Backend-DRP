@@ -6,6 +6,7 @@ use App\Models\Usuario;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\changePasswordRequest;
 use App\Http\Requests\CorreoCambioRequest;
+use App\Http\Requests\ForgotPasswordRequest;
 use App\Http\Requests\LoginRequest;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreUsuarioRequest;
@@ -360,6 +361,54 @@ class usuarioController extends Controller
                 @password_string = :password_string', [
                 'correo_usuario' => $validated['correo_usuario'],
                 'accion' => 1,
+                'password_string' => $passwdHasheada
+            ]);
+            // Retornar respuesta exitosa
+            return response()->json([
+                'success' => true,
+                'message' => 'Correo enviado correctamente.',
+            ], 200);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Manejo de errores de validación
+            return response()->json([
+                'success' => false,
+                'message' => 'Error de validación.',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            // Manejo de errores generales
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al enviar el correo: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function forgotPassword(ForgotPasswordRequest $request){
+        try {
+            // Validar la solicitud
+            $validated = $request->validated();
+            // Generar una cadena aleatoria de 10 caracteres
+            $passwordAleatorio = $this->generarTextoAleatorio(10);
+
+            // Hashear la contraseña generada
+            $passwdHasheada = $passwordAleatorio;
+            
+            //Ejecutar el procedimiento para cambiar la contraseña
+            DB::statement('EXEC [usuarios].[sp_reiniciar_contrasenia] 
+                @correo_electronico = :correo_electronico,
+                @nuevo_password_hash = :nuevo_password_hash', [
+                'correo_electronico' => $validated['correo_usuario'],
+                'nuevo_password_hash' => $passwdHasheada
+            ]);
+
+            // Ejecutar el procedimiento almacenado para enviar el correo
+            DB::statement('EXEC [usuarios].[sp_enviar_correo_reseteo_inicio_sesion] 
+                @correo_usuario = :correo_usuario,
+                @accion = :accion,
+                @password_string = :password_string', [
+                'correo_usuario' => $validated['correo_usuario'],
+                'accion' => 4,
                 'password_string' => $passwdHasheada
             ]);
             // Retornar respuesta exitosa

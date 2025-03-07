@@ -81,6 +81,7 @@ Route::prefix('usuarios')->group(function () {
     Route::post('/login', [usuarioController::class, 'userLogin']);
     Route::post('/cambiarClave', [usuarioController::class, 'changePassword']);
     Route::post('/enviar-correo-reset', [usuarioController::class, 'enviarCorreoReseteoInicioSesion']);
+    Route::post('/forgot-password', [usuarioController::class, 'forgotPassword']);
 });
 
 Route::prefix('roles')->group(function () {
