@@ -392,7 +392,7 @@ class usuarioController extends Controller
             $passwordAleatorio = $this->generarTextoAleatorio(10);
 
             // Hashear la contraseña generada
-            $passwdHasheada = $passwordAleatorio;
+            $passwdHasheada = bcrypt($passwordAleatorio);
             
             //Ejecutar el procedimiento para cambiar la contraseña
             DB::statement('EXEC [usuarios].[sp_reiniciar_contrasenia] 
@@ -409,7 +409,7 @@ class usuarioController extends Controller
                 @password_string = :password_string', [
                 'correo_usuario' => $validated['correo_usuario'],
                 'accion' => 4,
-                'password_string' => $passwdHasheada
+                'password_string' => $passwordAleatorio
             ]);
             // Retornar respuesta exitosa
             return response()->json([
