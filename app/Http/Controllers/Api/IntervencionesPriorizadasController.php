@@ -276,20 +276,23 @@ class IntervencionesPriorizadasController extends Controller
                     throw new \Exception('Error al insertar la intervención priorizada.');
                 }
 
-                // Insertar las aldeas asociadas a la intervención priorizada
-                foreach ($intervencion['listado_aldeas'] as $aldea) {
-                    DB::statement('EXEC intervensiones_priorizadas.sp_insert_aldea_priorizada 
-                        @codigo_intervension_priorizada = :codigo_intervension_priorizada, 
-                        @cod_departamento = :cod_departamento, 
-                        @cod_municipio = :cod_municipio, 
-                        @cod_aldea = :cod_aldea, 
-                        @estado = 1', [
-                        'codigo_intervension_priorizada' => $codigoIntervencion,
-                        'cod_departamento' => $aldea['cod_departamento'],
-                        'cod_municipio' => $aldea['cod_municipio'],
-                        'cod_aldea' => $aldea['cod_aldea']
-                    ]);
+                // Insertar las aldeas asociadas a la intervención priorizada si existen
+                if (!empty($intervencion['listado_aldeas'])) {
+                    foreach ($intervencion['listado_aldeas'] as $aldea) {
+                        DB::statement('EXEC intervensiones_priorizadas.sp_insert_aldea_priorizada 
+                            @codigo_intervension_priorizada = :codigo_intervension_priorizada, 
+                            @cod_departamento = :cod_departamento, 
+                            @cod_municipio = :cod_municipio, 
+                            @cod_aldea = :cod_aldea, 
+                            @estado = 1', [
+                            'codigo_intervension_priorizada' => $codigoIntervencion,
+                            'cod_departamento' => $aldea['cod_departamento'],
+                            'cod_municipio' => $aldea['cod_municipio'],
+                            'cod_aldea' => $aldea['cod_aldea']
+                        ]);
+                    }
                 }
+
             }
 
             return response()->json([
