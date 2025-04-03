@@ -27,13 +27,13 @@ class StoreDatosComplementariosRequest extends FormRequest
             'codigo_poa' => 'required|integer|exists:poa_t_poas,codigo_poa',
             'NombreUnidad' => 'nullable|string|max:100',
             'ResponsableUnidad' => 'nullable|string|max:100',
-            'PresupuestoTotal' => 'nullable|numeric|min:0',
-            'InversionMujeres' => 'nullable|numeric|min:0',
-            'InversionFamilia' => 'nullable|numeric|min:0',
-            'InversionIgualdad' => 'nullable|numeric|min:0',
-            'CantidadTotalBeneficiarios' => 'nullable|integer|min:0',
+            'PresupuestoTotal' => 'nullable|numeric',
+            'InversionMujeres' => 'nullable|numeric',
+            'InversionFamilia' => 'nullable|numeric',
+            'InversionIgualdad' => 'nullable|numeric',
+            'CantidadTotalBeneficiarios' => 'nullable|integer',
     
-            'Listado_Beneficiarios_Programa' => 'required|array|min:1',
+            'Listado_Beneficiarios_Programa' => 'required|array',
             'Listado_Beneficiarios_Programa.*.GrupoEdadID' => [
                 'required',
                 'integer',
@@ -52,9 +52,9 @@ class StoreDatosComplementariosRequest extends FormRequest
                     }
                 },
             ],
-            'Listado_Beneficiarios_Programa.*.CantidadBeneficiarios' => 'required|integer|min:1',
+            'Listado_Beneficiarios_Programa.*.CantidadBeneficiarios' => 'required|integer',
     
-            'Listado_Beneficiarios_Pueblos' => 'required|array|min:1',
+            'Listado_Beneficiarios_Pueblos' => 'required|array',
             'Listado_Beneficiarios_Pueblos.*.PuebloID' => [
                 'required',
                 'integer',
@@ -64,7 +64,7 @@ class StoreDatosComplementariosRequest extends FormRequest
                     }
                 },
             ],
-            'Listado_Beneficiarios_Pueblos.*.CantidadPueblo' => 'required|integer|min:1',
+            'Listado_Beneficiarios_Pueblos.*.CantidadPueblo' => 'required|integer',
         ];
     }
     
