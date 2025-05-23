@@ -22,12 +22,12 @@ class ImpactoController extends Controller
                 ], 400); // Bad Request
             }
 
-    
+
             try {
                 $sql = "
-                    EXEC V2.sp_Insert_t_poa_t_poas_impactos 
-                        @codigo_poa = :codigo_poa, 
-                        @codigos_resultado_final = :codigos_resultado_final, 
+                    EXEC V2.sp_Insert_t_poa_t_poas_impactos
+                        @codigo_poa = :codigo_poa,
+                        @codigos_resultado_final = :codigos_resultado_final,
                         @codigos_indicador_resultado_final = :codigos_indicador_resultado_final;
                 ";
 
@@ -42,7 +42,7 @@ class ImpactoController extends Controller
                     'error' => $e->getMessage(),
                 ];
             }
-    
+
             // Si hubo errores, retornarlos
             if (!empty($errors)) {
                 return response()->json([
@@ -51,13 +51,13 @@ class ImpactoController extends Controller
                     'errors' => $errors,
                 ], 207); // 207 Multi-Status indica éxito parcial
             }
-    
+
             // Si todos fueron exitosos
             return response()->json([
                 'success' => true,
                 'message' => 'Todos los impactos fueron creados con éxito.',
             ], 201);
-    
+
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -77,7 +77,7 @@ class ImpactoController extends Controller
                     'message' => 'El codigo_poa proporcionado no existe.',
                 ], 400); // Bad Request
             }
-            $impactos = DB::select('EXEC sp_GetAll_t_poa_t_poas_impactos_by_poa @codigo_poa = ?', [$codigo_poa]);
+            $impactos = DB::statement('EXEC sp_GetAll_t_poa_t_poas_impactos_by_poa @codigo_poa = ?', [$codigo_poa]);
 
             if(empty($impactos)){
                 return response()->json([
@@ -93,12 +93,12 @@ class ImpactoController extends Controller
             ], 200);
 
         } catch (\Exception $e) {
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Error al obtener los impactos: ' . $e->getMessage(),
             ], 500);
         }
     }
-    
+
 }
