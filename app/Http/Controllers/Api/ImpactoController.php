@@ -77,7 +77,7 @@ class ImpactoController extends Controller
                     'message' => 'El codigo_poa proporcionado no existe.',
                 ], 400); // Bad Request
             }
-            $impactos = DB::statement('EXEC sp_GetAll_t_poa_t_poas_impactos_by_poa @codigo_poa = ?', [$codigo_poa]);
+            $impactos = DB::select('EXEC sp_GetAll_t_poa_t_poas_impactos_by_poa @codigo_poa = ?', [$codigo_poa]);
 
             if(empty($impactos)){
                 return response()->json([
