@@ -78,9 +78,9 @@ class usuarioController extends Controller
                 @password_hash = :password_hash,
                 @url_img_perfil = :url_img_perfil', [
                 'primer_nombre' => $validated['primer_nombre'],
-                'segundo_nombre' => $validated['segundo_nombre'],
+                'segundo_nombre' => $validated['segundo_nombre'] ?? null,
                 'primer_apellido' => $validated['primer_apellido'],
-                'segundo_apellido' => $validated['segundo_apellido'],
+                'segundo_apellido' => $validated['segundo_apellido'] ?? null,
                 'dni' => $validated['dni'],
                 'correo_electronico' => $validated['correo_electronico'],
                 'telefono' => $validated['telefono'],
