@@ -22,7 +22,7 @@ class StoreUsuarioRequest extends FormRequest
             'primer_nombre' => 'required|string|max:50',
             'segundo_nombre' => 'nullable|string|max:50',
             'primer_apellido' => 'required|string|max:50',
-            'segundo_apellido' => 'required|string|max:50',
+            'segundo_apellido' => 'nullable|string|max:50',
             'dni' => 'required|string|max:50|unique:config_t_usuarios,dni',
             'correo_electronico' => 'required|email|max:255|unique:config_t_usuarios,correo_electronico',
             'telefono' => 'required|string|max:50',
