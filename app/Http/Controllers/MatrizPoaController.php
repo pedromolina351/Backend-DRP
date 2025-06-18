@@ -133,55 +133,88 @@ class MatrizPoaController extends Controller
             }
         }
 
-        // validar primero el array de productos finales
-        if (!empty($productosFinalesArray['productos_finales'])) {
-            $prodRow = 31;
-            $contProd = 1;
-            foreach ($productosFinalesArray['productos_finales'] as $prod) {
-                $hoja1->setCellValue('I' . $prodRow, $contProd);
-                $contProd++;
-                $hoja1->setCellValue('J' . $prodRow, $prod['producto_final']);
-                $hoja1->setCellValue('K' . $prodRow, $prod['indicador_producto_final']);
-                $hoja1->setCellValue('M' . $prodRow, $prod['programa']);
-                $hoja1->setCellValue('N' . $prodRow, $prod['subprograma']);
-                $hoja1->setCellValue('O' . $prodRow, $prod['proyecto']);
-                $hoja1->setCellValue('P' . $prodRow, $prod['actividad']);
-                $hoja1->setCellValue('Q' . $prodRow, $prod['costo_total_aproximado']);
-                $hoja1->setCellValue('R' . $prodRow, $prod['nombre_obra']);
-                $prodRow += 1;
+
+
+
+
+        // **Sección de Productos Finales**
+        $prodRow = 31; // Empezamos a llenar desde la fila 31
+        $contProd = 1;
+        foreach ($productosFinalesArray['productos_finales'] ?? [] as $prod) {
+            // Producto final
+            $hoja1->setCellValue('I' . $prodRow, $contProd);
+            $contProd++;
+            $hoja1->setCellValue('J' . $prodRow, $prod['producto_final']);
+            $hoja1->setCellValue('K' . $prodRow, $prod['indicador_producto_final']);
+            $hoja1->setCellValue('M' . $prodRow, $prod['programa']);
+            $hoja1->setCellValue('N' . $prodRow, $prod['subprograma']);
+            $hoja1->setCellValue('O' . $prodRow, $prod['proyecto']);
+            $hoja1->setCellValue('P' . $prodRow, $prod['actividad']);
+            $hoja1->setCellValue('Q' . $prodRow, $prod['costo_total_aproximado']);
+            $hoja1->setCellValue('R' . $prodRow, $prod['nombre_obra']);
+
+            // **Productos Intermedios asociados a este Producto Final**
+            $prodInterRow = $prodRow;
+            $contProdInter = 1;
+
+            // Iterar los productos intermedios para contar cuántos tiene el producto final
+            foreach ($productosIntermediosArray['productos_intermedios'] ?? [] as $prodInter) {
+                if ($prodInter['codigo_producto_final'] == $prod['codigo_producto_final']) {
+                    // Producto intermedio
+                    $hoja1->setCellValue('T' . $prodInterRow, $prodInter['producto_intermedio']);
+                    $hoja1->setCellValue('U' . $prodInterRow, $prodInter['indicador_producto_intermedio']);
+                    $hoja1->setCellValue('V' . $prodInterRow, 'x');
+                    $hoja1->setCellValue('W' . $prodInterRow, $prodInter['programa']);
+                    $hoja1->setCellValue('X' . $prodInterRow, $prodInter['subprograma']);
+                    $hoja1->setCellValue('Y' . $prodInterRow, $prodInter['proyecto']);
+                    $hoja1->setCellValue('Z' . $prodInterRow, $prodInter['actividad']);
+                    $hoja1->setCellValue('AA' . $prodInterRow, $prodInter['fuente_financiamiento']);
+                    $hoja1->setCellValue('AB' . $prodInterRow, $prodInter['ente_de_financiamiento']);
+                    $hoja1->setCellValue('AC' . $prodInterRow, $prodInter['costro_aproximado']);
+
+                    // **Actividades de Insumos asociadas a este Producto Intermedio**
+                    $actInsumoRow = $prodInterRow;
+                    $contInsumo = 1;
+
+                    // Verificamos si tiene actividades asociadas
+                    $hasActivities = false;
+                    foreach ($actividadInsumoArray['actividades_insumos']['ActividadesInsumos'] ?? [] as $actInsumo) {
+                        if ($actInsumo['CodigoProductoIntermedio'] == $prodInter['codigo_producto_intermedio']) {
+                            $hasActivities = true;
+                            break;
+                        }
+                    }
+
+                    if ($hasActivities) {
+                        // Iterar las actividades de insumos asociadas
+                        foreach ($actividadInsumoArray['actividades_insumos']['ActividadesInsumos'] ?? [] as $actInsumo) {
+                            if ($actInsumo['CodigoProductoIntermedio'] == $prodInter['codigo_producto_intermedio']) {
+                                $hoja1->setCellValue('AD' . $actInsumoRow, $contInsumo);
+                                $hoja1->setCellValue('AE' . $actInsumoRow, $actInsumo['Actividad']);
+                                $hoja1->setCellValue('AF' . $actInsumoRow, $actInsumo['InsumoPACC']);
+                                $hoja1->setCellValue('AG' . $actInsumoRow, $actInsumo['InsumoNoPACC']);
+                                $actInsumoRow++;
+                                $contInsumo++;
+                            }
+                        }
+                    } else {
+                        // Si no tiene actividades, dejamos el espacio vacío pero no incrementamos la fila de productos intermedios
+                        // Solo incrementamos el contador de productos intermedios sin escribir actividades
+                    }
+
+                    // Incrementamos la fila del producto intermedio
+                    $prodInterRow++;
+                }
             }
+            
+
+            // Ahora que tenemos los productos intermedios, se incrementa la fila para el siguiente producto final
+            $prodRow = $prodInterRow; // Sumamos las filas de los productos intermedios
         }
 
-        // validar primero el array de productos intermedios
-        if (!empty($productosIntermediosArray['productos_intermedios'])) {
-            $prodInterRow = 31;
-            foreach ($productosIntermediosArray['productos_intermedios'] as $prodInter) {
-                $hoja1->setCellValue('T' . $prodInterRow, $prodInter['producto_intermedio']);
-                $hoja1->setCellValue('U' . $prodInterRow, $prodInter['indicador_producto_intermedio']);
-                $hoja1->setCellValue('W' . $prodInterRow, $prodInter['programa']);
-                $hoja1->setCellValue('X' . $prodInterRow, $prodInter['subprograma']);
-                $hoja1->setCellValue('Y' . $prodInterRow, $prodInter['proyecto']);
-                $hoja1->setCellValue('Z' . $prodInterRow, $prodInter['actividad']);
-                $hoja1->setCellValue('AA' . $prodInterRow, $prodInter['fuente_financiamiento']);
-                $hoja1->setCellValue('AB' . $prodInterRow, $prodInter['ente_de_financiamiento']);
-                $hoja1->setCellValue('AC' . $prodInterRow, $prodInter['costro_aproximado']);
-                $prodInterRow += 1;
-            }
-        }
 
-        // validar primero el array de actividades e insumos
-        if (!empty($actividadInsumoArray['actividades_insumos'])) {
-            $actInsumoRow = 31;
-            $contInsumo = 1;
-            foreach ($actividadInsumoArray['actividades_insumos']['ActividadesInsumos'] as $actividad) {
-                $hoja1->setCellValue('AD' . $actInsumoRow, $contInsumo);
-                $contInsumo++;
-                $hoja1->setCellValue('AE' . $actInsumoRow, $actividad['Actividad']);
-                $hoja1->setCellValue('AF' . $actInsumoRow, $actividad['InsumoPACC']);
-                $hoja1->setCellValue('AG' . $actInsumoRow, $actividad['InsumoNoPACC']);
-                $actInsumoRow += 1;
-            }
-        }
+
+
 
         // Guardar el archivo temporalmente
         $fileName = 'archivo_excel.xlsx';
@@ -195,5 +228,13 @@ class MatrizPoaController extends Controller
         $writer->save($tempPath);
 
         return response()->download($tempPath)->deleteFileAfterSend(true);
+        // return response(
+        //     [
+        //         'message' => 'Archivo generado exitosamente',
+        //         'productos finales' => $productosFinalesArray['productos_finales'] ?? [],
+        //         'productos intermedios' => $productosIntermediosArray['productos_intermedios'] ?? [],
+        //         'actividades insumos' => $actividadInsumoArray['actividades_insumos'] ?? [],
+        //     ]
+        // );
     }
 }
