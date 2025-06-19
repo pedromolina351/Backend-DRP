@@ -77,19 +77,22 @@ class ImpactoController extends Controller
                     'message' => 'El codigo_poa proporcionado no existe.',
                 ], 400); // Bad Request
             }
-            $impactos = DB::select('EXEC sp_GetAll_t_poa_t_poas_impactos_by_poa @codigo_poa = ?', [$codigo_poa]);
+            $impactos = DB::select('EXEC [dbo].[sp_GetAll_t_poa_t_poas_impactos_by_poa] @codigo_poa = ?', [$codigo_poa]);
 
             if(empty($impactos)){
                 return response()->json([
-                    'success' => true,
+                    'success' => false,
                     'message' => 'No se encontraron impactos para el POA proporcionado.',
+                    'impactos' => $impactos,
                 ], 404); // Not Found
             }
 
             return response()->json([
                 'success' => true,
                 'message' => 'Impactos obtenidos con éxito.',
-                'impactos' => $impactos,
+                'impactos' => array_map(function($impacto) {
+                    return (array) $impacto; // Convertir a array
+                }, $impactos)
             ], 200);
 
         } catch (\Exception $e) {
