@@ -133,87 +133,102 @@ class MatrizPoaController extends Controller
             }
         }
 
-
-
-
-
-        // **Sección de Productos Finales**
-        $prodRow = 31; // Empezamos a llenar desde la fila 31
+        $prodRow = 31; // Fila inicial
         $contProd = 1;
+
+
+        $colsFinal = ['I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R'];
+        $colsIntermedio = ['T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'AA', 'AB', 'AC'];
+
         foreach ($productosFinalesArray['productos_finales'] ?? [] as $prod) {
-            // Producto final
-            $hoja1->setCellValue('I' . $prodRow, $contProd);
+            // --- 1. Calcula cuántas filas necesitas para este producto final
+            $prodIntermedios = array_values(array_filter($productosIntermediosArray['productos_intermedios'], function ($prodInter) use ($prod) {
+                return $prodInter['codigo_producto_final'] == $prod['codigo_producto_final'];
+            }));
+            $numFilasFinal = 0;
+            $actividadesPorInter = [];
+            foreach ($prodIntermedios as $prodInter) {
+                $actividades = array_values(array_filter(
+                    $actividadInsumoArray['actividades_insumos']['ActividadesInsumos'],
+                    function ($act) use ($prodInter) {
+                        return $act['CodigoProductoIntermedio'] == $prodInter['codigo_producto_intermedio'];
+                    }
+                ));
+                $cantActs = max(count($actividades), 1); // si no tiene actividades, cuenta como 1
+                $actividadesPorInter[] = ['prodInter' => $prodInter, 'actividades' => $actividades, 'count' => $cantActs];
+                $numFilasFinal += $cantActs;
+            }
+            if ($numFilasFinal === 0) $numFilasFinal = 1; // por si no tiene intermedios
+
+            // --- 2. Merge vertical de columnas de producto final
+            $inicioFilaFinal = $prodRow;
+            $finFilaFinal = $prodRow + $numFilasFinal - 1;
+            foreach ($colsFinal as $col) {
+                $hoja1->mergeCells($col . $inicioFilaFinal . ':' . $col . $finFilaFinal);
+            }
+
+            // --- 3. Imprimir solo una vez los datos del producto final (en la primera fila del bloque)
+            $hoja1->setCellValue('I' . $inicioFilaFinal, $contProd);
+            $hoja1->setCellValue('J' . $inicioFilaFinal, $prod['producto_final']);
+            $hoja1->setCellValue('K' . $inicioFilaFinal, $prod['indicador_producto_final']);
+            $hoja1->setCellValue('L' . $inicioFilaFinal, '');
+            $hoja1->setCellValue('M' . $inicioFilaFinal, $prod['programa']);
+            $hoja1->setCellValue('N' . $inicioFilaFinal, $prod['subprograma']);
+            $hoja1->setCellValue('O' . $inicioFilaFinal, $prod['proyecto']);
+            $hoja1->setCellValue('P' . $inicioFilaFinal, $prod['actividad']);
+            $hoja1->setCellValue('Q' . $inicioFilaFinal, $prod['costo_total_aproximado']);
+            $hoja1->setCellValue('R' . $inicioFilaFinal, $prod['nombre_obra']);
             $contProd++;
-            $hoja1->setCellValue('J' . $prodRow, $prod['producto_final']);
-            $hoja1->setCellValue('K' . $prodRow, $prod['indicador_producto_final']);
-            $hoja1->setCellValue('M' . $prodRow, $prod['programa']);
-            $hoja1->setCellValue('N' . $prodRow, $prod['subprograma']);
-            $hoja1->setCellValue('O' . $prodRow, $prod['proyecto']);
-            $hoja1->setCellValue('P' . $prodRow, $prod['actividad']);
-            $hoja1->setCellValue('Q' . $prodRow, $prod['costo_total_aproximado']);
-            $hoja1->setCellValue('R' . $prodRow, $prod['nombre_obra']);
 
-            // **Productos Intermedios asociados a este Producto Final**
+            // --- 4. Para cada producto intermedio, merge y datos
             $prodInterRow = $prodRow;
-            $contProdInter = 1;
+            foreach ($actividadesPorInter as $item) {
+                $prodInter = $item['prodInter'];
+                $actividades = $item['actividades'];
+                $cantActs = $item['count'];
+                $inicioFilaInter = $prodInterRow;
+                $finFilaInter = $prodInterRow + $cantActs - 1;
 
-            // Iterar los productos intermedios para contar cuántos tiene el producto final
-            foreach ($productosIntermediosArray['productos_intermedios'] ?? [] as $prodInter) {
-                if ($prodInter['codigo_producto_final'] == $prod['codigo_producto_final']) {
-                    // Producto intermedio
-                    $hoja1->setCellValue('T' . $prodInterRow, $prodInter['producto_intermedio']);
-                    $hoja1->setCellValue('U' . $prodInterRow, $prodInter['indicador_producto_intermedio']);
-                    $hoja1->setCellValue('V' . $prodInterRow, 'x');
-                    $hoja1->setCellValue('W' . $prodInterRow, $prodInter['programa']);
-                    $hoja1->setCellValue('X' . $prodInterRow, $prodInter['subprograma']);
-                    $hoja1->setCellValue('Y' . $prodInterRow, $prodInter['proyecto']);
-                    $hoja1->setCellValue('Z' . $prodInterRow, $prodInter['actividad']);
-                    $hoja1->setCellValue('AA' . $prodInterRow, $prodInter['fuente_financiamiento']);
-                    $hoja1->setCellValue('AB' . $prodInterRow, $prodInter['ente_de_financiamiento']);
-                    $hoja1->setCellValue('AC' . $prodInterRow, $prodInter['costro_aproximado']);
+                // Merge columnas del producto intermedio
+                foreach ($colsIntermedio as $col) {
+                    $hoja1->mergeCells($col . $inicioFilaInter . ':' . $col . $finFilaInter);
+                }
 
-                    // **Actividades de Insumos asociadas a este Producto Intermedio**
-                    $actInsumoRow = $prodInterRow;
-                    $contInsumo = 1;
+                // Imprime datos del producto intermedio (en la primera fila de su bloque)
+                $hoja1->setCellValue('T' . $inicioFilaInter, $prodInter['producto_intermedio']);
+                $hoja1->setCellValue('U' . $inicioFilaInter, $prodInter['indicador_producto_intermedio']);
+                $hoja1->setCellValue('V' . $inicioFilaInter, '');
+                $hoja1->setCellValue('W' . $inicioFilaInter, $prodInter['programa']);
+                $hoja1->setCellValue('X' . $inicioFilaInter, $prodInter['subprograma']);
+                $hoja1->setCellValue('Y' . $inicioFilaInter, $prodInter['proyecto']);
+                $hoja1->setCellValue('Z' . $inicioFilaInter, $prodInter['actividad']);
+                $hoja1->setCellValue('AA' . $inicioFilaInter, $prodInter['fuente_financiamiento']);
+                $hoja1->setCellValue('AB' . $inicioFilaInter, $prodInter['ente_de_financiamiento']);
+                $hoja1->setCellValue('AC' . $inicioFilaInter, $prodInter['costro_aproximado']);
 
-                    // Verificamos si tiene actividades asociadas
-                    $hasActivities = false;
-                    foreach ($actividadInsumoArray['actividades_insumos']['ActividadesInsumos'] ?? [] as $actInsumo) {
-                        if ($actInsumo['CodigoProductoIntermedio'] == $prodInter['codigo_producto_intermedio']) {
-                            $hasActivities = true;
-                            break;
-                        }
-                    }
+                // --- 5. Imprime cada actividad en su fila
+                if (count($actividades) == 0) {
 
-                    if ($hasActivities) {
-                        // Iterar las actividades de insumos asociadas
-                        foreach ($actividadInsumoArray['actividades_insumos']['ActividadesInsumos'] ?? [] as $actInsumo) {
-                            if ($actInsumo['CodigoProductoIntermedio'] == $prodInter['codigo_producto_intermedio']) {
-                                $hoja1->setCellValue('AD' . $actInsumoRow, $contInsumo);
-                                $hoja1->setCellValue('AE' . $actInsumoRow, $actInsumo['Actividad']);
-                                $hoja1->setCellValue('AF' . $actInsumoRow, $actInsumo['InsumoPACC']);
-                                $hoja1->setCellValue('AG' . $actInsumoRow, $actInsumo['InsumoNoPACC']);
-                                $actInsumoRow++;
-                                $contInsumo++;
-                            }
-                        }
-                    } else {
-                        // Si no tiene actividades, dejamos el espacio vacío pero no incrementamos la fila de productos intermedios
-                        // Solo incrementamos el contador de productos intermedios sin escribir actividades
-                    }
-
-                    // Incrementamos la fila del producto intermedio
                     $prodInterRow++;
+                } else {
+                    foreach ($actividades as $i => $actInsumo) {
+                        $filaActual = $inicioFilaInter + $i;
+                        $hoja1->setCellValue('AD' . $filaActual, $i+1);
+                        $hoja1->setCellValue('AE' . $filaActual, $actInsumo['Actividad']);
+                        $hoja1->setCellValue('AF' . $filaActual, $actInsumo['InsumoPACC']);
+                        $hoja1->setCellValue('AG' . $filaActual, $actInsumo['InsumoNoPACC']);
+                    }
+                    $prodInterRow += $cantActs;
                 }
             }
-            
 
-            // Ahora que tenemos los productos intermedios, se incrementa la fila para el siguiente producto final
-            $prodRow = $prodInterRow; // Sumamos las filas de los productos intermedios
+            // Si un producto final no tiene productos intermedios, igual deja la fila (puedes personalizar esto)
+            if (count($actividadesPorInter) == 0) {
+                $prodRow++;
+            } else {
+                $prodRow += $numFilasFinal;
+            }
         }
-
-
-
 
 
         // Guardar el archivo temporalmente
