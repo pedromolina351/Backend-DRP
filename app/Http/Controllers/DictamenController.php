@@ -24,6 +24,12 @@ class DictamenController extends Controller
 
             $jsonField = $datosPoa[0]->poa ?? null;
             $data = $jsonField ? json_decode($jsonField, true) : [];
+
+            // Si es un array asociativo, lo envolvemos en un array indexado
+            if (!empty($data) && array_keys($data) !== range(0, count($data) - 1)) {
+                $data = [$data];
+            }
+
             return $data;
         } catch (\Exception $e) {
             return response()->json([
@@ -32,6 +38,7 @@ class DictamenController extends Controller
             ], 500);
         }
     }
+
     public function generateDictamen($codigo_poa)
     {
         $data = $this->obtenerDatosPoa($codigo_poa);
